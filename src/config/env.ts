@@ -3,6 +3,11 @@ import fs from 'fs';
 
 export const APP_ENV = process.env.APP_ENV || 'development';
 
+dotenv.config({
+  path: `${__dirname}/../../.env.${APP_ENV}`,
+  override: true,
+});
+
 let configPath = `@/.env`;
 try {
   fs.readFileSync(configPath);
@@ -14,3 +19,14 @@ dotenv.config({ override: true, path: configPath });
 export const APP_HOST = process.env.APP_HOST || "localhost";
 export const APP_PORT = process.env.APP_PORT || "3000";
 export const APP_API_PREFIX = process.env.APP_API_PREFIX || "/api";
+
+export const DB_CONFIG = {
+  db_user: process.env["DB_USER"] || "root",
+  db_password: process.env["DB_PASSWORD"] || "root",
+  db_name: process.env["DB_NAME"] || "db_local",
+  config: {
+    host: process.env["DB_HOST"] || "localhost",
+    port: process.env["DB_PORT"] || "5432",
+    dialect: process.env["DB_DIALECT"] || "postgres",
+  },
+};
