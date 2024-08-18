@@ -11,4 +11,4 @@ const start = (): Application => {
 }
 
 export const server = http.createServer(start());
-export const terminator = createHttpTerminator({ server });
+export const httpTerminator = createHttpTerminator({ server });

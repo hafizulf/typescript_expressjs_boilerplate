@@ -6,7 +6,7 @@ import { AppError } from "@/exceptions/app-error";
 import { logger } from "@/libs/logger";
 import { APP_API_PREFIX } from "@/config/env";
 import { Routes } from "@/routes/routes";
-import fs from "fs";
+import { errorHandler } from "@/exceptions/error-handler";
 
 export class Bootstrap {
   public app: Application;
@@ -50,6 +50,41 @@ export class Bootstrap {
     this.app.use(requestLogger);
   }
 
+  private middlewareError(): void {
+    const errorLogger = (
+      error: AppError,
+      _req: Request,
+      _res: Response,
+      next: NextFunction
+    ) => {
+      logger.error(error.error);
+      next(error);
+    };
+
+    const errorResponder = (
+      error: AppError,
+      _req: Request,
+      res: Response,
+      _next: NextFunction
+    ) => {
+      errorHandler.handleError(error, res);
+    };
+
+    const invalidPathHandler = (
+      _req: Request,
+      response: Response,
+    ) => {
+      response.status(400);
+      response.json({
+        message: "invalid path",
+      });
+    };
+
+    this.app.use(errorLogger);
+    this.app.use(errorResponder);
+    this.app.use(invalidPathHandler);
+  }
+
   private setRoutes(): void {
     const router = express.Router();
 
@@ -62,31 +97,5 @@ export class Bootstrap {
       });
     });
     this.app.use("/storage", express.static(path.join(process.cwd(), "./storage")));
-    this.app.get("*", (_, res) => {
-      try {
-        fs.readFileSync(
-          path.join(__dirname, "../../public/404.html")
-        );
-        return res.sendFile(
-          path.join(__dirname, "../../public/404.html")
-        );
-      } catch (e) {
-        return res.status(404).send("NOT FOUND");
-      }
-    });
-  }
-
-  private middlewareError(): void {
-    const errorLogger = (
-      error: AppError,
-      _req: Request,
-      _res: Response,
-      next: NextFunction
-    ) => {
-      logger.error(error.error);
-      next(error);
-    };
-
-    this.app.use(errorLogger);
   }
 }

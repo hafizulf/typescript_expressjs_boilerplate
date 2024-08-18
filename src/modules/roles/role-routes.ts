@@ -7,13 +7,13 @@ import { RoleController } from "./role-controller";
 @injectable()
 export class RoleRoutes {
   public routes = "/roles";
-  RoleController = container.get<RoleController>(RoleController);
+  controller = container.get<RoleController>(RoleController);
 
   public setRoutes(router: Router) {
     router.get(
       this.routes,
       asyncWrap(
-        this.RoleController.findAll.bind(this.RoleController)
+        this.controller.findAll.bind(this.controller)
       )
     )
   }
