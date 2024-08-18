@@ -6,7 +6,7 @@ import { AppError } from "@/exceptions/app-error";
 import { logger } from "@/libs/logger";
 import { APP_API_PREFIX } from "@/config/env";
 import { Routes } from "@/routes/routes";
-// import fs from "fs";
+import fs from "fs";
 
 export class Bootstrap {
   public app: Application;
@@ -54,14 +54,26 @@ export class Bootstrap {
     const router = express.Router();
 
     this.app.use(APP_API_PREFIX, router);
+    this.appRoutes.setRoutes(router); // set routes
     router.get("/health-check", (_req: Request, res: Response): Response => {
       return res.status(200).json({
         status: "ok",
         message: "Server is up and running",
       });
     });
-    this.appRoutes.setRoutes(router); // set routes
     this.app.use("/storage", express.static(path.join(process.cwd(), "./storage")));
+    this.app.get("*", (_, res) => {
+      try {
+        fs.readFileSync(
+          path.join(__dirname, "../../public/404.html")
+        );
+        return res.sendFile(
+          path.join(__dirname, "../../public/404.html")
+        );
+      } catch (e) {
+        return res.status(404).send("NOT FOUND");
+      }
+    });
   }
 
   private middlewareError(): void {
