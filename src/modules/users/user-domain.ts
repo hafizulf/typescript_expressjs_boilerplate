@@ -1,4 +1,4 @@
-import { IMulterFile } from "@/modules/common/interface-multer";
+import { IMulterFile } from "@/modules/common/interfaces/multer-interface";
 import { IRole } from "@/modules/roles/role-domain";
 
 export interface IUser {

@@ -4,6 +4,7 @@ import { RoleService } from "./role-service";
 import { Request, Response } from "express";
 import { paginatedSchema } from "./role-validation";
 import { AppError, HttpCode } from "@/exceptions/app-error";
+import { StandardResponse } from "@/libs/standard-response";
 
 @injectable()
 export class RoleController {
@@ -13,7 +14,7 @@ export class RoleController {
 
   }
   public async findAll(
-    req: Request, 
+    req: Request,
     res: Response
   ): Promise<Response> {
     const validatedReq = paginatedSchema.safeParse(req.query);
@@ -25,9 +26,11 @@ export class RoleController {
       })
     }
 
-    const roles = await this._service.findAll();
-    return res.status(200).json({
+    const [roles, pagination] = await this._service.findAll(validatedReq.data);
+    return StandardResponse.create(res).setResponse({
+      message: "Roles fetched successfully",
+      status: HttpCode.OK,
       data: roles,
-    });
+    }).withPagination(pagination?.omitProperties("offset")).send();
   }
 }

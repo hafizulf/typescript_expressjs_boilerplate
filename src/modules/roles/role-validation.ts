@@ -19,7 +19,7 @@ export const paginatedSchema = z.object({
       .refine(value => ['ASC', 'DESC'].includes(value), "Sort must be ASC or DESC")
   ),
   orderBy: z.optional(
-    z.any()
-      .transform(value => typeof value === "string" ? value : undefined)
+    z.string()
+      .refine(value => ['name', 'createdAt'].includes(value), "Order by must be name or createdAt")
   )
 })

@@ -1,5 +1,11 @@
-import { IRole } from "./role-domain";
+import { TStandardPaginateOption } from "../common/dto/pagination-dto";
+import { Pagination } from "@/modules/common/pagination";
+import { Role } from "./role-domain";
 
 export interface IRoleRepository {
-  findAll(): Promise<IRole[]>;
+  findAll(): Promise<Role[]>;
+  findAllWithPagination(
+    paginateOption: TStandardPaginateOption,
+    pagination: Pagination
+  ): Promise<[Role[], Pagination]>;
 }
