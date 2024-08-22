@@ -5,7 +5,7 @@ import TYPES from "./types";
 // Import Bootstrap / kernel
 import { IServer, Server } from "@/presentation/server";
 // Import Routes
-import { Routes } from "@/routes/routes";
+import { Routes } from "@/presentation/routes";
 import { UserRoutes } from "@/modules/users/user-routes";
 import { RoleRoutes } from "@/modules/roles/role-routes";
 // Import Controllers

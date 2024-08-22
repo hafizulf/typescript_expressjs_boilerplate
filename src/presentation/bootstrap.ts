@@ -5,7 +5,7 @@ import path from "path";
 import { AppError } from "@/exceptions/app-error";
 import { logger } from "@/libs/logger";
 import { APP_API_PREFIX } from "@/config/env";
-import { Routes } from "@/routes/routes";
+import { Routes } from "@/presentation/routes";
 import { errorHandler } from "@/exceptions/error-handler";
 
 export class Bootstrap {

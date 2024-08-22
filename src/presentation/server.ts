@@ -3,7 +3,7 @@ import { injectable } from "inversify";
 import { Bootstrap } from "@/presentation/bootstrap";
 import { APP_HOST, APP_PORT } from "@/config/env";
 import container from "@/container";
-import { Routes } from "@/routes/routes";
+import { Routes } from "@/presentation/routes";
 
 export interface IServer {
   start(): Application;
