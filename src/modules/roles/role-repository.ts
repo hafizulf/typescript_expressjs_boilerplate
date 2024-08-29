@@ -6,7 +6,6 @@ import { TStandardPaginateOption } from "../common/dto/pagination-dto";
 import { Pagination } from "../common/pagination";
 import { Op } from "sequelize";
 import { AppError, HttpCode } from "@/exceptions/app-error";
-import { updateRoleParams } from "./role-dto";
 
 @injectable()
 export class RoleRepository implements IRoleRepository {
@@ -59,7 +58,7 @@ export class RoleRepository implements IRoleRepository {
     return RoleDomain.create(isExistRole.toJSON());
   }
 
-  async update(id: string, params: updateRoleParams): Promise<RoleDomain> {
+  async update(id: string, props: IRole): Promise<RoleDomain> {
     const isExistRole = await RolePersistence.findByPk(id);
     if(!isExistRole) {
       throw new AppError({
@@ -68,7 +67,7 @@ export class RoleRepository implements IRoleRepository {
       })
     }
 
-    const updatedRole = await isExistRole.update(params);
+    const updatedRole = await isExistRole.update(props);
     return RoleDomain.create(updatedRole.toJSON());
   }
 

@@ -44,11 +44,10 @@ export const findOneRoleSchema = z.object({
 })
 
 export const updateRoleSchema = findOneRoleSchema.extend({
-  name: z.optional(
-      z.string()
-      .min(3, "Name must be at least 3 characters")
-      .max(255, "Name must be at most 255 characters")
-    ),
+  name:
+    z.string()
+    .min(3, "Name must be at least 3 characters")
+    .max(255, "Name must be at most 255 characters"),
 })
 
 export const deleteRoleSchema = findOneRoleSchema;
