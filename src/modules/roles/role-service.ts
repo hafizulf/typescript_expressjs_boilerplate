@@ -4,6 +4,7 @@ import { IRoleRepository } from "./role-repository-interface";
 import { IRole } from "./role-domain";
 import { TStandardPaginateOption } from "@/modules/common/dto/pagination-dto";
 import { Pagination } from "@/modules/common/pagination";
+import { updateRoleParams } from "./role-dto";
 
 @injectable()
 export class RoleService {
@@ -27,5 +28,21 @@ export class RoleService {
     }
 
     return [(await this._repository.findAll()).map((el) => el.unmarshal())];
+  }
+
+  public async store(props: IRole): Promise<IRole> {
+    return (await this._repository.store(props)).unmarshal();
+  }
+
+  public async findById(id: string): Promise<IRole> {
+    return (await this._repository.findById(id)).unmarshal();
+  }
+
+  public async update(id: string, params: updateRoleParams): Promise<IRole> {
+    return (await this._repository.update(id, params)).unmarshal();
+  }
+
+  public async delete(id: string): Promise<boolean> {
+    return (await this._repository.delete(id));
   }
 }
