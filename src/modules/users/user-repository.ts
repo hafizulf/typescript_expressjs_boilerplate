@@ -40,6 +40,9 @@ export class UserRepository implements IUserRepository {
       : {};
 
     const { rows, count } = await UserPersistence.findAndCountAll({
+      attributes: {
+        exclude: ["password"],
+      },
       include: [
         {
           model: RolePersistence,
