@@ -6,9 +6,11 @@ const TYPES = {
 
   // Service
   RoleService: Symbol.for("RoleService"),
+  UserService: Symbol.for("UserService"),
 
   // Repository Interface
   IRoleRepository: Symbol.for("IRoleRepository"),
+  IUserRepository: Symbol.for("IUserRepository"),
 }
 
 export default TYPES;

@@ -1,17 +1,20 @@
-import { Router } from "express";
 import { injectable } from "inversify";
+import container from "@/container";
+import { Router } from "express";
+import asyncWrap from "@/modules/common/asyncWrapper";
+import { UserController } from "./user-controller";
 
 @injectable()
 export class UserRoutes {
   public routes = "/users";
-  // controller
+  controller = container.get<UserController>(UserController);
 
   public setRoutes(router: Router) {
     router.get(
       this.routes,
-      (_req, res) => {
-        return res.send("Hello User Routes!");
-      }
+      asyncWrap(
+        this.controller.findAll.bind(this.controller)
+      )
     )
   }
 }
