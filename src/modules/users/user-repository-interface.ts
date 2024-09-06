@@ -4,4 +4,5 @@ import { ICreateUserProps } from "./user-dto";
 
 export interface IUserRepository extends BaseRepository<UserDomain, IUser> {
   store(props: ICreateUserProps): Promise<UserDomain>;
+  update(id: string, props: Omit<IUser, "password">): Promise<UserDomain>;
 }

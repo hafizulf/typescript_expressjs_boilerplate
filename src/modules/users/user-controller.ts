@@ -3,7 +3,7 @@ import { StandardResponse } from "@/libs/standard-response";
 import { inject, injectable } from "inversify";
 import TYPES from "@/types";
 import { Request, Response } from "express";
-import { creatUserSchema, paginatedUsersSchema } from "./user-validation";
+import { createUserSchema, deleteUserSchema, findByIdUserSchema, paginatedUsersSchema, updateUserSchema } from "./user-validation";
 import { UserService } from "./user-service";
 
 @injectable()
@@ -31,7 +31,7 @@ export class UserController {
   }
 
   public async store(req: Request, res: Response): Promise<Response> {
-    const validatedReq = creatUserSchema.safeParse({
+    const validatedReq = createUserSchema.safeParse({
       ...req.body,
       avatarPath: req.file
     });
@@ -54,6 +54,70 @@ export class UserController {
       message: "User created successfully",
       status: HttpCode.RESOURCE_CREATED,
       data: user,
+    }).send();
+  }
+
+  async findById(req: Request, res: Response): Promise<Response> {
+    const validatedReq = findByIdUserSchema.safeParse(req.params);
+    if(!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: "Validation error",
+        data: validatedReq.error.flatten().fieldErrors,
+      })
+    }
+
+    const data = await this._service.findById(validatedReq.data.id);
+
+    return StandardResponse.create(res).setResponse({
+      message: "User fetched successfully",
+      status: HttpCode.OK,
+      data,
+    }).send();
+  }
+
+  async update(req: Request, res: Response): Promise<Response> {
+    const validatedReq = updateUserSchema.safeParse({
+      ...req.params,
+      ...req.body,
+      avatarPath: req.file
+    });
+
+    if(!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: "Request validation error",
+        data: validatedReq.error.flatten().fieldErrors,
+      });
+    }
+
+    const result = await this._service.update({
+      updatedBy: "superadmin",
+      ...validatedReq.data
+    });
+
+    return StandardResponse.create(res).setResponse({
+      message: "User updated successfully",
+      status: HttpCode.OK,
+      data: result
+    }).send();
+  }
+
+  public async delete(req: Request, res: Response): Promise<Response> {
+    const validatedReq = deleteUserSchema.safeParse(req.params);
+    if(!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: "Request validation error",
+        data: validatedReq.error.flatten().fieldErrors,
+      });
+    }
+
+    await this._service.destroy(validatedReq.data.id);
+
+    return StandardResponse.create(res).setResponse({
+      message: "User deleted successfully",
+      status: HttpCode.OK,
     }).send();
   }
 }

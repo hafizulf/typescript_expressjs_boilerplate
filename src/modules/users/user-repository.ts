@@ -95,14 +95,68 @@ export class UserRepository implements IUserRepository {
       });
     }
   }
-  findById(id: string): Promise<UserDomain> {
-    throw new Error("Method not implemented.", { cause: id });
+  async findById(id: string): Promise<UserDomain> {
+    const isExistUser = await UserPersistence.findByPk(id);
+    if(!isExistUser) {
+      throw new AppError({
+        statusCode: HttpCode.NOT_FOUND,
+        description: "User not found",
+      })
+    }
+
+    return UserDomain.create(isExistUser.toJSON());
   }
-  update(id: string, props: IUser): Promise<UserDomain> {
-    throw new Error("Method not implemented.", { cause: {id, props} });
+  async update(id: string, props: Omit<IUser, "password">): Promise<UserDomain> {
+    const user = await UserPersistence.findByPk(id);
+    if(!user) {
+      throw new AppError({
+        statusCode: HttpCode.NOT_FOUND,
+        description: "User not found",
+      })
+    }
+
+    // check wether email already used by other user
+    const isExistEmail = await UserPersistence.findOne({
+      where: {
+        email: props.email
+      }
+    })
+    if(isExistEmail && isExistEmail.id !== id) {
+      throw new AppError({
+        statusCode: HttpCode.CONFLICT,
+        description: "Email already exists",
+      })
+    }
+
+    // Update User
+    const updateProps = {
+      fullName: props.fullName,
+      email: props.email,
+      avatarPath: typeof props.avatarPath === "string" ? props.avatarPath : undefined,
+      roleId: props.roleId,
+      updatedBy: props.updatedBy,
+    };
+
+    await user.update(updateProps, {
+      where: {
+        id
+      }
+    })
+    await user.reload(); // reload to get updated data
+    return UserDomain.create(user.toJSON());
   }
-  delete(id: string): Promise<boolean> {
-    throw new Error("Method not implemented.", { cause: id });
+
+  async delete(id: string): Promise<boolean> {
+    const isExistUser = await UserPersistence.findByPk(id);
+    if(!isExistUser) {
+      throw new AppError({
+        statusCode: HttpCode.NOT_FOUND,
+        description: "User not found",
+      })
+    }
+
+    await isExistUser.destroy();
+    return true;
   }
 
 }
