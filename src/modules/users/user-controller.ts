@@ -3,7 +3,7 @@ import { StandardResponse } from "@/libs/standard-response";
 import { inject, injectable } from "inversify";
 import TYPES from "@/types";
 import { Request, Response } from "express";
-import { paginatedUsersSchema } from "./user-validation";
+import { creatUserSchema, paginatedUsersSchema } from "./user-validation";
 import { UserService } from "./user-service";
 
 @injectable()
@@ -28,5 +28,32 @@ export class UserController {
       status: HttpCode.OK,
       data: users,
     }).withPagination(pagination?.omitProperties("offset")).send();
+  }
+
+  public async store(req: Request, res: Response): Promise<Response> {
+    const validatedReq = creatUserSchema.safeParse({
+      ...req.body,
+      avatarPath: req.file
+    });
+
+    if(!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: "Validation error",
+        data: validatedReq.error.flatten().fieldErrors,
+      })
+    }
+
+    const updatedBy = "superadmin" // later change to authorized user
+    const user = await this._service.store({
+      updatedBy,
+      ...validatedReq.data
+    });
+
+    return StandardResponse.create(res).setResponse({
+      message: "User created successfully",
+      status: HttpCode.RESOURCE_CREATED,
+      data: user,
+    }).send();
   }
 }

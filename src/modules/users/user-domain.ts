@@ -2,12 +2,14 @@ import { IMulterFile } from "@/modules/common/interfaces/multer-interface";
 import { IRole } from "@/modules/roles/role-domain";
 import { DomainEntity } from "../common/domainEntity";
 import { DefaultEntityBehaviour } from "../common/dto/common-dto";
+import bcrypt from "bcryptjs";
+import { AppError, HttpCode } from "@/exceptions/app-error";
 
 export interface IUser {
   id?: string;
   fullName: string;
   email: string;
-  password?: string | null;
+  password: string;
   avatarPath?: string | IMulterFile;
   roleId: string;
   role?: IRole;
@@ -59,12 +61,25 @@ export class UserDomain
     return this.props.email;
   }
 
-  get password(): string | null | undefined {
+  get password(): string {
     return this.props.password;
+  }
+  set password(val: string | undefined | null) {
+    if (val) {
+      this.props.password = bcrypt.hashSync(val, 10);
+    } else {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: "Password is required",
+      })
+    }
   }
 
   get avatarPath(): string | IMulterFile | undefined {
     return this.props.avatarPath;
+  }
+  set avatarPath(val: undefined | string | IMulterFile) {
+    this.props.avatarPath = val;
   }
 
   get roleId(): string {

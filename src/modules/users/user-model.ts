@@ -18,7 +18,7 @@ export class User extends Model<
   declare id: CreationOptional<string>;
   declare fullName: string;
   declare email: string;
-  declare password: CreationOptional<string>;
+  declare password: string;
   declare avatarPath: CreationOptional<string>;
   declare roleId: string;
   declare updatedBy: string;
@@ -40,6 +40,7 @@ User.init({
   fullName: DataTypes.STRING,
   email: {
     type: DataTypes.STRING,
+    unique: true,
   },
   password: DataTypes.STRING,
   avatarPath: {

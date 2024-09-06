@@ -6,6 +6,8 @@ import { IUserRepository } from "./user-repository-interface";
 import { User as UserPersistence } from "./user-model";
 import { Role as RolePersistence } from "../roles/role-model";
 import { Op, Sequelize } from "sequelize";
+import { ICreateUserProps } from "./user-dto";
+import { AppError, HttpCode } from "@/exceptions/app-error";
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -65,8 +67,33 @@ export class UserRepository implements IUserRepository {
     pagination.generateMeta(count, rows.length);
     return [rows.map((el) => UserDomain.create(el.toJSON())), pagination];
   }
-  store(props: IUser): Promise<UserDomain> {
-    throw new Error("Method not implemented.", { cause: props });
+
+  async store(props: ICreateUserProps): Promise<UserDomain> {
+    const isExistRole = await RolePersistence.findByPk(props.roleId);
+    if(!isExistRole) {
+      throw new AppError({
+        statusCode: HttpCode.NOT_FOUND,
+        description: "Role not found",
+      })
+    }
+
+    try {
+      const createdUser = await UserPersistence.create(props)
+      return UserDomain.create(createdUser.toJSON());
+    } catch(e: Error | any) {
+      if(e?.name === "SequelizeUniqueConstraintError") {
+        throw new AppError({
+          statusCode: HttpCode.CONFLICT,
+          description: "Email already exists",
+        })
+      }
+
+      throw new AppError({
+        statusCode: HttpCode.BAD_REQUEST,
+        description: "Failed to create user",
+        error: e,
+      });
+    }
   }
   findById(id: string): Promise<UserDomain> {
     throw new Error("Method not implemented.", { cause: id });

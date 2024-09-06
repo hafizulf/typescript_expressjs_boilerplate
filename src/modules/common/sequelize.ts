@@ -5,7 +5,7 @@ import { User } from "@/modules/users/user-model";
   console.log("Sequelize initializing...");
 
   await Role.sync({ alter: false });
-  await User.sync({ alter: false });
+  await User.sync({ alter: true });
 
   console.log("Sequelize initialized!");
 })();
