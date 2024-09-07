@@ -103,6 +103,11 @@ export class UserService {
   }
 
   public async destroy(id: string): Promise<boolean> {
-    return (await this._repository.delete(id));
+    const deletedUserData = (await this._repository.delete(id)).unmarshal();
+
+    if(deletedUserData.avatarPath) {
+      FileSystem.destroy(<string>deletedUserData.avatarPath);
+    }
+    return true;
   }
 }

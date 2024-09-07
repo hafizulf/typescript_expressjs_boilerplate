@@ -146,7 +146,7 @@ export class UserRepository implements IUserRepository {
     return UserDomain.create(user.toJSON());
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: string): Promise<UserDomain> {
     const isExistUser = await UserPersistence.findByPk(id);
     if(!isExistUser) {
       throw new AppError({
@@ -156,7 +156,7 @@ export class UserRepository implements IUserRepository {
     }
 
     await isExistUser.destroy();
-    return true;
+    return UserDomain.create(isExistUser.toJSON());
   }
 
 }
