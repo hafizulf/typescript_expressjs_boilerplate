@@ -159,4 +159,20 @@ export class UserRepository implements IUserRepository {
     return UserDomain.create(isExistUser.toJSON());
   }
 
+  async findByEmail(email: string): Promise<UserDomain> {
+    const isExistUser = await UserPersistence.findOne({
+      where: {
+        email,
+      }
+    })
+
+    if(!isExistUser) {
+      throw new AppError({
+        statusCode: HttpCode.NOT_FOUND,
+        description: "Email not found",
+      })
+    }
+
+    return UserDomain.create(isExistUser.toJSON());
+  }
 }

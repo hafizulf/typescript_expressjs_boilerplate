@@ -9,7 +9,7 @@ export interface IUser {
   id?: string;
   fullName: string;
   email: string;
-  password: string;
+  password?: string;
   avatarPath?: string | IMulterFile;
   roleId: string;
   role?: IRole;
@@ -49,6 +49,13 @@ export class UserDomain
     }
   }
 
+  public verifyPassword(password: string): boolean {
+    if(this.password) {
+      return bcrypt.compareSync(password, this.password);
+    }
+    return false;
+  }
+
   get id(): string {
     return this._id;
   }
@@ -61,7 +68,7 @@ export class UserDomain
     return this.props.email;
   }
 
-  get password(): string {
+  get password(): string | undefined {
     return this.props.password;
   }
   set password(val: string | undefined | null) {

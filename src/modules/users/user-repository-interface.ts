@@ -6,4 +6,5 @@ export interface IUserRepository extends Omit<BaseRepository<UserDomain, IUser>,
   store(props: ICreateUserProps): Promise<UserDomain>;
   update(id: string, props: Omit<IUser, "password">): Promise<UserDomain>;
   delete(id: string): Promise<UserDomain>;
+  findByEmail(email: string): Promise<UserDomain>;
 }

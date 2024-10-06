@@ -5,6 +5,7 @@ const TYPES = {
   Database: Symbol.for("Database"),
 
   // Service
+  WebAuthService: Symbol.for("WebAuthService"),
   RoleService: Symbol.for("RoleService"),
   UserService: Symbol.for("UserService"),
 

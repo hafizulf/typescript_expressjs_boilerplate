@@ -47,7 +47,7 @@ export class UserService {
       const safeProps = {
         ...props,
         avatarPath: userData.avatarPath,
-        password: userData.password,
+        password: userData.password!,
       };
 
       const user = await this._repository.store(safeProps);

@@ -30,3 +30,10 @@ export const DB_CONFIG = {
     dialect: process.env["DB_DIALECT"] || "postgres",
   },
 };
+
+export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "secret@ts_express4321";
+if(!JWT_SECRET_KEY) {
+  console.log("JWT_SECRET_KEY is not defined");
+  process.exit(1);
+}
+export const JWT_TTL = process.env.JWT_TTL || "1d";
