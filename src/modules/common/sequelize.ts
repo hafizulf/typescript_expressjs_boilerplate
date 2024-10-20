@@ -1,11 +1,13 @@
 import { Role } from "@/modules/roles/role-model";
 import { User } from "@/modules/users/user-model";
+import { RefreshToken } from "@/modules/refresh-tokens/refresh-token-model";
 
 (async () => {
   console.log("Sequelize initializing...");
 
   await Role.sync({ alter: false });
   await User.sync({ alter: false });
+  await RefreshToken.sync({ alter: false });
 
   console.log("Sequelize initialized!");
 })();
