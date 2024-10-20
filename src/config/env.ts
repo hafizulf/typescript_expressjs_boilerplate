@@ -20,6 +20,7 @@ export const APP_HOST = process.env.APP_HOST || "localhost";
 export const APP_PORT = process.env.APP_PORT || "3000";
 export const APP_API_PREFIX = process.env.APP_API_PREFIX || "/api";
 
+// Database
 export const DB_CONFIG = {
   db_user: process.env["DB_USER"] || "root",
   db_password: process.env["DB_PASSWORD"] || "root",
@@ -31,9 +32,17 @@ export const DB_CONFIG = {
   },
 };
 
-export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "secret@ts_express4321";
+// json web token
+export const JWT_REFRESH_KEY = process.env.JWT_REFRESH_KEY || "secret@ts_express4321";
+if(!JWT_REFRESH_KEY) {
+  console.log("JWT_REFRESH_SECRET_KEY is not defined");
+  process.exit(1);
+}
+export const JWT_REFRESH_TTL = process.env.JWT_TTL || "7d";
+
+export const JWT_SECRET_KEY = process.env.JWT_KEY || "secret@ts_express4321";
 if(!JWT_SECRET_KEY) {
   console.log("JWT_SECRET_KEY is not defined");
   process.exit(1);
 }
-export const JWT_TTL = process.env.JWT_TTL || "1d";
+export const JWT_TTL = process.env.JWT_TTL || "10m";
