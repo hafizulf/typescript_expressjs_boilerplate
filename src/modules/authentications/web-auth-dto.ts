@@ -1,6 +1,7 @@
 import { IUser } from "../users/user-domain";
 
 export interface IResponseLogin {
+  user: Pick<IUser, "id" | "fullName" | "avatarPath">;
   token?: string;
-  user: Omit<IUser, "email" | "password" | "roleId" | "updatedBy" | "createdAt" | "updatedAt" | "deletedAt">;
+  refreshToken?: string;
 }

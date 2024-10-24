@@ -4,11 +4,14 @@ import TYPES from "@/types";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { IWebAuth, WebAuthDomain } from "./web-auth-domain";
 import { IResponseLogin } from "./web-auth-dto";
+import { JWT_SECRET_KEY, JWT_SECRET_KEY_TTL, JWT_REFRESH_SECRET_KEY, JWT_REFRESH_SECRET_TTL } from "@/config/env";
+import { RefreshTokenRepository } from "../refresh-tokens/refresh-token-repository";
 
 @injectable()
 export class WebAuthService {
   constructor(
-    @inject(TYPES.IUserRepository) private _userRepository: UserRepository
+    @inject(TYPES.IUserRepository) private _userRepository: UserRepository,
+    @inject(TYPES.IRefreshTokenRepository) private _refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
   public async login(
@@ -22,18 +25,25 @@ export class WebAuthService {
       })
     }
 
-    const auth = WebAuthDomain.create({ user: { ...userData.unmarshal(), password: undefined } }).unmarshal();
+    const userDataUnmarshal = { ...userData.unmarshal(), password: undefined };
+    const auth = WebAuthDomain.create({ user: userDataUnmarshal }, JWT_SECRET_KEY, JWT_SECRET_KEY_TTL).unmarshal();
     const user = {
       id: auth.user.id,
       fullName: auth.user.fullName,
       avatarPath: auth.user.avatarPath,
     };
 
-    return { user, token: auth.token };
+    // generate refresh token
+    const refreshToken = WebAuthDomain.create(
+      { user: userDataUnmarshal }, JWT_REFRESH_SECRET_KEY, JWT_REFRESH_SECRET_TTL
+    ).unmarshal().token;
+    await this._refreshTokenRepository.updateOrCreate(userData.id, refreshToken!);
+
+    return { user, refreshToken, token: auth.token, };
   }
 
   public async getMe(token: string): Promise<IWebAuth> {
-    const auth = WebAuthDomain.createFromToken(token);
+    const auth = WebAuthDomain.createFromToken(token, JWT_SECRET_KEY);
     const userData = await this._userRepository.findById(auth.user.id);
 
     auth.user = {

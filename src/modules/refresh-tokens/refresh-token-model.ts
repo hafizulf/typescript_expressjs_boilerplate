@@ -1,4 +1,4 @@
-import { DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 import { IRefreshToken } from "./refresh-token-domain";
 import { sequelize } from "@/config/database";
 
@@ -8,6 +8,7 @@ implements IRefreshToken {
   declare userId: string;
   declare token: string;
   declare createdAt: Date;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 RefreshToken.init({
@@ -16,18 +17,20 @@ RefreshToken.init({
     allowNull: false,
   },
   token: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   createdAt: {
     type: DataTypes.DATE,
     allowNull: false,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
   }
 }, {
   sequelize,
   modelName: "refreshToken",
   tableName: "refresh_tokens",
-  paranoid: true,
   underscored: true,
   timestamps: false,
 })

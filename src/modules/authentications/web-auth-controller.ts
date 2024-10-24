@@ -5,6 +5,8 @@ import { WebAuthService } from "./web-auth-service";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { StandardResponse } from "@/libs/standard-response";
 import { loginSchema } from "./web-auth-validation";
+import ms from "ms";
+import { APP_ENV, JWT_REFRESH_SECRET_TTL } from "@/config/env";
 
 @injectable()
 export class WebAuthController {
@@ -24,10 +26,19 @@ export class WebAuthController {
 
     const data = await this._service.login(req.body);
 
+    // set refresh token to http-only cookie
+    const cookiesMaxAge = ms(JWT_REFRESH_SECRET_TTL);
+    res.cookie("refreshToken", data.refreshToken, {
+      httpOnly: true,
+      secure: APP_ENV === "production",
+      sameSite: "strict",
+      maxAge: cookiesMaxAge,
+    })
+
     return StandardResponse.create(res).setResponse({
       message: "Logged in successfully",
       status: HttpCode.OK,
-      data,
+      data: { user: data.user, token: data.token },
     }).send();
   }
 

@@ -33,16 +33,16 @@ export const DB_CONFIG = {
 };
 
 // json web token
-export const JWT_REFRESH_KEY = process.env.JWT_REFRESH_KEY || "secret@ts_express4321";
-if(!JWT_REFRESH_KEY) {
+export const JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY || "secret@ts_express4321";
+if(!JWT_REFRESH_SECRET_KEY) {
   console.log("JWT_REFRESH_SECRET_KEY is not defined");
   process.exit(1);
 }
-export const JWT_REFRESH_TTL = process.env.JWT_TTL || "7d";
+export const JWT_REFRESH_SECRET_TTL = process.env.JWT_REFRESH_SECRET_TTL || "7d";
 
-export const JWT_SECRET_KEY = process.env.JWT_KEY || "secret@ts_express4321";
+export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "secret@ts_express4321";
 if(!JWT_SECRET_KEY) {
   console.log("JWT_SECRET_KEY is not defined");
   process.exit(1);
 }
-export const JWT_TTL = process.env.JWT_TTL || "10m";
+export const JWT_SECRET_KEY_TTL = process.env.JWT_SECRET_KEY_TTL || "10m";

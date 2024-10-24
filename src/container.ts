@@ -20,9 +20,11 @@ import { UserService } from "@/modules/users/user-service";
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
 import { IUserRepository } from "@/modules/users/user-repository-interface";
+import { IRefreshTokenRepositoryInterface } from "@/modules/refresh-tokens/refresh-token-repository-interface";
 // Import Repository
 import { RoleRepository } from "@/modules/roles/role-repository";
 import { UserRepository } from "@/modules/users/user-repository";
+import { RefreshTokenRepository } from "@/modules/refresh-tokens/refresh-token-repository";
 
 //
 const container = new Container();
@@ -50,5 +52,8 @@ container
 container
   .bind<IUserRepository>(TYPES.IUserRepository)
   .to(UserRepository);
+container
+  .bind<IRefreshTokenRepositoryInterface>(TYPES.IRefreshTokenRepository)
+  .to(RefreshTokenRepository);
 
 export default container;

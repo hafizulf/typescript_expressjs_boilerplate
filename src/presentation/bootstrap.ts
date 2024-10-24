@@ -7,6 +7,8 @@ import { logger } from "@/libs/logger";
 import { APP_API_PREFIX } from "@/config/env";
 import { Routes } from "@/presentation/routes";
 import { errorHandler } from "@/exceptions/error-handler";
+import cors from "cors";
+import cookieParser from 'cookie-parser';
 
 export class Bootstrap {
   public app: Application;
@@ -23,6 +25,13 @@ export class Bootstrap {
   }
 
   private middleware(): void {
+    this.app.use(cors({
+        origin: 'http://127.0.0.1:8080', // Ensure this matches your frontend URL
+        credentials: true,
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    }));
+
     const requestLogger = (
       request: Request,
       response: Response,
@@ -46,6 +55,7 @@ export class Bootstrap {
 
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(cookieParser());
     this.app.use(express.static(path.join(__dirname, "../../public")));
     this.app.use(requestLogger);
   }

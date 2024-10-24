@@ -12,6 +12,7 @@ const TYPES = {
   // Repository Interface
   IRoleRepository: Symbol.for("IRoleRepository"),
   IUserRepository: Symbol.for("IUserRepository"),
+  IRefreshTokenRepository: Symbol.for("IRefreshTokenRepository"),
 }
 
 export default TYPES;

@@ -4,6 +4,7 @@ export interface IRefreshToken {
   userId: string;
   token: string;
   createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class RefreshTokenDomain implements DefaultEntityBehaviour<IRefreshToken> {
@@ -22,6 +23,7 @@ export class RefreshTokenDomain implements DefaultEntityBehaviour<IRefreshToken>
       userId: this.userId,
       token: this.token,
       createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
     }
   }
 
@@ -34,5 +36,8 @@ export class RefreshTokenDomain implements DefaultEntityBehaviour<IRefreshToken>
   }
   get createdAt(): Date | undefined {
     return this.props.createdAt;
+  }
+  get updatedAt(): Date | undefined {
+    return this.props.updatedAt;
   }
 }
