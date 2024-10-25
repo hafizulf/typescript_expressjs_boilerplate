@@ -5,6 +5,7 @@ import TYPES from "@/types";
 import { Request, Response } from "express";
 import { createUserSchema, deleteUserSchema, findByIdUserSchema, paginatedUsersSchema, updateUserSchema } from "./user-validation";
 import { UserService } from "./user-service";
+import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 
 @injectable()
 export class UserController {
@@ -30,7 +31,7 @@ export class UserController {
     }).withPagination(pagination?.omitProperties("offset")).send();
   }
 
-  public async store(req: Request, res: Response): Promise<Response> {
+  public async store(req: IAuthRequest, res: Response): Promise<Response> {
     const validatedReq = createUserSchema.safeParse({
       ...req.body,
       avatarPath: req.file
@@ -44,9 +45,8 @@ export class UserController {
       })
     }
 
-    const updatedBy = "superadmin" // later change to authorized user
     const user = await this._service.store({
-      updatedBy,
+      updatedBy: req.authUser.user.id,
       ...validatedReq.data
     });
 
@@ -76,7 +76,7 @@ export class UserController {
     }).send();
   }
 
-  async update(req: Request, res: Response): Promise<Response> {
+  async update(req: IAuthRequest, res: Response): Promise<Response> {
     const validatedReq = updateUserSchema.safeParse({
       ...req.params,
       ...req.body,
@@ -92,7 +92,7 @@ export class UserController {
     }
 
     const result = await this._service.update({
-      updatedBy: "superadmin",
+      updatedBy: req.authUser.user.id,
       ...validatedReq.data
     });
 

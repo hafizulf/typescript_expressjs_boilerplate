@@ -7,6 +7,7 @@ import { StandardResponse } from "@/libs/standard-response";
 import { loginSchema } from "./web-auth-validation";
 import ms from "ms";
 import { APP_ENV, JWT_REFRESH_SECRET_TTL } from "@/config/env";
+import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 
 @injectable()
 export class WebAuthController {
@@ -42,15 +43,11 @@ export class WebAuthController {
     }).send();
   }
 
-  public async getMe(req: Request, res: Response): Promise<Response> {
-    const data = await this._service.getMe(
-      <string>req.get("Authorization")?.split(" ")[1] || ""
-    )
-
+  public async getMe(req: IAuthRequest, res: Response): Promise<Response> {
     return StandardResponse.create(res).setResponse({
       message: "Fetched me successfully",
       status: HttpCode.OK,
-      data,
+      data: req.authUser.user.unmarshal(),
     }).send();
   }
 }

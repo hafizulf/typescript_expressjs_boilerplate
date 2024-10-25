@@ -1,6 +1,5 @@
 import { IUser, UserDomain } from "../users/user-domain";
 import jwt from "jsonwebtoken";
-import { AppError, HttpCode } from "@/exceptions/app-error";
 
 export interface IWebAuth {
   token?: string;
@@ -9,26 +8,27 @@ export interface IWebAuth {
 
 export class WebAuthDomain {
   private props: IWebAuth;
-  private constructor(props: IWebAuth, JWT_KEY: string, JWT_TTL?: string) {
+  private constructor(props: IWebAuth, jwt_key: string, jwt_ttl?: string) {
     this.props = {
       ...props,
-      token: props.token || jwt.sign(props.user, JWT_KEY, { expiresIn: JWT_TTL }),
+      token: props.token || jwt.sign({
+        id: props.user.id,
+        fullname: props.user.fullName,
+      }, jwt_key, { expiresIn: jwt_ttl }),
     }
   }
 
-  public static create(props: IWebAuth, JWT_KEY: string, JWT_TTL?: string): WebAuthDomain {
-    return new WebAuthDomain(props, JWT_KEY, JWT_TTL);
+  public static create(props: IWebAuth, jwt_key: string, jwt_ttl?: string): WebAuthDomain {
+    return new WebAuthDomain(props, jwt_key, jwt_ttl);
   }
 
-  public static createFromToken(token: string, JWT_KEY: string, JWT_TTL?: string): WebAuthDomain {
+  public static createFromToken(token: string, jwt_key: string, jwt_ttl?: string): WebAuthDomain {
     try {
-      const parsedAuth = <IUser>jwt.verify(token, JWT_KEY);
-      return new WebAuthDomain({ user: parsedAuth, token }, JWT_KEY, JWT_TTL);
+      const parsedAuth = <IUser>jwt.verify(token, jwt_key);
+      return new WebAuthDomain({ user: parsedAuth, token }, jwt_key, jwt_ttl);
     } catch (error) {
-      throw new AppError({
-        statusCode: HttpCode.UNAUTHORIZED,
-        description: "Invalid token"
-      })
+      // console.error("Token verification error:", error);
+      throw error;
     }
   }
 

@@ -42,8 +42,8 @@ export class WebAuthService {
     return { user, refreshToken, token: auth.token, };
   }
 
-  public async getMe(token: string): Promise<IWebAuth> {
-    const auth = WebAuthDomain.createFromToken(token, JWT_SECRET_KEY);
+  public async getMe(token: string, jwt_key: string): Promise<IWebAuth> {
+    const auth = WebAuthDomain.createFromToken(token, jwt_key);
     const userData = await this._userRepository.findById(auth.user.id);
 
     auth.user = {

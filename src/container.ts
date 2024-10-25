@@ -9,6 +9,8 @@ import { Routes } from "@/presentation/routes";
 import { WebAuthRoutes } from "@/modules/authentications/web-auth-routes";
 import { UserRoutes } from "@/modules/users/user-routes";
 import { RoleRoutes } from "@/modules/roles/role-routes";
+// Import Middlewares
+import { AuthMiddleware } from "@/presentation/middlewares/auth-middleware";
 // Import Controllers
 import { WebAuthController } from "@/modules/authentications/web-auth-controller";
 import { RoleController } from "@/modules/roles/role-controller";
@@ -37,6 +39,8 @@ container.bind<Routes>(Routes).toSelf().inSingletonScope();
 container.bind<WebAuthRoutes>(WebAuthRoutes).toSelf().inSingletonScope();
 container.bind<UserRoutes>(UserRoutes).toSelf().inSingletonScope();
 container.bind<RoleRoutes>(RoleRoutes).toSelf().inSingletonScope();
+// Middleware
+container.bind(AuthMiddleware).toSelf();
 // Controllers
 container.bind(WebAuthController).toSelf();
 container.bind(RoleController).toSelf();

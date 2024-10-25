@@ -45,4 +45,4 @@ if(!JWT_SECRET_KEY) {
   console.log("JWT_SECRET_KEY is not defined");
   process.exit(1);
 }
-export const JWT_SECRET_KEY_TTL = process.env.JWT_SECRET_KEY_TTL || "10m";
+export const JWT_SECRET_KEY_TTL = process.env.JWT_SECRET_TTL || "10m";

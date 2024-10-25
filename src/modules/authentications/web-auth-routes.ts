@@ -3,11 +3,13 @@ import { injectable } from "inversify";
 import { WebAuthController } from "./web-auth-controller";
 import { Router } from "express";
 import asyncWrap from "../common/asyncWrapper";
+import { AuthMiddleware } from "@/presentation/middlewares/auth-middleware";
 
 @injectable()
 export class WebAuthRoutes {
   public routes = "/auths";
   controller = container.get<WebAuthController>(WebAuthController);
+  AuthMiddleware = container.get<AuthMiddleware>(AuthMiddleware);
 
   public setRoutes(router: Router) {
     router.post(
@@ -16,6 +18,7 @@ export class WebAuthRoutes {
     )
     router.get(
       `${this.routes}/getMe`,
+      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
       asyncWrap(this.controller.getMe.bind(this.controller))
     )
   }
