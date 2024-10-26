@@ -11,10 +11,12 @@ export class WebAuthDomain {
   private constructor(props: IWebAuth, jwt_key: string, jwt_ttl?: string) {
     this.props = {
       ...props,
-      token: props.token || jwt.sign({
-        id: props.user.id,
-        fullname: props.user.fullName,
-      }, jwt_key, { expiresIn: jwt_ttl }),
+      token: jwt_ttl
+      ? jwt.sign({
+          id: props.user.id,
+          fullname: props.user.fullName,
+        }, jwt_key, { expiresIn: jwt_ttl })
+      : props.token,
     }
   }
 
@@ -22,10 +24,10 @@ export class WebAuthDomain {
     return new WebAuthDomain(props, jwt_key, jwt_ttl);
   }
 
-  public static createFromToken(token: string, jwt_key: string, jwt_ttl?: string): WebAuthDomain {
+  public static createFromToken(token: string, jwt_key: string): WebAuthDomain {
     try {
       const parsedAuth = <IUser>jwt.verify(token, jwt_key);
-      return new WebAuthDomain({ user: parsedAuth, token }, jwt_key, jwt_ttl);
+      return new WebAuthDomain({ user: parsedAuth, token }, jwt_key);
     } catch (error) {
       // console.error("Token verification error:", error);
       throw error;

@@ -21,5 +21,9 @@ export class WebAuthRoutes {
       this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
       asyncWrap(this.controller.getMe.bind(this.controller))
     )
+    router.post(
+      `${this.routes}/refresh-token`,
+      asyncWrap(this.controller.generateAccessToken.bind(this.controller))
+    )
   }
 }

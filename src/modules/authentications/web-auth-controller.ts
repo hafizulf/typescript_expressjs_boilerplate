@@ -4,7 +4,7 @@ import TYPES from "@/types";
 import { WebAuthService } from "./web-auth-service";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { StandardResponse } from "@/libs/standard-response";
-import { loginSchema } from "./web-auth-validation";
+import { generateAccessTokenSchema, loginSchema } from "./web-auth-validation";
 import ms from "ms";
 import { APP_ENV, JWT_REFRESH_SECRET_TTL } from "@/config/env";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
@@ -48,6 +48,25 @@ export class WebAuthController {
       message: "Fetched me successfully",
       status: HttpCode.OK,
       data: req.authUser.user.unmarshal(),
+    }).send();
+  }
+
+  public async generateAccessToken(req: Request, res: Response): Promise<Response> {
+    const validatedReq = generateAccessTokenSchema.safeParse(req.cookies);
+    if(!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: "Validation error",
+        data: validatedReq.error.flatten().fieldErrors,
+      });
+    }
+
+    const token = await this._service.generateAccessToken(validatedReq.data.refreshToken);
+
+    return StandardResponse.create(res).setResponse({
+      message: "Generated token successfully",
+      status: HttpCode.OK,
+      data: token,
     }).send();
   }
 }
