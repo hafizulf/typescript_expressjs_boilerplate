@@ -8,3 +8,5 @@ export const loginSchema = z.object({
 export const generateAccessTokenSchema = z.object({
   refreshToken: z.string(),
 })
+
+export const logoutSchema = generateAccessTokenSchema;

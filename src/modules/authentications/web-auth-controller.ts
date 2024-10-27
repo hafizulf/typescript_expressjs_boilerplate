@@ -4,7 +4,7 @@ import TYPES from "@/types";
 import { WebAuthService } from "./web-auth-service";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { StandardResponse } from "@/libs/standard-response";
-import { generateAccessTokenSchema, loginSchema } from "./web-auth-validation";
+import { generateAccessTokenSchema, loginSchema, logoutSchema } from "./web-auth-validation";
 import ms from "ms";
 import { APP_ENV, JWT_REFRESH_SECRET_TTL } from "@/config/env";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
@@ -67,6 +67,28 @@ export class WebAuthController {
       message: "Generated token successfully",
       status: HttpCode.OK,
       data: token,
+    }).send();
+  }
+
+  public async logout(req: Request, res: Response): Promise<Response> {
+    const validatedReq = logoutSchema.safeParse(req.cookies);
+    if(!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: "Validation error",
+        data: validatedReq.error.flatten().fieldErrors,
+      });
+    }
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: APP_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return StandardResponse.create(res).setResponse({
+      message: "Logged out successfully",
+      status: HttpCode.OK,
     }).send();
   }
 }

@@ -25,5 +25,9 @@ export class WebAuthRoutes {
       `${this.routes}/refresh-token`,
       asyncWrap(this.controller.generateAccessToken.bind(this.controller))
     )
+    router.post(
+      `${this.routes}/logout`,
+      asyncWrap(this.controller.logout.bind(this.controller))
+    )
   }
 }
