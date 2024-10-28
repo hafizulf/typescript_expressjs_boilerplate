@@ -40,6 +40,13 @@ export class UserRoutes {
       )
     )
     router.put(
+      `${this.routes}/change-password`,
+      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      asyncWrap(
+        this.controller.changePassword.bind(this.controller)
+      )
+    )
+    router.put(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
       tempUploadedFiles.single("avatarPath"),

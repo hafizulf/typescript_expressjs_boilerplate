@@ -6,7 +6,7 @@ import { IUserRepository } from "./user-repository-interface";
 import { User as UserPersistence } from "./user-model";
 import { Role as RolePersistence } from "../roles/role-model";
 import { Op, Sequelize } from "sequelize";
-import { ICreateUserProps } from "./user-dto";
+import { ICreateUserProps, TPropsUpdatePassword } from "./user-dto";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 
 @injectable()
@@ -174,5 +174,21 @@ export class UserRepository implements IUserRepository {
     }
 
     return UserDomain.create(isExistUser.toJSON());
+  }
+
+  async updatePassword(props: TPropsUpdatePassword): Promise<boolean> {
+    const updatedUser = await UserPersistence.update(
+      {
+        password: props.password,
+        updatedBy: props.updatedBy,
+      },
+      {
+        where: {
+          id: props.id
+        }
+      }
+    )
+
+    return updatedUser[0] > 0; // return true if updated
   }
 }

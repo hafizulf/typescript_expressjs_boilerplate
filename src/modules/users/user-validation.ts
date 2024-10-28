@@ -13,12 +13,14 @@ export const paginatedUsersSchema = paginatedSchema.extend({
   )
 })
 
+const passwordSchema = z.string().min(6, "Password must be at least 6 characters long")
+  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+    "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol");
+
 export const createUserSchema = z.object({
   fullName: z.string(),
   email: z.string().email(),
-  password: z.string().min(6, "Password must be at least 6 characters long")
-  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-    "Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol"),
+  password: passwordSchema,
   roleId: singleUUIDSchema,
   avatarPath: z.any().nullable().transform((val) => <IMulterFile>val)
 });
@@ -38,3 +40,9 @@ export const updateUserSchema = z.object({
 });
 
 export const deleteUserSchema = uuidV7RegexSchema;
+
+export const changePasswordSchema = z.object({
+  id: singleUUIDSchema,
+  oldPassword: z.string(),
+  newPassword: passwordSchema,
+})

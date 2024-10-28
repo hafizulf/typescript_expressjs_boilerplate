@@ -3,7 +3,7 @@ import { StandardResponse } from "@/libs/standard-response";
 import { inject, injectable } from "inversify";
 import TYPES from "@/types";
 import { Request, Response } from "express";
-import { createUserSchema, deleteUserSchema, findByIdUserSchema, paginatedUsersSchema, updateUserSchema } from "./user-validation";
+import { changePasswordSchema, createUserSchema, deleteUserSchema, findByIdUserSchema, paginatedUsersSchema, updateUserSchema } from "./user-validation";
 import { UserService } from "./user-service";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 
@@ -117,6 +117,27 @@ export class UserController {
 
     return StandardResponse.create(res).setResponse({
       message: "User deleted successfully",
+      status: HttpCode.OK,
+    }).send();
+  }
+
+  public async changePassword(req: IAuthRequest, res: Response): Promise<Response> {
+    const validatedReq = changePasswordSchema.safeParse(req.body);
+    if(!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: "Request validation error",
+        data: validatedReq.error.flatten().fieldErrors,
+      });
+    }
+
+    await this._service.changePassword({
+      updatedBy: req.authUser.user.fullName,
+      ...validatedReq.data
+    });
+
+    return StandardResponse.create(res).setResponse({
+      message: "Password changed successfully",
       status: HttpCode.OK,
     }).send();
   }

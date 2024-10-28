@@ -7,6 +7,7 @@ import { IUserRepository } from "./user-repository-interface";
 import { FileSystem } from "@/libs/file-system";
 import { IMulterFile } from "../common/interfaces/multer-interface";
 import { AppError, HttpCode } from "@/exceptions/app-error";
+import { TParamsChangePassword } from "./user-dto";
 
 @injectable()
 export class UserService {
@@ -108,6 +109,46 @@ export class UserService {
     if(deletedUserData.avatarPath) {
       FileSystem.destroy(<string>deletedUserData.avatarPath);
     }
+    return true;
+  }
+
+  public async changePassword(params: TParamsChangePassword): Promise<boolean> {
+    const {
+      id,
+      oldPassword,
+      newPassword,
+      updatedBy,
+    } = params;
+
+    const user = await this._repository.findById(id);
+    const isVerified = user.verifyPassword(oldPassword);
+    if(!isVerified) {
+      throw new AppError({
+        statusCode: HttpCode.UNAUTHORIZED,
+        description: "Old password is incorrect",
+      });
+    }
+
+    /*
+      set new password and...
+      reuse verifyPassword to compare old password with new password
+    */
+    user.password = newPassword;
+    const isSamePassword = user.verifyPassword(oldPassword);
+    if (isSamePassword) {
+      throw new AppError({
+        statusCode: HttpCode.BAD_REQUEST,
+        description: "New password must be different from the old password",
+      });
+    }
+
+    user.updatedBy = updatedBy;
+    await this._repository.updatePassword({
+      id,
+      password: user.password,
+      updatedBy: user.updatedBy
+    })
+
     return true;
   }
 }

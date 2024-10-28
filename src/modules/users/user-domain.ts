@@ -101,6 +101,10 @@ export class UserDomain
     return this.props.updatedBy;
   }
 
+  set updatedBy(val: string) {
+    this.props.updatedBy = val;
+  }
+
   get createdAt(): Date | undefined {
     return this.props.createdAt;
   }
