@@ -9,6 +9,7 @@ import { Routes } from "@/presentation/routes";
 import { errorHandler } from "@/exceptions/error-handler";
 import cors from "cors";
 import cookieParser from 'cookie-parser';
+import { RedisClient } from "@/libs/redis/redis-client";
 
 export class Bootstrap {
   public app: Application;
@@ -18,10 +19,16 @@ export class Bootstrap {
     private appRoutes: Routes,
   ) {
     this.app = express();
+    this.initializeRedis(); // initialize redis
     this.middleware();
     this.setRoutes();
     this.middlewareError();
     this.httpServer = createServer(this.app);
+  }
+
+  private initializeRedis(): void {
+    RedisClient.getInstance();
+    console.log('Redis client initialized');
   }
 
   private middleware(): void {

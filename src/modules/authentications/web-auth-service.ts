@@ -7,12 +7,16 @@ import { IResponseLogin } from "./web-auth-dto";
 import { JWT_SECRET_KEY, JWT_SECRET_KEY_TTL, JWT_REFRESH_SECRET_KEY, JWT_REFRESH_SECRET_TTL } from "@/config/env";
 import { RefreshTokenRepository } from "../refresh-tokens/refresh-token-repository";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import { RedisClient } from "@/libs/redis/redis-client";
+import { RoleRepository } from "@/modules/roles/role-repository";
+import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
 
 @injectable()
 export class WebAuthService {
   constructor(
     @inject(TYPES.IUserRepository) private _userRepository: UserRepository,
     @inject(TYPES.IRefreshTokenRepository) private _refreshTokenRepository: RefreshTokenRepository,
+    @inject(TYPES.IRoleRepository) private _roleRepository: RoleRepository,
   ) {}
 
   public async login(
@@ -39,6 +43,11 @@ export class WebAuthService {
       { user: userDataUnmarshal }, JWT_REFRESH_SECRET_KEY, JWT_REFRESH_SECRET_TTL
     ).unmarshal().token;
     await this._refreshTokenRepository.updateOrCreate(userData.id, refreshToken!);
+
+    // caching user role
+    const cacheKey = `userRole:${user.id}`;
+    const userRoleData = await this._roleRepository.findById(auth.user.roleId);
+    await RedisClient.set(cacheKey, userRoleData.name, USER_ROLE_EXPIRATION);
 
     return { user, refreshToken, token: auth.token, };
   }
