@@ -7,11 +7,13 @@ import { IAuthRequest } from "./auth-interface";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { WebAuthDomain } from "@/modules/authentications/web-auth-domain";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import { IRoleRepository } from "@/modules/roles/role-repository-interface";
 
 @injectable()
 export class AuthMiddleware {
   constructor(
     @inject(TYPES.WebAuthService) private _webAuthService: WebAuthService,
+    @inject(TYPES.IRoleRepository) private _roleRepository: IRoleRepository,
   ) {}
 
   async authenticate(req: Request, _res: Response, next: NextFunction): Promise<void> {
@@ -49,6 +51,22 @@ export class AuthMiddleware {
           error: error,
         }));
       }
+    }
+  }
+
+  roleAuthorize(allowedRoles: string[]) {
+    return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+      const authUser = (req as IAuthRequest).authUser;
+      const userRole = await this._roleRepository.findById(authUser.user.roleId);
+
+      if(!userRole || !allowedRoles.includes(userRole.name)) {
+        return next(new AppError({
+          statusCode: HttpCode.FORBIDDEN,
+          description: 'You are not allowed to access this resource',
+        }))
+      }
+
+      return next();
     }
   }
 }
