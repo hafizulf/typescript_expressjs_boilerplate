@@ -1,16 +1,16 @@
 import { APP_ENV } from "@/config/env";
 
 export enum HttpCode {
+  BAD_REQUEST = 400,
+  CONFLICT = 409,
+  FORBIDDEN = 403,
+  INTERNAL_SERVER_ERROR = 500,
+  NO_CONTENT = 100,
+  NOT_FOUND = 404,
   OK = 200,
   RESOURCE_CREATED = 201,
-  NO_CONTENT = 100,
-  BAD_REQUEST = 400,
   UNAUTHORIZED = 401,
-  FORBIDDEN = 403,
-  NOT_FOUND = 404,
   VALIDATION_ERROR = 422,
-  CONFLICT = 409,
-  INTERNAL_SERVER_ERROR = 500,
 }
 
 interface AppErrorArgs {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { uuidV7RegexSchema } from "../common/validation/uuid-schema";
+import { EnumRoles } from "../common/const/role-constants";
 
 const optionalPositiveIntSchema = z.optional(
   z
@@ -25,20 +26,15 @@ export const paginatedSchema = z.object({
   )
 })
 
-export const createRoleSchema = z.object({
-  name: z
-    .string()
-    .min(3, "Name must be at least 3 characters")
-    .max(255, "Name must be at most 255 characters"),
-});
-
 export const findOneRoleSchema = uuidV7RegexSchema;
 
+// Create or update role required updating enum roles
+export const createRoleSchema = z.object({
+  name: z.nativeEnum(EnumRoles).describe("Role must be one of the predefined roles"),
+});
+
 export const updateRoleSchema = findOneRoleSchema.extend({
-  name:
-    z.string()
-    .min(3, "Name must be at least 3 characters")
-    .max(255, "Name must be at most 255 characters"),
+  name: z.nativeEnum(EnumRoles).describe("Role must be one of the predefined roles"),
 })
 
 export const deleteRoleSchema = findOneRoleSchema;

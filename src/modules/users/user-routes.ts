@@ -54,7 +54,7 @@ export class UserRoutes {
     router.put(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
-      this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN]),
+      this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN, USER]),
       tempUploadedFiles.single("avatarPath"),
       asyncWrap(
         this.controller.update.bind(this.controller)

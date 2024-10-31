@@ -42,6 +42,14 @@ export class RoleRepository implements IRoleRepository {
   }
 
   async store(props: IRole): Promise<RoleDomain> {
+    const isExistRole = await RolePersistence.findOne({ where: { name: props.name } });
+    if(isExistRole) {
+      throw new AppError({
+        statusCode: HttpCode.BAD_REQUEST,
+        description: "Role already exists",
+      })
+    }
+
     const createdRole = await RolePersistence.create(props);
     return RoleDomain.create(createdRole.toJSON());
   }
@@ -64,6 +72,14 @@ export class RoleRepository implements IRoleRepository {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
         description: "Role not found",
+      })
+    }
+
+    const isExistOtherRole = await RolePersistence.findOne({ where: { name: props.name } });
+    if(isExistOtherRole && isExistOtherRole.id !== id) {
+      throw new AppError({
+        statusCode: HttpCode.CONFLICT,
+        description: "Role already exists",
       })
     }
 
