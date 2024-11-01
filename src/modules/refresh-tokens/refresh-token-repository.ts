@@ -37,7 +37,6 @@ export class RefreshTokenRepository implements IRefreshTokenRepositoryInterface 
       for (const row of tokens) {
         try {
           jwt.verify(row.token, JWT_REFRESH_SECRET_KEY);
-          console.log("Refresh token not expired:", row.token);
         } catch (error) {
           if (error instanceof TokenExpiredError) {
             await RefreshTokenPersistence.destroy({ where: { token: row.token } });

@@ -5,36 +5,59 @@ import { RefreshTokenService } from "@/modules/refresh-tokens/refresh-token-serv
 
 @injectable()
 export class Cron {
-  private _job: CronJob;
+  private _jobs: Record<string, CronJob> = {};
 
   constructor(
     @inject(TYPES.RefreshTokenService) private _refreshTokenService: RefreshTokenService,
   ) {
-    this._job = new CronJob(
-      "*/2 * * * *", // every 2 minutes
+    this._jobs['deleteExpiredTokens']  = new CronJob(
+      "0 0 * * *", // every day at midnight
       async () => {
-        console.log("Cron job ticked at:", new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
-
-        // services
+        console.log("Running deleteExpiredTokens job at:", new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
         await this._refreshTokenService.deleteExpiredTokens();
       },
       null,
-      true,
+      false,
+      "Asia/Jakarta"
+    )
+
+    // add another cron job
+    this._jobs['anotherJob']  = new CronJob(
+      "* * * * *",
+      async () => {
+        console.log("cron ticked at:", new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+      },
+      null,
+      false,
       "Asia/Jakarta"
     )
   }
 
-  public start() {
-    if(!this._job.running) {
-      this._job.start();
-      console.log("Cron job started at:", new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+  public start(jobKey?: string) {
+    if(jobKey) {
+      if(this._jobs[jobKey] && !this._jobs[jobKey].running) {
+        this._jobs[jobKey].start();
+      }
+    } else {
+      Object.keys(this._jobs).forEach((key) => {
+        if (!this._jobs[key]?.running) {
+          this._jobs[key]?.start();
+        }
+      })
     }
   }
 
-  public stop() {
-    if(this._job.running) {
-      this._job.stop();
-      console.log("Cron job stopped at:", new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+  public stop(jobKey?: string) {
+    if(jobKey) {
+      if(this._jobs[jobKey] && !this._jobs[jobKey].running) {
+        this._jobs[jobKey].stop();
+      }
+    } else {
+      Object.keys(this._jobs).forEach((key) => {
+        if (!this._jobs[key]?.running) {
+          this._jobs[key]?.stop();
+        }
+      })
     }
   }
 }
