@@ -2,8 +2,9 @@ import "reflect-metadata";
 import { Container } from "inversify";
 import TYPES from "./types";
 
-// Import Bootstrap / kernel
+// Import Bootstrap / kernel / libs
 import { IServer, Server } from "@/presentation/server";
+import { Cron } from "@/libs/cron-job/cron";
 // Import Routes
 import { Routes } from "@/presentation/routes";
 import { WebAuthRoutes } from "@/modules/authentications/web-auth-routes";
@@ -19,6 +20,7 @@ import { UserController } from "@/modules/users/user-controller";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { RoleService } from "@/modules/roles/role-service";
 import { UserService } from "@/modules/users/user-service";
+import { RefreshTokenService } from "@/modules/refresh-tokens/refresh-token-service";
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
 import { IUserRepository } from "@/modules/users/user-repository-interface";
@@ -31,8 +33,9 @@ import { RefreshTokenRepository } from "@/modules/refresh-tokens/refresh-token-r
 //
 const container = new Container();
 
-// bootstrap / kernel
+// bootstrap / kernel / libs
 container.bind<IServer>(TYPES.Server).to(Server).inSingletonScope();
+container.bind<Cron>(Cron).toSelf().inSingletonScope();
 
 // Routes
 container.bind<Routes>(Routes).toSelf().inSingletonScope();
@@ -49,6 +52,7 @@ container.bind(UserController).toSelf();
 container.bind(TYPES.WebAuthService).to(WebAuthService);
 container.bind(TYPES.RoleService).to(RoleService);
 container.bind(TYPES.UserService).to(UserService);
+container.bind(TYPES.RefreshTokenService).to(RefreshTokenService);
 // Repository
 container
   .bind<IRoleRepository>(TYPES.IRoleRepository)

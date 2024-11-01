@@ -8,6 +8,7 @@ const TYPES = {
   WebAuthService: Symbol.for("WebAuthService"),
   RoleService: Symbol.for("RoleService"),
   UserService: Symbol.for("UserService"),
+  RefreshTokenService: Symbol.for("RefreshTokenService"),
 
   // Repository Interface
   IRoleRepository: Symbol.for("IRoleRepository"),

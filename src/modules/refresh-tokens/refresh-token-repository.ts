@@ -2,6 +2,8 @@ import { injectable } from "inversify";
 import { IRefreshTokenRepositoryInterface } from "./refresh-token-repository-interface";
 import { RefreshToken as RefreshTokenPersistence } from "./refresh-token-model";
 import { AppError, HttpCode } from "@/exceptions/app-error";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
+import { JWT_REFRESH_SECRET_KEY } from "@/config/env";
 
 @injectable()
 export class RefreshTokenRepository implements IRefreshTokenRepositoryInterface {
@@ -26,5 +28,25 @@ export class RefreshTokenRepository implements IRefreshTokenRepositoryInterface 
       })
     }
     return true;
+  }
+
+  async deleteExpiredTokens(): Promise<void> {
+    const tokens = await RefreshTokenPersistence.findAll();
+
+    if(tokens.length > 0) {
+      for (const row of tokens) {
+        try {
+          jwt.verify(row.token, JWT_REFRESH_SECRET_KEY);
+          console.log("Refresh token not expired:", row.token);
+        } catch (error) {
+          if (error instanceof TokenExpiredError) {
+            await RefreshTokenPersistence.destroy({ where: { token: row.token } });
+            console.log(`Expired refresh token deleted: ${row.token}`);
+          } else {
+            console.error("An error occurred while verifying the token:", error);
+          }
+        }
+      }
+    }
   }
 }

@@ -18,6 +18,7 @@
   "dependencies": {
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
+    "@types/cron": "^2.4.3",
     "@types/jsonwebtoken": "^9.0.7",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
