@@ -8,6 +8,9 @@ import { generateAccessTokenSchema, loginSchema, logoutSchema } from "./web-auth
 import ms from "ms";
 import { APP_ENV, JWT_REFRESH_SECRET_TTL } from "@/config/env";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
+import jwt from "jsonwebtoken";
+import { TdecodedUserToken } from "./web-auth-dto";
+import { RedisClient } from "@/libs/redis/redis-client";
 
 @injectable()
 export class WebAuthController {
@@ -85,6 +88,10 @@ export class WebAuthController {
       secure: APP_ENV === 'production',
       sameSite: 'strict',
     });
+
+    const decodedUser = jwt.decode(validatedReq.data.refreshToken) as TdecodedUserToken;
+    const cacheKey = `userRole:${decodedUser.id}`;
+    await RedisClient.delete(cacheKey);
 
     return StandardResponse.create(res).setResponse({
       message: "Logged out successfully",

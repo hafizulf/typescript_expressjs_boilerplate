@@ -107,7 +107,9 @@ export class UserRepository implements IUserRepository {
     return UserDomain.create(isExistUser.toJSON());
   }
   async update(id: string, props: Omit<IUser, "password">): Promise<UserDomain> {
-    const user = await UserPersistence.findByPk(id);
+    const user = await UserPersistence.findByPk(id, {
+      include: [{ model: RolePersistence }],
+    });
     if(!user) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,

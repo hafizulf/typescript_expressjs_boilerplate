@@ -5,3 +5,10 @@ export interface IResponseLogin {
   token?: string;
   refreshToken?: string;
 }
+
+export type TdecodedUserToken = {
+  id: string;
+  fullname: string;
+  iat: number;
+  exp: number;
+}

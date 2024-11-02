@@ -8,6 +8,8 @@ import { FileSystem } from "@/libs/file-system";
 import { IMulterFile } from "../common/interfaces/multer-interface";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { TParamsChangePassword } from "./user-dto";
+import { RedisClient } from "@/libs/redis/redis-client";
+import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
 
 @injectable()
 export class UserService {
@@ -90,7 +92,12 @@ export class UserService {
         FileSystem.update(<IMulterFile>reqAvatarPath, "user/avatars", <string>userData.avatarPath);
       }
 
-      const { password, ...restData } = updatedUser.unmarshal();
+      // if user role changed, update user role name incache
+      if(updatedUser.roleId !== userData.roleId) {
+        await RedisClient.set(`userRole:${updatedUser.id}`, updatedUser.role!.name, USER_ROLE_EXPIRATION);
+      }
+
+      const { password, role, ...restData } = updatedUser.unmarshal();
       return restData;
     } catch (error: Error | any) {
       console.error("Error updating user:", error);
