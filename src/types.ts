@@ -1,6 +1,8 @@
 const TYPES = {
   HTTPRouter: Symbol.for("HTTPRouter"),
   Server: Symbol.for("Server"),
+  Routes: Symbol.for("Routes"),
+  SocketIO: Symbol.for("SocketIO"),
   Logger: Symbol.for("Logger"),
   Database: Symbol.for("Database"),
 

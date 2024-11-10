@@ -10,6 +10,8 @@ import { errorHandler } from "@/exceptions/error-handler";
 import cors from "cors";
 import cookieParser from 'cookie-parser';
 import { RedisClient } from "@/libs/redis/redis-client";
+import { SocketIO } from "@/libs/websocket";
+import { socketNamespaces } from "@/libs/websocket/socket-namespaces";
 
 export class Bootstrap {
   public app: Application;
@@ -19,11 +21,12 @@ export class Bootstrap {
     private appRoutes: Routes,
   ) {
     this.app = express();
-    this.initializeRedis(); // initialize redis
-    this.middleware();
-    this.setRoutes();
-    this.middlewareError();
     this.httpServer = createServer(this.app);
+    this.initializeRedis();     // initialize redis
+    this.middleware();          // apply middleware
+    this.setRoutes();           // set routes
+    this.middlewareError();     // error handler
+    this.initializeSocketIO();  // initialize socket
   }
 
   private initializeRedis(): void {
@@ -33,11 +36,15 @@ export class Bootstrap {
 
   private middleware(): void {
     this.app.use(cors({
-        origin: 'http://127.0.0.1:8080', // Ensure this matches your frontend URL
+        origin: '*',
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization'],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     }));
+    this.app.use(bodyParser.json());                                    // parse application/json
+    this.app.use(bodyParser.urlencoded({ extended: false }));           // parse application/x-www-form-urlencoded
+    this.app.use(cookieParser());                                       // parse cookies
+    this.app.use(express.static(path.join(__dirname, "../../public"))); // serve static files
 
     const requestLogger = (
       request: Request,
@@ -55,16 +62,29 @@ export class Bootstrap {
         "GET, POST, PUT, DELETE, OPTIONS"
       );
 
-      console.log(`${request.method} url:: ${request.url}`);
+      const clientIp = request.headers["x-forwarded-for"] || request.socket.remoteAddress || 'unknown';
+      console.log(`${request.method} url:: ${request.url} from ip:: ${clientIp}`);
 
       next();
     }
 
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: false }));
-    this.app.use(cookieParser());
-    this.app.use(express.static(path.join(__dirname, "../../public")));
-    this.app.use(requestLogger);
+    this.app.use(requestLogger);                                       // request logger
+  }
+
+  private setRoutes(): void {
+    const router = express.Router();
+
+    this.app.use(APP_API_PREFIX, router);
+    this.appRoutes.setRoutes(router);                                   // set all routes
+
+    router.get("/health-check", (_req: Request, res: Response): Response => {
+      return res.status(200).json({
+        status: "ok",
+        message: "Server is up and running",
+      });
+    });
+
+    this.app.use("/storage", express.static(path.join(process.cwd(), "./storage")));
   }
 
   private middlewareError(): void {
@@ -102,17 +122,9 @@ export class Bootstrap {
     this.app.use(invalidPathHandler);
   }
 
-  private setRoutes(): void {
-    const router = express.Router();
-
-    this.app.use(APP_API_PREFIX, router);
-    this.appRoutes.setRoutes(router); // set routes
-    router.get("/health-check", (_req: Request, res: Response): Response => {
-      return res.status(200).json({
-        status: "ok",
-        message: "Server is up and running",
-      });
-    });
-    this.app.use("/storage", express.static(path.join(process.cwd(), "./storage")));
+  public initializeSocketIO(): void {
+    SocketIO.initialize(this.httpServer);
+    SocketIO.initializeNamespaces(socketNamespaces);
+    console.log("Socket.IO initialized with namespaces.");
   }
 }

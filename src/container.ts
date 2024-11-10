@@ -5,6 +5,7 @@ import TYPES from "./types";
 // Import Bootstrap / kernel / libs
 import { IServer, Server } from "@/presentation/server";
 import { Cron } from "@/libs/cron-job/cron";
+import { SocketIO } from "@/libs/websocket";
 // Import Routes
 import { Routes } from "@/presentation/routes";
 import { WebAuthRoutes } from "@/modules/authentications/web-auth-routes";
@@ -36,6 +37,7 @@ const container = new Container();
 // bootstrap / kernel / libs
 container.bind<IServer>(TYPES.Server).to(Server).inSingletonScope();
 container.bind<Cron>(Cron).toSelf().inSingletonScope();
+container.bind<SocketIO>(TYPES.SocketIO).to(SocketIO).inSingletonScope();
 
 // Routes
 container.bind<Routes>(Routes).toSelf().inSingletonScope();

@@ -1,10 +1,11 @@
 import { Application } from "express";
 import { injectable } from "inversify";
 import { Bootstrap } from "@/presentation/bootstrap";
-import { APP_HOST, APP_PORT } from "@/config/env";
+import {  APP_PORT } from "@/config/env";
 import container from "@/container";
 import { Routes } from "@/presentation/routes";
 import { Cron } from "@/libs/cron-job/cron";
+// import { SocketIO } from "@/libs/websocket";
 
 export interface IServer {
   start(): Application;
@@ -22,13 +23,11 @@ export class Server implements IServer {
 
     bootstrap.httpServer.listen(
       <number>(<unknown>APP_PORT),
-      APP_HOST,
       undefined,
       () => {
-        console.log(`Server started at http://${APP_HOST}:${APP_PORT}`);
+        console.log(`Server started at *:${APP_PORT}`);
       }
     );
-
     return bootstrap.app;
   }
 }
