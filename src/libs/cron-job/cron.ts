@@ -2,6 +2,7 @@ import { inject, injectable } from "inversify";
 import { CronJob } from "cron";
 import TYPES from "@/types";
 import { RefreshTokenService } from "@/modules/refresh-tokens/refresh-token-service";
+import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-total-service";
 
 interface CronJobOptions {
   onComplete?: () => void;
@@ -15,6 +16,7 @@ export class Cron {
 
   constructor(
     @inject(TYPES.RefreshTokenService) private _refreshTokenService: RefreshTokenService,
+    @inject(TYPES.DashboardTotalService) private _dashboardTotalService: DashboardTotalService,
   ) {
     this._addJob(
       'deleteExpiredTokens',
@@ -22,6 +24,15 @@ export class Cron {
       async () => {
         console.log("Running deleteExpiredTokens job at:", new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
         await this._refreshTokenService.deleteExpiredTokens();
+      }
+    )
+
+    this._addJob(
+      'insertDashboardTotal',
+      '* */1 * * *', // every minute past the hour
+      async () => {
+        console.log("Running insertDashboardTotal job at:", new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+        await this._dashboardTotalService.insertDashboardTotal();
       }
     )
 

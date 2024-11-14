@@ -22,14 +22,19 @@ import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { RoleService } from "@/modules/roles/role-service";
 import { UserService } from "@/modules/users/user-service";
 import { RefreshTokenService } from "@/modules/refresh-tokens/refresh-token-service";
+import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-total-service";
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
 import { IUserRepository } from "@/modules/users/user-repository-interface";
 import { IRefreshTokenRepositoryInterface } from "@/modules/refresh-tokens/refresh-token-repository-interface";
+import { IDashboardTotalRepository } from "./modules/dashboard-totals/dashboard-total-repository-interface";
 // Import Repository
 import { RoleRepository } from "@/modules/roles/role-repository";
 import { UserRepository } from "@/modules/users/user-repository";
 import { RefreshTokenRepository } from "@/modules/refresh-tokens/refresh-token-repository";
+import { DashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository";
+// Import Socket Namespace
+import { DashboardTotalNamespace } from "@/libs/websocket/dashboard-total-namespace";
 
 //
 const container = new Container();
@@ -55,6 +60,7 @@ container.bind(TYPES.WebAuthService).to(WebAuthService);
 container.bind(TYPES.RoleService).to(RoleService);
 container.bind(TYPES.UserService).to(UserService);
 container.bind(TYPES.RefreshTokenService).to(RefreshTokenService);
+container.bind(TYPES.DashboardTotalService).to(DashboardTotalService);
 // Repository
 container
   .bind<IRoleRepository>(TYPES.IRoleRepository)
@@ -65,5 +71,13 @@ container
 container
   .bind<IRefreshTokenRepositoryInterface>(TYPES.IRefreshTokenRepository)
   .to(RefreshTokenRepository);
+container
+  .bind<IDashboardTotalRepository>(TYPES.IDashboardTotalRepository)
+  .to(DashboardTotalRepository);
+
+// Socket Namespace
+container
+  .bind<DashboardTotalNamespace>(TYPES.DashboardTotalNamespace)
+  .to(DashboardTotalNamespace);
 
 export default container;

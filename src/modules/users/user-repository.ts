@@ -193,4 +193,16 @@ export class UserRepository implements IUserRepository {
 
     return updatedUser[0] > 0; // return true if updated
   }
+
+  async countRegisteredUser(): Promise<number> {
+    const users = await UserPersistence.findAndCountAll({
+      paranoid: false,
+    });
+    return users.count;
+  }
+
+  async countActiveUser(): Promise<number> {
+    const users = await UserPersistence.findAndCountAll();
+    return users.count;
+  }
 }

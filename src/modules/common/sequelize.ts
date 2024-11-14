@@ -1,6 +1,7 @@
 import { Role } from "@/modules/roles/role-model";
 import { User } from "@/modules/users/user-model";
 import { RefreshToken } from "@/modules/refresh-tokens/refresh-token-model";
+import { DashboardTotal } from "../dashboard-totals/dashboard-total-model";
 
 (async () => {
   console.log("Sequelize initializing...");
@@ -8,6 +9,8 @@ import { RefreshToken } from "@/modules/refresh-tokens/refresh-token-model";
   await Role.sync({ alter: false });
   await User.sync({ alter: false });
   await RefreshToken.sync({ alter: false });
+
+  await DashboardTotal.sync({ alter: false });
 
   console.log("Sequelize initialized!");
 })();

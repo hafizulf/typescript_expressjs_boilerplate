@@ -8,4 +8,6 @@ export interface IUserRepository extends Omit<BaseRepository<UserDomain, IUser>,
   delete(id: string): Promise<UserDomain>;
   findByEmail(email: string): Promise<UserDomain>;
   updatePassword(props: TPropsUpdatePassword): Promise<boolean>;
+  countRegisteredUser(): Promise<number>;
+  countActiveUser(): Promise<number>;
 }

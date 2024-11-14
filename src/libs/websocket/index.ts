@@ -1,5 +1,6 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { Server as HttpServer } from "http";
+import { SocketNamespace } from "./abstract-namespace";
 
 export interface NamespaceConfig {
   namespace: string;
@@ -14,7 +15,7 @@ export class SocketIO {
   public static initialize(httpServer: HttpServer): void {
     this.io = new SocketIOServer(httpServer, {
       cors: {
-        origin: "*",
+        origin: "*", // *change this to your frontend url
         methods: ["GET", "POST"],
       },
     });
@@ -22,36 +23,27 @@ export class SocketIO {
     console.log("Socket.IO Initialized.");
   }
 
-  public static initializeNamespaces(namespaceConfigs: NamespaceConfig[]): void {
-    namespaceConfigs.forEach((config) => {
-      this.createNamespace(config);
+  public static initializeNamespaces(namespaces: SocketNamespace[]): void {
+    namespaces.forEach((namespace) => {
+      this.createNamespace(namespace);
     });
   }
 
-  private static createNamespace(config: NamespaceConfig): void {
-    const { namespace, events } = config;
-    const nsp = this.io.of(namespace);
+  private static createNamespace(namespaceInstance: SocketNamespace): void {
+    const nsp = this.io.of(namespaceInstance.namespace);
 
     nsp.on("connection", (socket: Socket) => {
-      console.log(`Client connected to namespace: ${namespace}, socket id: ${socket.id}`);
+      console.log(`Client connected to namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);
+      socket.emit("message", `Welcome to the ${namespaceInstance.namespace} namespace!`); // Send a welcome message on connection
 
-      // Send an initial welcome message to verify connection
-      socket.emit("message", `Welcome to the ${namespace} namespace!`);
-
-      // Register each event dynamically
-      Object.entries(events).forEach(([eventName, handler]) => {
-        socket.on(eventName, (...args) => {
-          console.log(`Event received: ${eventName}, args: ${args}`);
-          handler(socket, ...args);
-        });
-      });
+      namespaceInstance.registerEvents(socket); // Register events specific to this namespace instance
 
       socket.on("disconnect", () => {
-        console.log(`Client disconnected from namespace: ${namespace}, socket id: ${socket.id}`);
+        console.log(`Client disconnected from namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);
       });
     });
 
-    console.log(`Namespace created: ${namespace}`);
+    console.log(`Socket with namespace: ${namespaceInstance.namespace} created.`);
   }
 
   public static broadcastMessage(namespace: string, message: string): void {

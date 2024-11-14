@@ -11,7 +11,9 @@ import cors from "cors";
 import cookieParser from 'cookie-parser';
 import { RedisClient } from "@/libs/redis/redis-client";
 import { SocketIO } from "@/libs/websocket";
-import { socketNamespaces } from "@/libs/websocket/socket-namespaces";
+import container from "@/container";
+import TYPES from "@/types";
+import { DashboardTotalNamespace } from "@/libs/websocket/dashboard-total-namespace";
 
 export class Bootstrap {
   public app: Application;
@@ -36,7 +38,7 @@ export class Bootstrap {
 
   private middleware(): void {
     this.app.use(cors({
-        origin: '*',
+        origin: '*',                                                    // *change to your frontend url
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization'],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -124,6 +126,11 @@ export class Bootstrap {
 
   public initializeSocketIO(): void {
     SocketIO.initialize(this.httpServer);
+
+    const socketNamespaces = [
+      container.get<DashboardTotalNamespace>(TYPES.DashboardTotalNamespace),
+    ];
+
     SocketIO.initializeNamespaces(socketNamespaces);
     console.log("Socket.IO initialized with namespaces.");
   }

@@ -20,6 +20,7 @@ export class Server implements IServer {
     // cron job
     const cronJobs = container.get(Cron);
     cronJobs.start('deleteExpiredTokens');
+    cronJobs.start('insertDashboardTotal');
 
     bootstrap.httpServer.listen(
       <number>(<unknown>APP_PORT),
