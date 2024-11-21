@@ -14,6 +14,7 @@ import { SocketIO } from "@/libs/websocket";
 import container from "@/container";
 import TYPES from "@/types";
 import { DashboardTotalNamespace } from "@/libs/websocket/dashboard-total-namespace";
+import { AnnouncementNamespace } from "@/libs/websocket/announcement-namespace";
 
 export class Bootstrap {
   public app: Application;
@@ -129,6 +130,7 @@ export class Bootstrap {
 
     const socketNamespaces = [
       container.get<DashboardTotalNamespace>(TYPES.DashboardTotalNamespace),
+      container.get<AnnouncementNamespace>(TYPES.AnnouncementNamespace),
     ];
 
     SocketIO.initializeNamespaces(socketNamespaces);

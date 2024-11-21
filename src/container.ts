@@ -11,30 +11,37 @@ import { Routes } from "@/presentation/routes";
 import { WebAuthRoutes } from "@/modules/authentications/web-auth-routes";
 import { UserRoutes } from "@/modules/users/user-routes";
 import { RoleRoutes } from "@/modules/roles/role-routes";
+import { AnnouncementRoutes } from "@/modules/announcements/announcement-routes";
 // Import Middlewares
 import { AuthMiddleware } from "@/presentation/middlewares/auth-middleware";
 // Import Controllers
 import { WebAuthController } from "@/modules/authentications/web-auth-controller";
 import { RoleController } from "@/modules/roles/role-controller";
 import { UserController } from "@/modules/users/user-controller";
+import { AnnouncementController } from "@/modules/announcements/announcement-controller";
 // Import Services
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { RoleService } from "@/modules/roles/role-service";
 import { UserService } from "@/modules/users/user-service";
 import { RefreshTokenService } from "@/modules/refresh-tokens/refresh-token-service";
 import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-total-service";
+import { AnnouncementService } from "@/modules/announcements/announcement-service";
+
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
 import { IUserRepository } from "@/modules/users/user-repository-interface";
 import { IRefreshTokenRepositoryInterface } from "@/modules/refresh-tokens/refresh-token-repository-interface";
-import { IDashboardTotalRepository } from "./modules/dashboard-totals/dashboard-total-repository-interface";
+import { IDashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository-interface";
+import { IAnnouncementRepository } from "@/modules/announcements/announcement-repository-interface";
 // Import Repository
 import { RoleRepository } from "@/modules/roles/role-repository";
 import { UserRepository } from "@/modules/users/user-repository";
 import { RefreshTokenRepository } from "@/modules/refresh-tokens/refresh-token-repository";
 import { DashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository";
+import { AnnouncementRepository } from "@/modules/announcements/announcement-repository";
 // Import Socket Namespace
 import { DashboardTotalNamespace } from "@/libs/websocket/dashboard-total-namespace";
+import { AnnouncementNamespace } from "@/libs/websocket/announcement-namespace";
 
 //
 const container = new Container();
@@ -49,18 +56,21 @@ container.bind<Routes>(Routes).toSelf().inSingletonScope();
 container.bind<WebAuthRoutes>(WebAuthRoutes).toSelf().inSingletonScope();
 container.bind<UserRoutes>(UserRoutes).toSelf().inSingletonScope();
 container.bind<RoleRoutes>(RoleRoutes).toSelf().inSingletonScope();
+container.bind<AnnouncementRoutes>(AnnouncementRoutes).toSelf().inSingletonScope();
 // Middleware
 container.bind(AuthMiddleware).toSelf();
 // Controllers
 container.bind(WebAuthController).toSelf();
 container.bind(RoleController).toSelf();
 container.bind(UserController).toSelf();
+container.bind(AnnouncementController).toSelf();
 // Services
 container.bind(TYPES.WebAuthService).to(WebAuthService);
 container.bind(TYPES.RoleService).to(RoleService);
 container.bind(TYPES.UserService).to(UserService);
 container.bind(TYPES.RefreshTokenService).to(RefreshTokenService);
 container.bind(TYPES.DashboardTotalService).to(DashboardTotalService);
+container.bind(TYPES.AnnouncementService).to(AnnouncementService);
 // Repository
 container
   .bind<IRoleRepository>(TYPES.IRoleRepository)
@@ -74,10 +84,16 @@ container
 container
   .bind<IDashboardTotalRepository>(TYPES.IDashboardTotalRepository)
   .to(DashboardTotalRepository);
+container
+  .bind<IAnnouncementRepository>(TYPES.IAnnouncementRepository)
+  .to(AnnouncementRepository);
 
 // Socket Namespace
 container
   .bind<DashboardTotalNamespace>(TYPES.DashboardTotalNamespace)
   .to(DashboardTotalNamespace);
+container
+  .bind<AnnouncementNamespace>(TYPES.AnnouncementNamespace)
+  .to(AnnouncementNamespace);
 
 export default container;

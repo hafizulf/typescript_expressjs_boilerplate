@@ -12,15 +12,18 @@ const TYPES = {
   UserService: Symbol.for("UserService"),
   RefreshTokenService: Symbol.for("RefreshTokenService"),
   DashboardTotalService: Symbol.for("DashboardTotalService"),
+  AnnouncementService: Symbol.for("AnnouncementService"),
 
   // Repository Interface
   IRoleRepository: Symbol.for("IRoleRepository"),
   IUserRepository: Symbol.for("IUserRepository"),
   IRefreshTokenRepository: Symbol.for("IRefreshTokenRepository"),
   IDashboardTotalRepository: Symbol.for("IDashboardTotalRepository"),
+  IAnnouncementRepository: Symbol.for("IAnnouncementRepository"),
 
   // Socket Namespaces
   DashboardTotalNamespace: Symbol.for("DashboardTotalNamespace"),
+  AnnouncementNamespace: Symbol.for("AnnouncementNamespace"),
 }
 
 export default TYPES;

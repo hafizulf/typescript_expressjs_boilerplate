@@ -50,4 +50,8 @@ export class SocketIO {
     const nsp = this.io.of(namespace);
     nsp.emit("message", message);
   }
+
+  public getInstance(): SocketIOServer {
+    return SocketIO.io;
+  }
 }

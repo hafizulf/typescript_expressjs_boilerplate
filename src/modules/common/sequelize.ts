@@ -2,6 +2,7 @@ import { Role } from "@/modules/roles/role-model";
 import { User } from "@/modules/users/user-model";
 import { RefreshToken } from "@/modules/refresh-tokens/refresh-token-model";
 import { DashboardTotal } from "../dashboard-totals/dashboard-total-model";
+import { Announcement } from "../announcements/announcement-models";
 
 (async () => {
   console.log("Sequelize initializing...");
@@ -11,6 +12,7 @@ import { DashboardTotal } from "../dashboard-totals/dashboard-total-model";
   await RefreshToken.sync({ alter: false });
 
   await DashboardTotal.sync({ alter: false });
+  await Announcement.sync({ alter: false });
 
   console.log("Sequelize initialized!");
 })();
