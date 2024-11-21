@@ -1,20 +1,21 @@
-import { createServer, Server } from "http";
-import * as bodyParser from "body-parser";
-import express, { Request, Response, NextFunction, Application } from "express";
-import path from "path";
-import { AppError } from "@/exceptions/app-error";
-import { logger } from "@/libs/logger";
+import { AnnouncementNamespace } from "@/libs/websocket/announcement-namespace";
 import { APP_API_PREFIX } from "@/config/env";
-import { Routes } from "@/presentation/routes";
-import { errorHandler } from "@/exceptions/error-handler";
-import cors from "cors";
+import { AppError } from "@/exceptions/app-error";
+import * as bodyParser from "body-parser";
 import cookieParser from 'cookie-parser';
+import container from "@/container";
+import cors from "cors";
+import { createServer, Server } from "http";
+import { DashboardTotalNamespace } from "@/libs/websocket/dashboard-total-namespace";
+import { errorHandler } from "@/exceptions/error-handler";
+import express, { Request, Response, NextFunction, Application } from "express";
+import { logger } from "@/libs/logger";
+import path from "path";
+import rateLimit from "express-rate-limit";
+import { Routes } from "@/presentation/routes";
 import { RedisClient } from "@/libs/redis/redis-client";
 import { SocketIO } from "@/libs/websocket";
-import container from "@/container";
 import TYPES from "@/types";
-import { DashboardTotalNamespace } from "@/libs/websocket/dashboard-total-namespace";
-import { AnnouncementNamespace } from "@/libs/websocket/announcement-namespace";
 
 export class Bootstrap {
   public app: Application;
@@ -38,6 +39,19 @@ export class Bootstrap {
   }
 
   private middleware(): void {
+    const apiRateLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000,     // 15 minutes
+      max: 100,                     // limit each IP to 100 requests per windowMs
+      message: {
+        status: 429,
+        message: "Too many requests, please try again later.",
+      },
+      standardHeaders: true,        // Return rate limit info in the `RateLimit-*` headers
+      legacyHeaders: false,         // Disable the `X-RateLimit-*` headers
+    })
+
+    this.app.use(APP_API_PREFIX, apiRateLimiter);                       // apply rate limiter
+
     this.app.use(cors({
         origin: '*',                                                    // *change to your frontend url
         credentials: true,
