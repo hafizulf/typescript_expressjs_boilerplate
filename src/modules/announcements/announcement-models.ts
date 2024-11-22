@@ -18,7 +18,7 @@ export class Announcement extends Model<
 Announcement.init(
   {
     id: {
-      type: "UUID",
+      type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: uuidv7(),
     },

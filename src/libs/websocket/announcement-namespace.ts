@@ -4,7 +4,6 @@ import { Socket } from "socket.io";
 import TYPES from "@/types";
 import { AnnouncementService } from "@/modules/announcements/announcement-service";
 import { findAllSchema } from "@/modules/announcements/announcement-validation";
-import { AppError, HttpCode } from "@/exceptions/app-error";
 
 @injectable()
 export class AnnouncementNamespace extends SocketNamespace {
@@ -19,16 +18,11 @@ export class AnnouncementNamespace extends SocketNamespace {
 
     socket.on("get_announcements", async (payload) => {
       try {
-        console.log("Received payload:", payload); //
+        console.log("Received payload:", payload);
+
         const validatedReq = findAllSchema.safeParse(payload);
-          if(!validatedReq.success) {
-            throw new AppError({
-              statusCode: HttpCode.VALIDATION_ERROR,
-              description: "Request validation error",
-              data: validatedReq.error.flatten().fieldErrors,
-            });
-          }
         const data = await this._announcementService.findAll(validatedReq.data);
+
         socket.emit("data_announcements", data);
       } catch (error: any) {
           socket.emit("error", {

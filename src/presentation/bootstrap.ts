@@ -140,14 +140,17 @@ export class Bootstrap {
   }
 
   public initializeSocketIO(): void {
-    SocketIO.initialize(this.httpServer);
+    const socketIO = container.get<SocketIO>(TYPES.SocketIO);   // Retrieve the instance from DI
+
+    socketIO.initialize(this.httpServer);
 
     const socketNamespaces = [
       container.get<DashboardTotalNamespace>(TYPES.DashboardTotalNamespace),
       container.get<AnnouncementNamespace>(TYPES.AnnouncementNamespace),
     ];
 
-    SocketIO.initializeNamespaces(socketNamespaces);
+    socketIO.initializeNamespaces(socketNamespaces);
     console.log("Socket.IO initialized with namespaces.");
   }
+
 }

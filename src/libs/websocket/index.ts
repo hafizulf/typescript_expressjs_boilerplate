@@ -1,18 +1,20 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { Server as HttpServer } from "http";
 import { SocketNamespace } from "./abstract-namespace";
+import { injectable } from "inversify";
 
 export interface NamespaceConfig {
   namespace: string;
   events: Record<string, CallableFunction>;
 }
 
+@injectable()
 export class SocketIO {
-  private static io: SocketIOServer;
+  private io!: SocketIOServer;
 
   constructor() {}
 
-  public static initialize(httpServer: HttpServer): void {
+  public initialize(httpServer: HttpServer): void {
     this.io = new SocketIOServer(httpServer, {
       cors: {
         origin: "*", // *change this to your frontend url
@@ -23,20 +25,21 @@ export class SocketIO {
     console.log("Socket.IO Initialized.");
   }
 
-  public static initializeNamespaces(namespaces: SocketNamespace[]): void {
+  public initializeNamespaces(namespaces: SocketNamespace[]): void {
     namespaces.forEach((namespace) => {
       this.createNamespace(namespace);
     });
   }
 
-  private static createNamespace(namespaceInstance: SocketNamespace): void {
-    const nsp = this.io.of(namespaceInstance.namespace);
+  private createNamespace(namespaceInstance: SocketNamespace): void {
+    const nsp = this.io.of(namespaceInstance.namespace); // Use instance property `io`
 
     nsp.on("connection", (socket: Socket) => {
       console.log(`Client connected to namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);
-      socket.emit("message", `Welcome to the ${namespaceInstance.namespace} namespace!`); // Send a welcome message on connection
 
-      namespaceInstance.registerEvents(socket); // Register events specific to this namespace instance
+      socket.emit("message", `Welcome to the ${namespaceInstance.namespace} namespace!`);
+
+      namespaceInstance.registerEvents(socket);
 
       socket.on("disconnect", () => {
         console.log(`Client disconnected from namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);
@@ -46,12 +49,13 @@ export class SocketIO {
     console.log(`Socket with namespace: ${namespaceInstance.namespace} created.`);
   }
 
-  public static broadcastMessage(namespace: string, message: string): void {
-    const nsp = this.io.of(namespace);
-    nsp.emit("message", message);
+  public getNamespace(namespace: string) {
+    return this.io.of(namespace); // Access the actual `SocketIOServer` instance
   }
 
-  public getInstance(): SocketIOServer {
-    return SocketIO.io;
+  public broadcastMessage(namespace: string, event: string, message: string): void {
+    const nsp = this.getNamespace(namespace);
+    nsp.emit(event, message);
   }
 }
+

@@ -9,13 +9,14 @@ import { DateRange } from "../common/dto/date-range.dto";
 export class AnnouncementService {
   constructor(
     @inject(TYPES.IAnnouncementRepository) private _repository: IAnnouncementRepository,
+    @inject(TYPES.SocketIO) private _socketIO: SocketIO,
   ) {}
 
   public async store(props: IAnnouncement): Promise<IAnnouncement> {
     const storedData = (await this._repository.store(props)).unmarshal();
 
     // broadcast announcement event
-    SocketIO.broadcastMessage("announcement", JSON.stringify(storedData));
+    this._socketIO.broadcastMessage("/announcement", "latest_announcements", JSON.stringify(storedData));
 
     return storedData;
   }
