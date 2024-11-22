@@ -20,7 +20,7 @@ DashboardTotal.init(
     id: {
       type: "UUID",
       primaryKey: true,
-      defaultValue: uuidv7(),
+      defaultValue: () => uuidv7(),
     },
     name: {
       type: DataTypes.STRING,

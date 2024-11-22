@@ -3,6 +3,7 @@ import { SocketNamespace } from "./abstract-namespace";
 import TYPES from "@/types";
 import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-total-service";
 import { inject, injectable } from "inversify";
+import { DASHBOARD_TOTAL_NSP } from "./namespace-constants";
 
 @injectable()
 export class DashboardTotalNamespace extends SocketNamespace {
@@ -11,7 +12,7 @@ export class DashboardTotalNamespace extends SocketNamespace {
   constructor(
     @inject(TYPES.DashboardTotalService) private _dashboardTotalService: DashboardTotalService,
   ) {
-    super("/dashboard_total");
+    super(`${DASHBOARD_TOTAL_NSP}`);
   }
 
   registerEvents(socket: Socket) {

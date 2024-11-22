@@ -4,13 +4,14 @@ import { Socket } from "socket.io";
 import TYPES from "@/types";
 import { AnnouncementService } from "@/modules/announcements/announcement-service";
 import { findAllSchema } from "@/modules/announcements/announcement-validation";
+import { ANNOUNCEMENT_NSP } from "./namespace-constants";
 
 @injectable()
 export class AnnouncementNamespace extends SocketNamespace {
   constructor(
     @inject(TYPES.AnnouncementService) private _announcementService: AnnouncementService,
   ) {
-    super("/announcement");
+    super(`${ANNOUNCEMENT_NSP}`);
   }
 
   registerEvents(socket: Socket): void {

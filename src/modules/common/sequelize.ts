@@ -12,7 +12,7 @@ import { Announcement } from "../announcements/announcement-models";
   await RefreshToken.sync({ alter: false });
 
   await DashboardTotal.sync({ alter: false });
-  await Announcement.sync({ alter: true });
+  await Announcement.sync({ alter: false });
 
   console.log("Sequelize initialized!");
 })();

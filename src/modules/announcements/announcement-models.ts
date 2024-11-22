@@ -20,7 +20,7 @@ Announcement.init(
     id: {
       type: DataTypes.UUID,
       primaryKey: true,
-      defaultValue: uuidv7(),
+      defaultValue: () => uuidv7(),
     },
     title: {
       type: DataTypes.STRING,
