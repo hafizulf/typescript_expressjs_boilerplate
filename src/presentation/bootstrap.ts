@@ -1,4 +1,4 @@
-import { AnnouncementNamespace } from "@/libs/websocket/announcement-namespace";
+import { AnnouncementNamespace } from "@/libs/websocket/namespaces/announcement-namespace";
 import { APP_API_PREFIX } from "@/config/env";
 import { AppError } from "@/exceptions/app-error";
 import * as bodyParser from "body-parser";
@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import container from "@/container";
 import cors from "cors";
 import { createServer, Server } from "http";
-import { DashboardTotalNamespace } from "@/libs/websocket/dashboard-total-namespace";
+import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
 import { errorHandler } from "@/exceptions/error-handler";
 import express, { Request, Response, NextFunction, Application } from "express";
 import { logger } from "@/libs/logger";
@@ -16,6 +16,8 @@ import { Routes } from "@/presentation/routes";
 import { RedisClient } from "@/libs/redis/redis-client";
 import { SocketIO } from "@/libs/websocket";
 import TYPES from "@/types";
+import { PUBLIC_TIME_NSP } from "@/libs/websocket/namespaces/namespace-constants";
+import { PublicTimeNamespace } from "@/libs/websocket/namespaces/public-time-namespace";
 
 export class Bootstrap {
   public app: Application;
@@ -144,9 +146,15 @@ export class Bootstrap {
 
     socketIO.initialize(this.httpServer);
 
+    // specify public namespace
+    socketIO.setPublicNamespaces([
+      PUBLIC_TIME_NSP,
+    ])
+
     const socketNamespaces = [
       container.get<DashboardTotalNamespace>(TYPES.DashboardTotalNamespace),
       container.get<AnnouncementNamespace>(TYPES.AnnouncementNamespace),
+      new PublicTimeNamespace(),
     ];
 
     socketIO.initializeNamespaces(socketNamespaces);

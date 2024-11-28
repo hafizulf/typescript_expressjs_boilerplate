@@ -40,8 +40,8 @@ import { RefreshTokenRepository } from "@/modules/refresh-tokens/refresh-token-r
 import { DashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository";
 import { AnnouncementRepository } from "@/modules/announcements/announcement-repository";
 // Import Socket Namespace
-import { DashboardTotalNamespace } from "@/libs/websocket/dashboard-total-namespace";
-import { AnnouncementNamespace } from "@/libs/websocket/announcement-namespace";
+import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
+import { AnnouncementNamespace } from "@/libs/websocket/namespaces/announcement-namespace";
 
 //
 const container = new Container();

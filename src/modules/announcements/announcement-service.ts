@@ -4,7 +4,7 @@ import { IAnnouncementRepository } from "./announcement-repository-interface";
 import { IAnnouncement } from "./announcement-domain";
 import { SocketIO } from "@/libs/websocket";
 import { DateRange } from "../common/dto/date-range.dto";
-import { ANNOUNCEMENT_NSP } from "@/libs/websocket/namespace-constants";
+import { ANNOUNCEMENT_NSP } from "@/libs/websocket/namespaces/namespace-constants";
 
 @injectable()
 export class AnnouncementService {

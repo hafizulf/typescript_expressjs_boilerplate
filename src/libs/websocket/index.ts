@@ -1,6 +1,6 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { Server as HttpServer } from "http";
-import { SocketNamespace } from "./abstract-namespace";
+import { SocketNamespace } from "./namespaces/abstract-namespace";
 import { inject, injectable } from "inversify";
 import TYPES from "@/types";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
@@ -15,6 +15,7 @@ export interface NamespaceConfig {
 @injectable()
 export class SocketIO {
   private io!: SocketIOServer;
+  private publicNamespaces: string[] = [];
 
   constructor(
     @inject(TYPES.WebAuthService) private _webAuthService: WebAuthService,
@@ -28,12 +29,19 @@ export class SocketIO {
       },
     });
 
-    this.addAuthenticationMiddleware(this.io);
-
     console.log("Socket.IO Initialized.");
   }
 
-  private addAuthenticationMiddleware(nsp: SocketIOServer | ReturnType<SocketIOServer['of']>): void {
+  public setPublicNamespaces(namespaces: string[]): void {
+    this.publicNamespaces = namespaces;
+  }
+
+  private addAuthenticationMiddleware(
+    nsp: SocketIOServer | ReturnType<SocketIOServer['of']>,
+    namespace: string
+  ): void {
+    if(this.publicNamespaces.includes(namespace)) return; // skip auth for public namespace
+
     nsp.use(async (socket: Socket, next) => {
       const token = socket.handshake.auth?.token;
       if (!token) {
@@ -63,9 +71,10 @@ export class SocketIO {
   }
 
   private createNamespace(namespaceInstance: SocketNamespace): void {
-    const nsp = this.io.of(namespaceInstance.namespace);
+    const namespace = namespaceInstance.namespace;
+    const nsp = this.io.of(namespace);
 
-    this.addAuthenticationMiddleware(nsp); // Attach authentication middleware
+    this.addAuthenticationMiddleware(nsp, namespace); // Attach authentication middleware
 
     nsp.on("connection", (socket: Socket) => {
       console.log(`Client connected to namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);
