@@ -1,7 +1,11 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { Server as HttpServer } from "http";
 import { SocketNamespace } from "./abstract-namespace";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
+import TYPES from "@/types";
+import { WebAuthService } from "@/modules/authentications/web-auth-service";
+import { JWT_SECRET_KEY } from "@/config/env";
+import { TokenExpiredError } from "jsonwebtoken";
 
 export interface NamespaceConfig {
   namespace: string;
@@ -12,7 +16,9 @@ export interface NamespaceConfig {
 export class SocketIO {
   private io!: SocketIOServer;
 
-  constructor() {}
+  constructor(
+    @inject(TYPES.WebAuthService) private _webAuthService: WebAuthService,
+  ) {}
 
   public initialize(httpServer: HttpServer): void {
     this.io = new SocketIOServer(httpServer, {
@@ -22,7 +28,32 @@ export class SocketIO {
       },
     });
 
+    this.addAuthenticationMiddleware(this.io);
+
     console.log("Socket.IO Initialized.");
+  }
+
+  private addAuthenticationMiddleware(nsp: SocketIOServer | ReturnType<SocketIOServer['of']>): void {
+    nsp.use(async (socket: Socket, next) => {
+      const token = socket.handshake.auth?.token;
+      if (!token) {
+        console.error("No token provided, rejecting connection.");
+        return next(new Error("Authentication error: No token provided"));
+      }
+
+      try {
+        const user = await this._webAuthService.getMe(token, JWT_SECRET_KEY);
+        socket.data.user = user; // Attach user to socket instance
+        next(); // Allow connection
+      } catch (error) {
+        console.error("Invalid token, rejecting connection.");
+        if (error instanceof TokenExpiredError) {
+          return next(new Error("Authentication error: Token has been expired"));
+        } else {
+          return next(new Error("Authentication error: Invalid token"));
+        }
+      }
+    });
   }
 
   public initializeNamespaces(namespaces: SocketNamespace[]): void {
@@ -32,7 +63,9 @@ export class SocketIO {
   }
 
   private createNamespace(namespaceInstance: SocketNamespace): void {
-    const nsp = this.io.of(namespaceInstance.namespace); // Use instance property `io`
+    const nsp = this.io.of(namespaceInstance.namespace);
+
+    this.addAuthenticationMiddleware(nsp); // Attach authentication middleware
 
     nsp.on("connection", (socket: Socket) => {
       console.log(`Client connected to namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);
