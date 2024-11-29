@@ -22,5 +22,9 @@ export class PublicTimeNamespace extends SocketNamespace {
         });
       }
     });
+
+    socket.on("connection_error", (error: any) => {
+      socket.emit("error", error);
+    })
   }
 }

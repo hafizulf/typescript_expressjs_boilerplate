@@ -5,6 +5,7 @@ import * as bodyParser from "body-parser";
 import cookieParser from 'cookie-parser';
 import container from "@/container";
 import cors from "cors";
+import { HttpCorsOptions } from "@/config/cors";
 import { createServer, Server } from "http";
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
 import { errorHandler } from "@/exceptions/error-handler";
@@ -54,12 +55,16 @@ export class Bootstrap {
 
     this.app.use(APP_API_PREFIX, apiRateLimiter);                       // apply rate limiter
 
-    this.app.use(cors({
-        origin: '*',                                                    // *change to your frontend url
-        credentials: true,
-        allowedHeaders: ['Content-Type', 'Authorization'],
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    }));
+    // Handle CORS errors
+    this.app.use(cors(HttpCorsOptions));
+    this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      if (err instanceof Error && err.message.includes("Blocked by CORS")) {
+        console.error(`[${new Date().toISOString()}] ${err.message} for URL: ${req.url}`);
+        return res.status(403).json({ error: "CORS policy: origin not allowed" });
+      }
+      return next(err);
+    });
+
     this.app.use(bodyParser.json());                                    // parse application/json
     this.app.use(bodyParser.urlencoded({ extended: false }));           // parse application/x-www-form-urlencoded
     this.app.use(cookieParser());                                       // parse cookies

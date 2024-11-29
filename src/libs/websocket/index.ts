@@ -6,6 +6,7 @@ import TYPES from "@/types";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { JWT_SECRET_KEY } from "@/config/env";
 import { TokenExpiredError } from "jsonwebtoken";
+import { WebSocketCorsOption } from "@/config/cors";
 
 export interface NamespaceConfig {
   namespace: string;
@@ -23,10 +24,7 @@ export class SocketIO {
 
   public initialize(httpServer: HttpServer): void {
     this.io = new SocketIOServer(httpServer, {
-      cors: {
-        origin: "*", // *change this to your frontend url
-        methods: ["GET", "POST"],
-      },
+      cors: WebSocketCorsOption,
     });
 
     console.log("Socket.IO Initialized.");

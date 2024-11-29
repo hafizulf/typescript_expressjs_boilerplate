@@ -1,21 +1,18 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
+import path from 'path';
+
+const defaultEnvPath = path.resolve(__dirname, '../../.env');
+
+if (fs.existsSync(defaultEnvPath)) {
+  console.log(`Loading environment file: ${defaultEnvPath}`);
+  dotenv.config({ path: defaultEnvPath });
+} else {
+  console.error('No .env file found! Please create one to set environment variables.');
+  process.exit(1);
+}
 
 export const APP_ENV = process.env.APP_ENV || 'development';
-
-dotenv.config({
-  path: `${__dirname}/../../.env.${APP_ENV}`,
-  override: true,
-});
-
-let configPath = `@/.env`;
-try {
-  fs.readFileSync(configPath);
-} catch (error) {
-  configPath = `./../../.env.${APP_ENV}`;
-}
-dotenv.config({ override: true, path: configPath });
-
 export const APP_HOST = process.env.APP_HOST || "localhost";
 export const APP_PORT = process.env.APP_PORT || "3000";
 export const APP_API_PREFIX = process.env.APP_API_PREFIX || "/api";

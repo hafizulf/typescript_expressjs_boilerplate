@@ -5,8 +5,6 @@ import {  APP_PORT } from "@/config/env";
 import container from "@/container";
 import { Routes } from "@/presentation/routes";
 import { Cron } from "@/libs/cron-job/cron";
-// import { SocketIO } from "@/libs/websocket";
-
 export interface IServer {
   start(): Application;
 }
