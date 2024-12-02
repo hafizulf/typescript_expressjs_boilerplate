@@ -3,8 +3,7 @@ import { injectable } from "inversify";
 import { Bootstrap } from "@/presentation/bootstrap";
 import {  APP_PORT } from "@/config/env";
 import container from "@/container";
-import { Routes } from "@/presentation/routes";
-import { Cron } from "@/libs/cron-job/cron";
+import TYPES from "@/types";
 export interface IServer {
   start(): Application;
 }
@@ -12,13 +11,7 @@ export interface IServer {
 @injectable()
 export class Server implements IServer {
   start(): Application {
-    const bootstrap = new Bootstrap(
-      container.resolve<Routes>(Routes),
-    )
-    // cron job
-    const cronJobs = container.get(Cron);
-    cronJobs.start('deleteExpiredTokens');
-    cronJobs.start('insertDashboardTotal');
+    const bootstrap = container.get<Bootstrap>(TYPES.Bootstrap);
 
     bootstrap.httpServer.listen(
       <number>(<unknown>APP_PORT),

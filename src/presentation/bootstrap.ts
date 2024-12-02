@@ -1,12 +1,14 @@
 import { AnnouncementNamespace } from "@/libs/websocket/namespaces/announcement-namespace";
 import { APP_API_PREFIX } from "@/config/env";
 import { AppError } from "@/exceptions/app-error";
+import { BackgroundServiceManager } from "@/modules/common/background/background-service-manager";
 import * as bodyParser from "body-parser";
 import cookieParser from 'cookie-parser';
 import container from "@/container";
 import cors from "cors";
-import { HttpCorsOptions } from "@/config/cors";
 import { createServer, Server } from "http";
+import { HttpCorsOptions } from "@/config/cors";
+import { inject, injectable } from "inversify";
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
 import { errorHandler } from "@/exceptions/error-handler";
 import express, { Request, Response, NextFunction, Application } from "express";
@@ -20,12 +22,14 @@ import TYPES from "@/types";
 import { PUBLIC_TIME_NSP } from "@/libs/websocket/namespaces/namespace-constants";
 import { PublicTimeNamespace } from "@/libs/websocket/namespaces/public-time-namespace";
 
+@injectable()
 export class Bootstrap {
   public app: Application;
   public httpServer: Server;
 
   constructor(
-    private appRoutes: Routes,
+    @inject(Routes) private appRoutes: Routes, // inject routes by class
+    @inject(TYPES.BackgroundServiceManager) private backgroundServiceManager: BackgroundServiceManager, // inject by symbol
   ) {
     this.app = express();
     this.httpServer = createServer(this.app);
@@ -34,6 +38,7 @@ export class Bootstrap {
     this.setRoutes();           // set routes
     this.middlewareError();     // error handler
     this.initializeSocketIO();  // initialize socket
+    this.initializeBackgroundServices();  // initialize background services
   }
 
   private initializeRedis(): void {
@@ -166,4 +171,7 @@ export class Bootstrap {
     console.log("Socket.IO initialized with namespaces.");
   }
 
+  private initializeBackgroundServices(): void {
+    this.backgroundServiceManager.startServices();
+  }
 }

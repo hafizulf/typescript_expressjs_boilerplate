@@ -4,6 +4,7 @@ import TYPES from "./types";
 
 // Import Bootstrap / kernel / libs
 import { IServer, Server } from "@/presentation/server";
+import { Bootstrap } from "@/presentation/bootstrap";
 import { Cron } from "@/libs/cron-job/cron";
 import { SocketIO } from "@/libs/websocket";
 // Import Routes
@@ -20,6 +21,7 @@ import { RoleController } from "@/modules/roles/role-controller";
 import { UserController } from "@/modules/users/user-controller";
 import { AnnouncementController } from "@/modules/announcements/announcement-controller";
 // Import Services
+import { BackgroundServiceManager } from "./modules/common/background/background-service-manager";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { RoleService } from "@/modules/roles/role-service";
 import { UserService } from "@/modules/users/user-service";
@@ -48,6 +50,7 @@ const container = new Container();
 
 // bootstrap / kernel / libs
 container.bind<IServer>(TYPES.Server).to(Server).inSingletonScope();
+container.bind<Bootstrap>(TYPES.Bootstrap).to(Bootstrap).inSingletonScope();
 container.bind<Cron>(Cron).toSelf().inSingletonScope();
 container.bind<SocketIO>(TYPES.SocketIO).to(SocketIO).inSingletonScope();
 
@@ -65,6 +68,7 @@ container.bind(RoleController).toSelf();
 container.bind(UserController).toSelf();
 container.bind(AnnouncementController).toSelf();
 // Services
+container.bind<BackgroundServiceManager>(TYPES.BackgroundServiceManager).to(BackgroundServiceManager);
 container.bind(TYPES.WebAuthService).to(WebAuthService);
 container.bind(TYPES.RoleService).to(RoleService);
 container.bind(TYPES.UserService).to(UserService);

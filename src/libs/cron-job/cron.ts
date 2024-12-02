@@ -75,12 +75,12 @@ export class Cron {
 
   public stop(jobKey?: string) {
     if(jobKey) {
-      if(this._jobs[jobKey] && !this._jobs[jobKey].running) {
+      if(this._jobs[jobKey] && this._jobs[jobKey].running) {
         this._jobs[jobKey].stop();
       }
     } else {
       Object.keys(this._jobs).forEach((key) => {
-        if (!this._jobs[key]?.running) {
+        if (this._jobs[key]?.running) {
           this._jobs[key]?.stop();
         }
       })

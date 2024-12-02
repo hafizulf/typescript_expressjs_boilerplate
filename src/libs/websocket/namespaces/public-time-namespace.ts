@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import { SocketNamespace } from "./abstract-namespace";
 import { PUBLIC_TIME_NSP } from "./namespace-constants";
+import { APP_ENV } from "@/config/env";
 
 export class PublicTimeNamespace extends SocketNamespace {
   constructor() {
@@ -18,7 +19,7 @@ export class PublicTimeNamespace extends SocketNamespace {
         socket.emit("error", {
           message: error.message,
           statusCode: error.statusCode || 500,
-          stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+          stack: APP_ENV === "development" ? error.stack : undefined,
         });
       }
     });

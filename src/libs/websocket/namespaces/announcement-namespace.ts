@@ -5,6 +5,7 @@ import TYPES from "@/types";
 import { AnnouncementService } from "@/modules/announcements/announcement-service";
 import { findAllSchema } from "@/modules/announcements/announcement-validation";
 import { ANNOUNCEMENT_NSP } from "./namespace-constants";
+import { APP_ENV } from "@/config/env";
 
 @injectable()
 export class AnnouncementNamespace extends SocketNamespace {
@@ -30,7 +31,7 @@ export class AnnouncementNamespace extends SocketNamespace {
             message: error.message,
             statusCode: error.statusCode || 500, // Default to 500 if not available
             data: error.data || null,           // Include additional error data if present
-            stack: process.env.NODE_ENV === "development" ? error.stack : undefined, // Stack trace in development only
+            stack: APP_ENV === "development" ? error.stack : undefined, // Stack trace in development only
           });
         }
     });
