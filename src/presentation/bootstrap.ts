@@ -123,7 +123,11 @@ export class Bootstrap {
       _res: Response,
       next: NextFunction
     ) => {
-      logger.error(error.error);
+      logger.error({
+        message: error.message || "Unknown error",
+        stack: error.stack,
+        details: error,
+      });
       next(error);
     };
 
@@ -136,19 +140,13 @@ export class Bootstrap {
       errorHandler.handleError(error, res);
     };
 
-    const invalidPathHandler = (
-      _req: Request,
-      response: Response,
-    ) => {
-      response.status(400);
-      response.json({
-        message: "invalid path",
-      });
+    const invalidPathHandler = (_req: Request, response: Response) => {
+      response.status(400).json({ message: "route not found" });
     };
 
+    this.app.use(invalidPathHandler);
     this.app.use(errorLogger);
     this.app.use(errorResponder);
-    this.app.use(invalidPathHandler);
   }
 
   public initializeSocketIO(): void {

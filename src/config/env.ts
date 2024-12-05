@@ -12,6 +12,15 @@ if (fs.existsSync(defaultEnvPath)) {
   process.exit(1);
 }
 
+const getEnvVariable = (key: string): string => {
+  const value = process.env[key];
+  if (!value) {
+    console.error(`Environment variable ${key} is not defined!`);
+    process.exit(1);
+  }
+  return value;
+}
+
 export const APP_ENV = process.env.APP_ENV || 'development';
 export const APP_HOST = process.env.APP_HOST || "localhost";
 export const APP_PORT = process.env.APP_PORT || "3000";
@@ -30,16 +39,16 @@ export const DB_CONFIG = {
 };
 
 // json web token
-export const JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY || "secret@ts_express4321";
+export const JWT_REFRESH_SECRET_KEY = getEnvVariable("JWT_REFRESH_SECRET_KEY");
 if(!JWT_REFRESH_SECRET_KEY) {
   console.log("JWT_REFRESH_SECRET_KEY is not defined");
   process.exit(1);
 }
-export const JWT_REFRESH_SECRET_TTL = process.env.JWT_REFRESH_SECRET_TTL || "7d";
+export const JWT_REFRESH_SECRET_TTL = getEnvVariable("JWT_REFRESH_SECRET_TTL") || "7d";
 
-export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "secret@ts_express4321";
+export const JWT_SECRET_KEY = getEnvVariable("JWT_SECRET_KEY");
 if(!JWT_SECRET_KEY) {
   console.log("JWT_SECRET_KEY is not defined");
   process.exit(1);
 }
-export const JWT_SECRET_KEY_TTL = process.env.JWT_SECRET_TTL || "10m";
+export const JWT_SECRET_KEY_TTL = getEnvVariable("JWT_SECRET_TTL") || "10m";
