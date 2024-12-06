@@ -16,8 +16,6 @@ export class AnnouncementNamespace extends SocketNamespace {
   }
 
   registerEvents(socket: Socket): void {
-    console.log(`Client connected to namespace: ${this.namespace}, socket id: ${socket.id}`);
-
     socket.on("get_announcements", async (payload) => {
       try {
         console.log("Received payload:", payload);
@@ -34,10 +32,6 @@ export class AnnouncementNamespace extends SocketNamespace {
             stack: APP_ENV === "development" ? error.stack : undefined, // Stack trace in development only
           });
         }
-    });
-
-    socket.on("disconnect", () => {
-      console.log(`Client disconnected from namespace: ${this.namespace}, socket id: ${socket.id}`);
     });
   }
 }

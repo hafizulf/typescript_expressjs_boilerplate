@@ -4,21 +4,33 @@ import TYPES from "@/types";
 import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-total-service";
 import { inject, injectable } from "inversify";
 import { DASHBOARD_TOTAL_NSP } from "./namespace-constants";
+import { RateLimiter } from "../rate-limiter";
 
 @injectable()
 export class DashboardTotalNamespace extends SocketNamespace {
   private readonly socketIntervals: Map<string, NodeJS.Timeout> = new Map();
+  private rateLimiter: RateLimiter;
 
   constructor(
     @inject(TYPES.DashboardTotalService) private _dashboardTotalService: DashboardTotalService,
   ) {
     super(`${DASHBOARD_TOTAL_NSP}`);
+    this.rateLimiter = new RateLimiter(1, 30);
   }
 
   registerEvents(socket: Socket) {
     console.log(`Client connected to namespace: ${this.namespace}, socket id: ${socket.id}`);
 
     socket.on("get_total_users", async () => {
+      const isAllowed = await this.rateLimiter.checkRateLimit(socket.id);
+      if (!isAllowed) {
+        socket.emit("error", {
+          message: "Rate limit exceeded, please try again later.",
+          statusCode: 429,
+        });
+        return;
+      }
+
       // Emit immediately upon receiving the event
       try {
         const data = await this._dashboardTotalService.findAll();
