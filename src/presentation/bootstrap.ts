@@ -150,7 +150,7 @@ export class Bootstrap {
   }
 
   public initializeSocketIO(): void {
-    const socketIO = container.get<SocketIO>(TYPES.SocketIO);   // Retrieve the instance from DI
+    const socketIO = container.get<SocketIO>(TYPES.SocketIO);
 
     socketIO.initialize(this.httpServer);
 

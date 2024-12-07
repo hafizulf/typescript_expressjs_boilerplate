@@ -12,43 +12,34 @@ if (fs.existsSync(defaultEnvPath)) {
   process.exit(1);
 }
 
-const getEnvVariable = (key: string): string => {
-  const value = process.env[key];
-  if (!value) {
+const requiredEnvVars = ['APP_ENV', 'APP_HOST', 'APP_PORT', 'APP_API_PREFIX', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_HOST', 'DB_PORT', 'DB_DIALECT', 'JWT_SECRET_KEY', 'JWT_REFRESH_SECRET_KEY', 'JWT_SECRET_TTL', 'JWT_REFRESH_SECRET_TTL'];
+
+requiredEnvVars.forEach((key) => {
+  if (!process.env[key]) {
     console.error(`Environment variable ${key} is not defined!`);
     process.exit(1);
   }
-  return value;
-}
+});
 
-export const APP_ENV = process.env.APP_ENV || 'development';
-export const APP_HOST = process.env.APP_HOST || "localhost";
-export const APP_PORT = process.env.APP_PORT || "3000";
-export const APP_API_PREFIX = process.env.APP_API_PREFIX || "/api";
+export const APP_ENV = process.env.APP_ENV!
+export const APP_HOST = process.env.APP_HOST!
+export const APP_PORT = process.env.APP_PORT!
+export const APP_API_PREFIX = process.env.APP_API_PREFIX!
 
 // Database
 export const DB_CONFIG = {
-  db_user: process.env["DB_USER"] || "root",
-  db_password: process.env["DB_PASSWORD"] || "root",
-  db_name: process.env["DB_NAME"] || "db_local",
+  db_user: process.env.DB_USER!,
+  db_password: process.env.DB_PASSWORD!,
+  db_name: process.env.DB_NAME!,
   config: {
-    host: process.env["DB_HOST"] || "localhost",
-    port: process.env["DB_PORT"] || "5432",
-    dialect: process.env["DB_DIALECT"] || "postgres",
+    host: process.env.DB_HOST!,
+    port: process.env.DB_PORT!,
+    dialect: process.env.DB_DIALECT!,
   },
 };
 
 // json web token
-export const JWT_REFRESH_SECRET_KEY = getEnvVariable("JWT_REFRESH_SECRET_KEY");
-if(!JWT_REFRESH_SECRET_KEY) {
-  console.log("JWT_REFRESH_SECRET_KEY is not defined");
-  process.exit(1);
-}
-export const JWT_REFRESH_SECRET_TTL = getEnvVariable("JWT_REFRESH_SECRET_TTL") || "7d";
-
-export const JWT_SECRET_KEY = getEnvVariable("JWT_SECRET_KEY");
-if(!JWT_SECRET_KEY) {
-  console.log("JWT_SECRET_KEY is not defined");
-  process.exit(1);
-}
-export const JWT_SECRET_KEY_TTL = getEnvVariable("JWT_SECRET_TTL") || "10m";
+export const JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY!
+export const JWT_REFRESH_SECRET_TTL = process.env.JWT_REFRESH_SECRET_TTL!
+export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!
+export const JWT_SECRET_KEY_TTL = process.env.JWT_SECRET_TTL!

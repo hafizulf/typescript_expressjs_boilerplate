@@ -15,7 +15,7 @@ export class DashboardTotalNamespace extends SocketNamespace {
     @inject(TYPES.DashboardTotalService) private _dashboardTotalService: DashboardTotalService,
   ) {
     super(`${DASHBOARD_TOTAL_NSP}`);
-    this.rateLimiter = new RateLimiter(1, 30);
+    this.rateLimiter = new RateLimiter(1, 60);
   }
 
   registerEvents(socket: Socket) {

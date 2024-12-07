@@ -6,17 +6,30 @@ import { AnnouncementService } from "@/modules/announcements/announcement-servic
 import { findAllSchema } from "@/modules/announcements/announcement-validation";
 import { ANNOUNCEMENT_NSP } from "./namespace-constants";
 import { APP_ENV } from "@/config/env";
+import { RateLimiter } from "../rate-limiter";
 
 @injectable()
 export class AnnouncementNamespace extends SocketNamespace {
+  private rateLimiter: RateLimiter;
+
   constructor(
     @inject(TYPES.AnnouncementService) private _announcementService: AnnouncementService,
   ) {
     super(`${ANNOUNCEMENT_NSP}`);
+    this.rateLimiter = new RateLimiter(1, 60);
   }
 
   registerEvents(socket: Socket): void {
     socket.on("get_announcements", async (payload) => {
+      const isAllowed = await this.rateLimiter.checkRateLimit(socket.id);
+      if (!isAllowed) {
+        socket.emit("error", {
+          message: "Rate limit exceeded, please try again later.",
+          statusCode: 429,
+        });
+        return;
+      }
+
       try {
         console.log("Received payload:", payload);
 
