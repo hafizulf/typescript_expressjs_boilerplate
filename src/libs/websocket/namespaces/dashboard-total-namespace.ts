@@ -5,6 +5,7 @@ import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-tota
 import { inject, injectable } from "inversify";
 import { DASHBOARD_TOTAL_NSP } from "./namespace-constants";
 import { RateLimiter } from "../rate-limiter";
+import { ADMIN, SUPERADMIN } from "@/modules/common/const/role-constants";
 
 @injectable()
 export class DashboardTotalNamespace extends SocketNamespace {
@@ -14,7 +15,10 @@ export class DashboardTotalNamespace extends SocketNamespace {
   constructor(
     @inject(TYPES.DashboardTotalService) private _dashboardTotalService: DashboardTotalService,
   ) {
-    super(`${DASHBOARD_TOTAL_NSP}`);
+    super(
+      `${DASHBOARD_TOTAL_NSP}`,
+      [SUPERADMIN, ADMIN]
+    );
     this.rateLimiter = new RateLimiter(1, 60);
   }
 

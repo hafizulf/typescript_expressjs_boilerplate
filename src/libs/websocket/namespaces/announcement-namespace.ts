@@ -7,6 +7,7 @@ import { findAllSchema } from "@/modules/announcements/announcement-validation";
 import { ANNOUNCEMENT_NSP } from "./namespace-constants";
 import { APP_ENV } from "@/config/env";
 import { RateLimiter } from "../rate-limiter";
+import { ADMIN, SUPERADMIN, USER } from "@/modules/common/const/role-constants";
 
 @injectable()
 export class AnnouncementNamespace extends SocketNamespace {
@@ -15,7 +16,10 @@ export class AnnouncementNamespace extends SocketNamespace {
   constructor(
     @inject(TYPES.AnnouncementService) private _announcementService: AnnouncementService,
   ) {
-    super(`${ANNOUNCEMENT_NSP}`);
+    super(
+      `${ANNOUNCEMENT_NSP}`,
+      [SUPERADMIN, ADMIN, USER]
+    );
     this.rateLimiter = new RateLimiter(1, 60);
   }
 

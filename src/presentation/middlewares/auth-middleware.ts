@@ -7,15 +7,15 @@ import { IAuthRequest } from "./auth-interface";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { WebAuthDomain } from "@/modules/authentications/web-auth-domain";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
-import { IRoleRepository } from "@/modules/roles/role-repository-interface";
 import { RedisClient } from "@/libs/redis/redis-client";
 import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
+import { RoleService } from "@/modules/roles/role-service";
 
 @injectable()
 export class AuthMiddleware {
   constructor(
     @inject(TYPES.WebAuthService) private _webAuthService: WebAuthService,
-    @inject(TYPES.IRoleRepository) private _roleRepository: IRoleRepository,
+    @inject(TYPES.RoleService) private _roleService: RoleService,
   ) {}
 
   async authenticate(req: Request, _res: Response, next: NextFunction): Promise<void> {
@@ -63,7 +63,7 @@ export class AuthMiddleware {
 
       let userRole = await RedisClient.get(cacheKey);
       if(!userRole) {
-        const userRoleData = await this._roleRepository.findById(authUser.user.roleId);
+        const userRoleData = await this._roleService.findById(authUser.user.roleId);
         userRole = userRoleData.name;
         await RedisClient.set(cacheKey, userRole, USER_ROLE_EXPIRATION);
       }
