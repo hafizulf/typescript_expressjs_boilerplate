@@ -44,6 +44,9 @@ import { AnnouncementRepository } from "@/modules/announcements/announcement-rep
 // Import Socket Namespace
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
 import { AnnouncementNamespace } from "@/libs/websocket/namespaces/announcement-namespace";
+// Import Socket Middleware
+import { SocketAuthenticationMiddleware } from "./libs/websocket/middlewares/socket-authentication-middleware";
+import { SocketAuthorizationMiddleware } from "./libs/websocket/middlewares/socket-authorization-middleware";
 
 //
 const container = new Container();
@@ -99,5 +102,12 @@ container
 container
   .bind<AnnouncementNamespace>(TYPES.AnnouncementNamespace)
   .to(AnnouncementNamespace);
+// Socket Middleware
+container
+  .bind<SocketAuthenticationMiddleware>(TYPES.SocketAuthenticationMiddleware)
+  .to(SocketAuthenticationMiddleware);
+container
+  .bind<SocketAuthorizationMiddleware>(TYPES.SocketAuthorizationMiddleware)
+  .to(SocketAuthorizationMiddleware);
 
 export default container;

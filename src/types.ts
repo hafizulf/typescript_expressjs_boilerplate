@@ -26,6 +26,10 @@ const TYPES = {
   // Socket Namespaces
   AnnouncementNamespace: Symbol.for("AnnouncementNamespace"),
   DashboardTotalNamespace: Symbol.for("DashboardTotalNamespace"),
+
+  // Socket Middleware
+  SocketAuthenticationMiddleware: Symbol.for("SocketAuthenticationMiddleware"),
+  SocketAuthorizationMiddleware: Symbol.for("SocketAuthorizationMiddleware"),
 }
 
 export default TYPES;
