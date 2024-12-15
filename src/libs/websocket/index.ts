@@ -6,11 +6,7 @@ import TYPES from "@/types";
 import { WebSocketCorsOption } from "@/config/cors";
 import { SocketAuthenticationMiddleware } from "./middlewares/socket-authentication-middleware";
 import { SocketAuthorizationMiddleware } from "./middlewares/socket-authorization-middleware";
-
-export interface NamespaceConfig {
-  namespace: string;
-  events: Record<string, CallableFunction>;
-}
+import { SocketEventWhitelistMiddleware } from "./middlewares/socket-event-whitelist-middleware";
 
 @injectable()
 export class SocketIO {
@@ -18,8 +14,12 @@ export class SocketIO {
   private publicNamespaces: string[] = [];
 
   constructor(
-    @inject(TYPES.SocketAuthenticationMiddleware) private _socketAuthenticationMiddleware: SocketAuthenticationMiddleware,
-    @inject(TYPES.SocketAuthorizationMiddleware) private _socketAuthorizationMiddleware: SocketAuthorizationMiddleware,
+    @inject(TYPES.SocketAuthenticationMiddleware)
+    private _socketAuthenticationMiddleware: SocketAuthenticationMiddleware,
+    @inject(TYPES.SocketAuthorizationMiddleware)
+    private _socketAuthorizationMiddleware: SocketAuthorizationMiddleware,
+    @inject(TYPES.SocketEventWhitelistMiddleware)
+    private _socketEventWhitelistMiddleware: SocketEventWhitelistMiddleware,
   ) {}
 
   public initialize(httpServer: HttpServer): void {
@@ -43,12 +43,14 @@ export class SocketIO {
   private createNamespace(namespaceInstance: SocketNamespace): void {
     const namespace = namespaceInstance.namespace;
     const allowedRoles = namespaceInstance.allowedRoles;
+    const eventWhitelist = namespaceInstance.eventWhitelist;
     const nsp = this.io.of(namespace);
 
     nsp.use(this._socketAuthenticationMiddleware.handle(this.publicNamespaces)); // Add authentication middleware
     if (allowedRoles.length > 0) { // Add authorization middleware if roles are defined
       nsp.use(this._socketAuthorizationMiddleware.handle(this.publicNamespaces, allowedRoles));
     }
+    nsp.use(this._socketEventWhitelistMiddleware.handle(eventWhitelist)); // Add event whitelist middleware
 
     nsp.on("connection", (socket: Socket) => {
       console.log(`Client connected to namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);

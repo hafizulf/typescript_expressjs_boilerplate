@@ -30,6 +30,7 @@ const TYPES = {
   // Socket Middleware
   SocketAuthenticationMiddleware: Symbol.for("SocketAuthenticationMiddleware"),
   SocketAuthorizationMiddleware: Symbol.for("SocketAuthorizationMiddleware"),
+  SocketEventWhitelistMiddleware: Symbol.for("SocketEventWhitelistMiddleware"),
 }
 
 export default TYPES;

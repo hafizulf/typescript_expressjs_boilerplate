@@ -1,14 +1,18 @@
 import { Socket } from "socket.io";
 import { SocketNamespace } from "./abstract-namespace";
-import { PUBLIC_TIME_NSP } from "./namespace-constants";
+import { PUBLIC_TIME_NSP } from "./constants/namespace-constants";
 import { APP_ENV } from "@/config/env";
 import { RateLimiter } from "../rate-limiter";
+import { PUBLIC_TIME_EVENTS } from "./constants/event-constants";
 
 export class PublicTimeNamespace extends SocketNamespace {
   private rateLimiter: RateLimiter;
 
   constructor() {
-    super(`${PUBLIC_TIME_NSP}`);
+    super(PUBLIC_TIME_NSP, [], [
+      PUBLIC_TIME_EVENTS.GET_TIME,
+      PUBLIC_TIME_EVENTS.DATA_TIME,
+    ]);
     this.rateLimiter = new RateLimiter(5, 60); // max 5 requests per minute
   }
 

@@ -3,9 +3,10 @@ import { SocketNamespace } from "./abstract-namespace";
 import TYPES from "@/types";
 import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-total-service";
 import { inject, injectable } from "inversify";
-import { DASHBOARD_TOTAL_NSP } from "./namespace-constants";
+import { DASHBOARD_TOTAL_NSP } from "./constants/namespace-constants";
 import { RateLimiter } from "../rate-limiter";
 import { ADMIN, SUPERADMIN } from "@/modules/common/const/role-constants";
+import { DASHBOARD_TOTAL_EVENTS } from "./constants/event-constants";
 
 @injectable()
 export class DashboardTotalNamespace extends SocketNamespace {
@@ -15,17 +16,18 @@ export class DashboardTotalNamespace extends SocketNamespace {
   constructor(
     @inject(TYPES.DashboardTotalService) private _dashboardTotalService: DashboardTotalService,
   ) {
-    super(
-      `${DASHBOARD_TOTAL_NSP}`,
-      [SUPERADMIN, ADMIN]
-    );
+    super(DASHBOARD_TOTAL_NSP, [SUPERADMIN, ADMIN], [
+      DASHBOARD_TOTAL_EVENTS.GET_TOTAL_USERS,
+      DASHBOARD_TOTAL_EVENTS.DATA_TOTAL_USERS,
+    ]);
+
     this.rateLimiter = new RateLimiter(1, 60);
   }
 
   registerEvents(socket: Socket) {
     console.log(`Client connected to namespace: ${this.namespace}, socket id: ${socket.id}`);
 
-    socket.on("get_total_users", async () => {
+    socket.on(DASHBOARD_TOTAL_EVENTS.GET_TOTAL_USERS, async () => {
       const isAllowed = await this.rateLimiter.checkRateLimit(socket.id);
       if (!isAllowed) {
         socket.emit("error", {
@@ -38,7 +40,7 @@ export class DashboardTotalNamespace extends SocketNamespace {
       // Emit immediately upon receiving the event
       try {
         const data = await this._dashboardTotalService.findAll();
-        socket.emit("data_total_users", data);
+        socket.emit(DASHBOARD_TOTAL_EVENTS.DATA_TOTAL_USERS, data);
       } catch (error) {
         console.error("Failed to fetch dashboard total users immediately:", error);
       }
@@ -49,7 +51,7 @@ export class DashboardTotalNamespace extends SocketNamespace {
         const interval = setInterval(async () => {
           try {
             const data = await this._dashboardTotalService.findAll();
-            socket.emit("data_total_users", data);
+            socket.emit(DASHBOARD_TOTAL_EVENTS.DATA_TOTAL_USERS, data);
           } catch (error) {
             console.error("Failed to fetch dashboard total users in interval:", error);
           }

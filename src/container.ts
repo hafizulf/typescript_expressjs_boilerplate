@@ -45,8 +45,9 @@ import { AnnouncementRepository } from "@/modules/announcements/announcement-rep
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
 import { AnnouncementNamespace } from "@/libs/websocket/namespaces/announcement-namespace";
 // Import Socket Middleware
-import { SocketAuthenticationMiddleware } from "./libs/websocket/middlewares/socket-authentication-middleware";
-import { SocketAuthorizationMiddleware } from "./libs/websocket/middlewares/socket-authorization-middleware";
+import { SocketAuthenticationMiddleware } from "@/libs/websocket/middlewares/socket-authentication-middleware";
+import { SocketAuthorizationMiddleware } from "@/libs/websocket/middlewares/socket-authorization-middleware";
+import { SocketEventWhitelistMiddleware } from "@/libs/websocket/middlewares/socket-event-whitelist-middleware";
 
 //
 const container = new Container();
@@ -109,5 +110,8 @@ container
 container
   .bind<SocketAuthorizationMiddleware>(TYPES.SocketAuthorizationMiddleware)
   .to(SocketAuthorizationMiddleware);
+container
+  .bind<SocketEventWhitelistMiddleware>(TYPES.SocketEventWhitelistMiddleware)
+  .to(SocketEventWhitelistMiddleware);
 
 export default container;

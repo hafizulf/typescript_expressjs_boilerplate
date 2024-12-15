@@ -19,7 +19,7 @@ import { Routes } from "@/presentation/routes";
 import { RedisClient } from "@/libs/redis/redis-client";
 import { SocketIO } from "@/libs/websocket";
 import TYPES from "@/types";
-import { PUBLIC_TIME_NSP } from "@/libs/websocket/namespaces/namespace-constants";
+import { PUBLIC_TIME_NSP } from "@/libs/websocket/namespaces/constants/namespace-constants";
 import { PublicTimeNamespace } from "@/libs/websocket/namespaces/public-time-namespace";
 
 @injectable()

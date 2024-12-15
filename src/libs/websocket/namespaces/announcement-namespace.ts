@@ -4,10 +4,11 @@ import { Socket } from "socket.io";
 import TYPES from "@/types";
 import { AnnouncementService } from "@/modules/announcements/announcement-service";
 import { findAllSchema } from "@/modules/announcements/announcement-validation";
-import { ANNOUNCEMENT_NSP } from "./namespace-constants";
+import { ANNOUNCEMENT_NSP } from "./constants/namespace-constants";
 import { APP_ENV } from "@/config/env";
 import { RateLimiter } from "../rate-limiter";
 import { ADMIN, SUPERADMIN, USER } from "@/modules/common/const/role-constants";
+import { ANNOUNCEMENT_EVENTS } from "./constants/event-constants";
 
 @injectable()
 export class AnnouncementNamespace extends SocketNamespace {
@@ -16,15 +17,15 @@ export class AnnouncementNamespace extends SocketNamespace {
   constructor(
     @inject(TYPES.AnnouncementService) private _announcementService: AnnouncementService,
   ) {
-    super(
-      `${ANNOUNCEMENT_NSP}`,
-      [SUPERADMIN, ADMIN, USER]
-    );
+    super(ANNOUNCEMENT_NSP, [SUPERADMIN, ADMIN, USER], [
+      ANNOUNCEMENT_EVENTS.GET_ANNOUNCEMENTS,
+      ANNOUNCEMENT_EVENTS.DATA_ANNOUNCEMENTS,
+    ]);
     this.rateLimiter = new RateLimiter(1, 60);
   }
 
   registerEvents(socket: Socket): void {
-    socket.on("get_announcements", async (payload) => {
+    socket.on(ANNOUNCEMENT_EVENTS.GET_ANNOUNCEMENTS, async (payload) => {
       const isAllowed = await this.rateLimiter.checkRateLimit(socket.id);
       if (!isAllowed) {
         socket.emit("error", {
@@ -40,7 +41,7 @@ export class AnnouncementNamespace extends SocketNamespace {
         const validatedReq = findAllSchema.safeParse(payload);
         const data = await this._announcementService.findAll(validatedReq.data);
 
-        socket.emit("data_announcements", data);
+        socket.emit(ANNOUNCEMENT_EVENTS.DATA_ANNOUNCEMENTS, data);
       } catch (error: any) {
           socket.emit("error", {
             message: error.message,
