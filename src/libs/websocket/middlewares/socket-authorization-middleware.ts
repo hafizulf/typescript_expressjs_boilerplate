@@ -1,4 +1,5 @@
 import { injectable, inject } from "inversify";
+import { NamespaceConfigService } from "../namespaces/namespace-config-service";
 import { Socket } from "socket.io";
 import TYPES from "@/types";
 import { RedisClient } from "@/libs/redis/redis-client";
@@ -8,17 +9,20 @@ import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
 @injectable()
 export class SocketAuthorizationMiddleware {
   constructor(
-    @inject(TYPES.RoleService) private _roleService: RoleService
+    @inject(TYPES.NamespaceConfigService)
+    private namespaceConfig: NamespaceConfigService,
+    @inject(TYPES.RoleService)
+    private _roleService: RoleService
   ) {}
 
-  public handle(publicNamespaces: string[], allowedRoles: string[]) {
+  public handle(allowedRoles: string[]) {
     return async (
       socket: Socket,
       next: (err?: Error) => void
     ) => {
       const namespace = socket.nsp.name;
-      if (publicNamespaces.includes(namespace)) {
-        return next(); // Skip authorization for public namespaces
+      if(this.namespaceConfig.publicNamespaces.includes(namespace)) {
+        return next();
       }
 
       try {

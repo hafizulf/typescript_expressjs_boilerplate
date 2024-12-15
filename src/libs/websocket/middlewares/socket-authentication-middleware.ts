@@ -1,5 +1,6 @@
 import { injectable, inject } from "inversify";
 import { JWT_SECRET_KEY } from "@/config/env";
+import { NamespaceConfigService } from "../namespaces/namespace-config-service";
 import { Socket } from "socket.io";
 import { TokenExpiredError } from "jsonwebtoken";
 import TYPES from "@/types";
@@ -8,16 +9,19 @@ import { WebAuthService } from "@/modules/authentications/web-auth-service";
 @injectable()
 export class SocketAuthenticationMiddleware {
   constructor(
-    @inject(TYPES.WebAuthService) private _webAuthService: WebAuthService,
+    @inject(TYPES.NamespaceConfigService)
+    private namespaceConfig: NamespaceConfigService,
+    @inject(TYPES.WebAuthService)
+    private _webAuthService: WebAuthService,
   ) {}
 
-  public handle(publicNamespaces: string[]) {
+  public handle() {
     return async (
       socket: Socket,
       next: (err?: Error) => void
     ) => {
       const namespace = socket.nsp.name;
-      if (publicNamespaces.includes(namespace)) {
+      if (this.namespaceConfig.publicNamespaces.includes(namespace)) {
         return next(); // Skip authentication for public namespaces
       }
 

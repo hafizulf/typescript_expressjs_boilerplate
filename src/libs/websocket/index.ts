@@ -1,25 +1,27 @@
+import { inject, injectable } from "inversify";
+import { NamespaceConfigService } from "./namespaces/namespace-config-service";
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { Server as HttpServer } from "http";
 import { SocketNamespace } from "./namespaces/abstract-namespace";
-import { inject, injectable } from "inversify";
 import TYPES from "@/types";
-import { WebSocketCorsOption } from "@/config/cors";
 import { SocketAuthenticationMiddleware } from "./middlewares/socket-authentication-middleware";
 import { SocketAuthorizationMiddleware } from "./middlewares/socket-authorization-middleware";
 import { SocketEventWhitelistMiddleware } from "./middlewares/socket-event-whitelist-middleware";
+import { WebSocketCorsOption } from "@/config/cors";
 
 @injectable()
 export class SocketIO {
   private io!: SocketIOServer;
-  private publicNamespaces: string[] = [];
 
   constructor(
+    @inject(TYPES.NamespaceConfigService)
+    private namespaceConfig: NamespaceConfigService,
     @inject(TYPES.SocketAuthenticationMiddleware)
-    private _socketAuthenticationMiddleware: SocketAuthenticationMiddleware,
+    private _authenticationMiddleware: SocketAuthenticationMiddleware,
     @inject(TYPES.SocketAuthorizationMiddleware)
-    private _socketAuthorizationMiddleware: SocketAuthorizationMiddleware,
+    private _authorizationMiddleware: SocketAuthorizationMiddleware,
     @inject(TYPES.SocketEventWhitelistMiddleware)
-    private _socketEventWhitelistMiddleware: SocketEventWhitelistMiddleware,
+    private _eventWhitelistMiddleware: SocketEventWhitelistMiddleware,
   ) {}
 
   public initialize(httpServer: HttpServer): void {
@@ -31,7 +33,7 @@ export class SocketIO {
   }
 
   public setPublicNamespaces(namespaces: string[]): void {
-    this.publicNamespaces = namespaces;
+    this.namespaceConfig.setPublicNamespaces(namespaces); // Set public namespaces
   }
 
   public initializeNamespaces(namespaces: SocketNamespace[]): void {
@@ -46,11 +48,11 @@ export class SocketIO {
     const eventWhitelist = namespaceInstance.eventWhitelist;
     const nsp = this.io.of(namespace);
 
-    nsp.use(this._socketAuthenticationMiddleware.handle(this.publicNamespaces)); // Add authentication middleware
+    nsp.use(this._authenticationMiddleware.handle()); // Add authentication middleware
     if (allowedRoles.length > 0) { // Add authorization middleware if roles are defined
-      nsp.use(this._socketAuthorizationMiddleware.handle(this.publicNamespaces, allowedRoles));
+      nsp.use(this._authorizationMiddleware.handle(allowedRoles));
     }
-    nsp.use(this._socketEventWhitelistMiddleware.handle(eventWhitelist)); // Add event whitelist middleware
+    nsp.use(this._eventWhitelistMiddleware.handle(eventWhitelist)); // Add event whitelist middleware
 
     nsp.on("connection", (socket: Socket) => {
       console.log(`Client connected to namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);

@@ -24,6 +24,7 @@ const TYPES = {
   IUserRepository: Symbol.for("IUserRepository"),
 
   // Socket Namespaces
+  NamespaceConfigService: Symbol.for("NamespaceConfigService"),
   AnnouncementNamespace: Symbol.for("AnnouncementNamespace"),
   DashboardTotalNamespace: Symbol.for("DashboardTotalNamespace"),
 

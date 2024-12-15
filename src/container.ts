@@ -42,6 +42,7 @@ import { RefreshTokenRepository } from "@/modules/refresh-tokens/refresh-token-r
 import { DashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository";
 import { AnnouncementRepository } from "@/modules/announcements/announcement-repository";
 // Import Socket Namespace
+import { NamespaceConfigService } from "@/libs/websocket/namespaces/namespace-config-service";
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
 import { AnnouncementNamespace } from "@/libs/websocket/namespaces/announcement-namespace";
 // Import Socket Middleware
@@ -97,6 +98,9 @@ container
   .to(AnnouncementRepository);
 
 // Socket Namespace
+container
+  .bind<NamespaceConfigService>(TYPES.NamespaceConfigService)
+  .to(NamespaceConfigService);
 container
   .bind<DashboardTotalNamespace>(TYPES.DashboardTotalNamespace)
   .to(DashboardTotalNamespace);
