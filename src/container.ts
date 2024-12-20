@@ -100,7 +100,8 @@ container
 // Socket Namespace
 container
   .bind<NamespaceConfigService>(TYPES.NamespaceConfigService)
-  .to(NamespaceConfigService);
+  .to(NamespaceConfigService)
+  .inSingletonScope();
 container
   .bind<DashboardTotalNamespace>(TYPES.DashboardTotalNamespace)
   .to(DashboardTotalNamespace);

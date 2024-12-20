@@ -23,7 +23,6 @@ export class AnnouncementService {
   }
 
   public async findAll(dateRange?: DateRange): Promise<IAnnouncement[]> {
-    console.log(dateRange);
     const data = await this._repository.findAll(dateRange);
     return data.map((el) => el.unmarshal());
   }

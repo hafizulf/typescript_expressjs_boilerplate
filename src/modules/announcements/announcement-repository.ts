@@ -4,7 +4,7 @@ import { AnnouncementDomain, IAnnouncement } from "./announcement-domain";
 import { Announcement as AnnouncementPersistence } from "./announcement-models";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { DateRange } from "../common/dto/date-range.dto";
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { Op } from "sequelize";
 
 @injectable()
@@ -19,8 +19,8 @@ export class AnnouncementRepository implements IAnnouncementRepository {
 
     if (dateRange?.from || dateRange?.to) {
       whereCondition.createdAt = {
-        ...(dateRange.from ? { [Op.gte]: moment(dateRange.from).toDate() } : {}),
-        ...(dateRange.to ? { [Op.lte]: moment(dateRange.to).toDate() } : {}),
+        ...(dateRange.from ? { [Op.gte]: dayjs(dateRange.from).toDate() } : {}),
+        ...(dateRange.to ? { [Op.lte]: dayjs(dateRange.to).toDate() } : {}),
       };
     }
 

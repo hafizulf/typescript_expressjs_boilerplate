@@ -18,7 +18,7 @@ export const findAllSchema = z.object({
     } catch (error) {
       throw new AppError({
         statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Invalid date in 'from' field",
+        description: "Invalid date / format in 'from' field",
       });
     }
   }, z.date().optional()),
@@ -30,7 +30,7 @@ export const findAllSchema = z.object({
     } catch (error) {
       throw new AppError({
         statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Invalid date in 'to' field",
+        description: "Invalid date / format in 'to' field",
       });
     }
   }, z.date().optional()),

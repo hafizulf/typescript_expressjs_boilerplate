@@ -22,7 +22,8 @@ export class SocketAuthenticationMiddleware {
     ) => {
       const namespace = socket.nsp.name;
       if (this.namespaceConfig.publicNamespaces.includes(namespace)) {
-        return next(); // Skip authentication for public namespaces
+        console.log(`Skipping auth for public namespace: ${namespace}`);
+        return next(); // Skip authentication
       }
 
       const token = socket.handshake.auth?.token;
