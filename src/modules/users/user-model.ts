@@ -40,7 +40,7 @@ User.init({
   fullName: DataTypes.STRING,
   email: {
     type: DataTypes.STRING,
-    unique: true,
+    unique: true, // Unique constraint will automatically create an index
   },
   password: DataTypes.STRING,
   avatarPath: {
@@ -65,4 +65,9 @@ User.init({
   modelName: "user",
   underscored: true,
   paranoid: true,
+  indexes: [
+    { fields: ['full_name'] }, // Non-unique index for searching by full name
+    { fields: ['role_id'] }, // Non-unique index for joining roles
+    { fields: ['deleted_at'] }, // Optimize `paranoid` queries
+  ],
 })

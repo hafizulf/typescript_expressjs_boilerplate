@@ -40,5 +40,8 @@ Announcement.init(
     tableName: "announcements",
     underscored: true,
     paranoid: true,
+    indexes: [
+      { fields: ['deleted_at'] }
+    ],
   }
 );

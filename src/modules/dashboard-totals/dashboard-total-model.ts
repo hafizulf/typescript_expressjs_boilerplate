@@ -25,6 +25,7 @@ DashboardTotal.init(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     totalCounted: {
       type: DataTypes.INTEGER,
@@ -40,5 +41,9 @@ DashboardTotal.init(
     tableName: "dashboard_totals",
     underscored: true,
     paranoid: true,
+    indexes: [
+      { fields: ["name"] },
+      { fields: ["deleted_at"] },
+    ]
   }
 )

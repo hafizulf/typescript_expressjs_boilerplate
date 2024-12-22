@@ -19,6 +19,7 @@ RefreshToken.init({
   token: {
     type: DataTypes.TEXT,
     allowNull: false,
+    unique: true,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -33,4 +34,7 @@ RefreshToken.init({
   tableName: "refresh_tokens",
   underscored: true,
   timestamps: false,
+  indexes: [
+    { fields: ["user_id"] },
+  ]
 })
