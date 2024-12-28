@@ -15,6 +15,7 @@ const TYPES = {
   RefreshTokenService: Symbol.for("RefreshTokenService"),
   RoleService: Symbol.for("RoleService"),
   UserService: Symbol.for("UserService"),
+  UserLogsService: Symbol.for("UserLogsService"),
   WebAuthService: Symbol.for("WebAuthService"),
 
   // Repository Interface

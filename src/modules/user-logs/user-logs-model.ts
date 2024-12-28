@@ -35,7 +35,6 @@ UserLogs.init({
   tableName: "user_logs",
   sequelize,
   underscored: true,
-  paranoid: true,
   timestamps: true,
   updatedAt: false,
   deletedAt: false,

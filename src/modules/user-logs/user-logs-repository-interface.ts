@@ -9,4 +9,6 @@ export interface IUserLogsRepository
   >
 {
   store(props: IUserLogs, option: BaseQueryOption): Promise<UserLogsDomain>;
+  getOldestUserLogs(): Promise<UserLogsDomain | null>;
+  deleteUserLogsBefore(date: Date): Promise<void>;
 }

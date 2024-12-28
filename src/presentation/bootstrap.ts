@@ -37,8 +37,8 @@ export class Bootstrap {
     this.middleware();          // apply middleware
     this.setRoutes();           // set routes
     this.middlewareError();     // error handler
-    this.initializeSocketIO();  // initialize socket
     this.initializeBackgroundServices();  // initialize background services
+    this.initializeSocketIO();  // initialize socket
   }
 
   private initializeRedis(): void {
@@ -149,6 +149,10 @@ export class Bootstrap {
     this.app.use(errorResponder);
   }
 
+  private initializeBackgroundServices(): void {
+    this.backgroundServiceManager.startServices();
+  }
+
   public initializeSocketIO(): void {
     const socketIO = container.get<SocketIO>(TYPES.SocketIO);
 
@@ -167,9 +171,5 @@ export class Bootstrap {
 
     socketIO.initializeNamespaces(socketNamespaces);
     console.log("Socket.IO initialized with namespaces.");
-  }
-
-  private initializeBackgroundServices(): void {
-    this.backgroundServiceManager.startServices();
   }
 }

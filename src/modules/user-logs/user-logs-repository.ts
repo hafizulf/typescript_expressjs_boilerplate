@@ -57,4 +57,20 @@ export class UserLogsRepository implements IUserLogsRepository {
     }
     return UserLogsDomain.create(data.toJSON());
   }
+
+  async getOldestUserLogs(): Promise<UserLogsDomain | null> {
+    const data = await UserLogsPersistence.findOne({
+      order: [["createdAt", "ASC"]],
+    });
+
+    return data ? UserLogsDomain.create(data.toJSON()) : null;
+  }
+
+  async deleteUserLogsBefore(date: Date): Promise<void> {
+    await UserLogsPersistence.destroy({
+      where: {
+        createdAt: { [Op.lt]: date }  // Keep logs from the last 7 days
+      }
+    });
+  }
 }

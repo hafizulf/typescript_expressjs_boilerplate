@@ -29,6 +29,7 @@ import { RefreshTokenService } from "@/modules/refresh-tokens/refresh-token-serv
 import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-total-service";
 import { AnnouncementService } from "@/modules/announcements/announcement-service";
 import { ManageDbTransactionService } from "@/modules/common/services/manage-db-transaction-service";
+import { UserLogsService } from "@/modules/user-logs/user-logs-service";
 
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
@@ -84,6 +85,7 @@ container.bind(TYPES.RefreshTokenService).to(RefreshTokenService);
 container.bind(TYPES.DashboardTotalService).to(DashboardTotalService);
 container.bind(TYPES.AnnouncementService).to(AnnouncementService);
 container.bind(TYPES.ManageDbTransactionService).to(ManageDbTransactionService);
+container.bind(TYPES.UserLogsService).to(UserLogsService);
 // Repository
 container
   .bind<IRoleRepository>(TYPES.IRoleRepository)
