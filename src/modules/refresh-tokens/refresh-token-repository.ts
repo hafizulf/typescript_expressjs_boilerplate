@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { IRefreshTokenRepositoryInterface } from "./refresh-token-repository-interface";
-import { RefreshToken as RefreshTokenPersistence } from "./refresh-token-model";
+import { RefreshToken as RefreshTokenPersistence } from "@/modules/common/sequelize";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { RefreshTokenDomain } from "./refresh-token-domain";
 

@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { IDashboardTotalRepository } from "./dashboard-total-repository-interface";
-import { DashboardTotal as DashboardTotalPersistence } from "./dashboard-total-model";
+import { DashboardTotal as DashboardTotalPersistence } from "@/modules/common/sequelize";
 import { DashboardTotalDomain, IDashboardTotal } from "./dashboard-total-domain";
 
 @injectable()

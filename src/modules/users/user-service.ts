@@ -10,11 +10,19 @@ import { AppError, HttpCode } from "@/exceptions/app-error";
 import { TParamsChangePassword } from "./user-dto";
 import { RedisClient } from "@/libs/redis/redis-client";
 import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
+import { ManageDbTransactionService } from "../common/services/manage-db-transaction-service";
+import { Transaction as DbTransaction } from "sequelize";
+import { IUserLogsRepository } from "../user-logs/user-logs-repository-interface";
 
 @injectable()
 export class UserService {
   constructor(
-    @inject(TYPES.IUserRepository) private _repository: IUserRepository
+    @inject(TYPES.IUserRepository)
+    private _repository: IUserRepository,
+    @inject(TYPES.IUserLogsRepository)
+    private _userLogsRepository: IUserLogsRepository,
+    @inject(TYPES.ManageDbTransactionService)
+    private _dbTransactionService: ManageDbTransactionService,
   ) {}
 
   public async findAll(
@@ -36,40 +44,46 @@ export class UserService {
   }
 
   public async store(props: IUser): Promise<Omit<IUser, "password">> {
-    try {
-      const userData = UserDomain.create(props);
-      userData.password = props.password; // trigger setter to hash password
+    return await this._dbTransactionService.handle(
+      async (transaction: DbTransaction) => {
+        const userData = UserDomain.create(props);
+        userData.password = props.password; // trigger setter to hash password
 
-      if(typeof props.avatarPath === "object") {
-        const avatarPath = FileSystem.getPath(props.avatarPath, "user/avatars");
-        userData.avatarPath = avatarPath;
-      } else {
-        userData.avatarPath = props.avatarPath || "";
+        if(typeof props.avatarPath === "object") {
+          const avatarPath = FileSystem.getPath(props.avatarPath, "user/avatars");
+          userData.avatarPath = avatarPath;
+        } else {
+          userData.avatarPath = props.avatarPath || "";
+        }
+
+        const safeProps = {
+          ...props,
+          avatarPath: userData.avatarPath,
+          password: userData.password!,
+        };
+
+        const user = await this._repository.store(safeProps, { transaction });
+        if(typeof props.avatarPath === "object") {
+          // store avatar after user created successfully
+          FileSystem.store(props.avatarPath, "user/avatars");
+        }
+
+        // storing logs for user created
+        await this._userLogsRepository.store({
+          description: `User ${user.id} has been created`,
+          createdBy: props.updatedBy,
+        }, { transaction })
+
+        const { password, ...restData } = user.unmarshal();
+        return restData;
+      },
+      "Failed to create user",
+      {
+        onSuccess: () => {
+          console.log("User created successfully");
+        }
       }
-
-      const safeProps = {
-        ...props,
-        avatarPath: userData.avatarPath,
-        password: userData.password!,
-      };
-
-      const user = await this._repository.store(safeProps);
-      if(typeof props.avatarPath === "object") {
-        // store avatar after user created successfully
-        FileSystem.store(props.avatarPath, "user/avatars");
-      }
-
-      const { password, ...restData } = user.unmarshal();
-      return restData;
-    } catch (error: Error | any) {
-      console.error("Error updating user:", error);
-
-      throw new AppError({
-        statusCode: HttpCode.INTERNAL_SERVER_ERROR,
-        description: "An error occurred while updating the user.",
-        data: error.message,
-      });
-    }
+    )
   }
 
   public async findById(id: string): Promise<IUser> {

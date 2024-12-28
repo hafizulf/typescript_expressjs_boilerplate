@@ -28,6 +28,7 @@ import { UserService } from "@/modules/users/user-service";
 import { RefreshTokenService } from "@/modules/refresh-tokens/refresh-token-service";
 import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-total-service";
 import { AnnouncementService } from "@/modules/announcements/announcement-service";
+import { ManageDbTransactionService } from "@/modules/common/services/manage-db-transaction-service";
 
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
@@ -35,12 +36,14 @@ import { IUserRepository } from "@/modules/users/user-repository-interface";
 import { IRefreshTokenRepositoryInterface } from "@/modules/refresh-tokens/refresh-token-repository-interface";
 import { IDashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository-interface";
 import { IAnnouncementRepository } from "@/modules/announcements/announcement-repository-interface";
+import { IUserLogsRepository } from "@/modules/user-logs/user-logs-repository-interface";
 // Import Repository
 import { RoleRepository } from "@/modules/roles/role-repository";
 import { UserRepository } from "@/modules/users/user-repository";
 import { RefreshTokenRepository } from "@/modules/refresh-tokens/refresh-token-repository";
 import { DashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository";
 import { AnnouncementRepository } from "@/modules/announcements/announcement-repository";
+import { UserLogsRepository } from "@/modules/user-logs/user-logs-repository";
 // Import Socket Namespace
 import { NamespaceConfigService } from "@/libs/websocket/namespaces/namespace-config-service";
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
@@ -80,6 +83,7 @@ container.bind(TYPES.UserService).to(UserService);
 container.bind(TYPES.RefreshTokenService).to(RefreshTokenService);
 container.bind(TYPES.DashboardTotalService).to(DashboardTotalService);
 container.bind(TYPES.AnnouncementService).to(AnnouncementService);
+container.bind(TYPES.ManageDbTransactionService).to(ManageDbTransactionService);
 // Repository
 container
   .bind<IRoleRepository>(TYPES.IRoleRepository)
@@ -96,6 +100,9 @@ container
 container
   .bind<IAnnouncementRepository>(TYPES.IAnnouncementRepository)
   .to(AnnouncementRepository);
+container
+  .bind<IUserLogsRepository>(TYPES.IUserLogsRepository)
+  .to(UserLogsRepository);
 
 // Socket Namespace
 container

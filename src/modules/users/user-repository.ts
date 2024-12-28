@@ -3,11 +3,12 @@ import { TStandardPaginateOption } from "../common/dto/pagination-dto";
 import { Pagination } from "../common/pagination";
 import { UserDomain, IUser } from "./user-domain";
 import { IUserRepository } from "./user-repository-interface";
-import { User as UserPersistence } from "./user-model";
-import { Role as RolePersistence } from "../roles/role-model";
+import { User as UserPersistence } from "@/modules/common/sequelize";
+import { Role as RolePersistence } from "@/modules/common/sequelize";
 import { Op, Sequelize } from "sequelize";
 import { ICreateUserProps, TPropsUpdatePassword } from "./user-dto";
 import { AppError, HttpCode } from "@/exceptions/app-error";
+import { BaseQueryOption } from "../common/dto/common-dto";
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -68,7 +69,10 @@ export class UserRepository implements IUserRepository {
     return [rows.map((el) => UserDomain.create(el.toJSON())), pagination];
   }
 
-  async store(props: ICreateUserProps): Promise<UserDomain> {
+  async store(
+    props: ICreateUserProps,
+    option: BaseQueryOption,
+  ): Promise<UserDomain> {
     const isExistRole = await RolePersistence.findByPk(props.roleId);
     if(!isExistRole) {
       throw new AppError({
@@ -78,13 +82,13 @@ export class UserRepository implements IUserRepository {
     }
 
     try {
-      const createdUser = await UserPersistence.create(props)
+      const createdUser = await UserPersistence.create(props, { transaction: option.transaction });
       return UserDomain.create(createdUser.toJSON());
     } catch(e: Error | any) {
       if(e?.name === "SequelizeUniqueConstraintError") {
         throw new AppError({
           statusCode: HttpCode.CONFLICT,
-          description: "Email already exists",
+          description: "User already exists",
         })
       }
 

@@ -11,10 +11,11 @@ const TYPES = {
   AnnouncementService: Symbol.for("AnnouncementService"),
   BackgroundServiceManager: Symbol.for("BackgroundServiceManager"),
   DashboardTotalService: Symbol.for("DashboardTotalService"),
-  WebAuthService: Symbol.for("WebAuthService"),
+  ManageDbTransactionService: Symbol.for("ManageDbTransactionService"),
   RefreshTokenService: Symbol.for("RefreshTokenService"),
   RoleService: Symbol.for("RoleService"),
   UserService: Symbol.for("UserService"),
+  WebAuthService: Symbol.for("WebAuthService"),
 
   // Repository Interface
   IAnnouncementRepository: Symbol.for("IAnnouncementRepository"),
@@ -22,6 +23,7 @@ const TYPES = {
   IRefreshTokenRepository: Symbol.for("IRefreshTokenRepository"),
   IRoleRepository: Symbol.for("IRoleRepository"),
   IUserRepository: Symbol.for("IUserRepository"),
+  IUserLogsRepository: Symbol.for("IUserLogsRepository"),
 
   // Socket Namespaces
   NamespaceConfigService: Symbol.for("NamespaceConfigService"),

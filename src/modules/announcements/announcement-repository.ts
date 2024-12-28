@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { IAnnouncementRepository } from "./announcement-repository-interface";
 import { AnnouncementDomain, IAnnouncement } from "./announcement-domain";
-import { Announcement as AnnouncementPersistence } from "./announcement-models";
+import { Announcement as AnnouncementPersistence } from "@/modules/common/sequelize";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { DateRange } from "../common/dto/date-range.dto";
 import dayjs from 'dayjs';
