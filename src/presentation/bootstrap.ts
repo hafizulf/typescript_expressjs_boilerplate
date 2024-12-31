@@ -17,6 +17,7 @@ import path from "path";
 import rateLimit from "express-rate-limit";
 import { Routes } from "@/presentation/routes";
 import { RedisClient } from "@/libs/redis/redis-client";
+import { sequelizeMigrate } from "@/modules/common/sequelize";
 import { SocketIO } from "@/libs/websocket";
 import TYPES from "@/types";
 import { PUBLIC_TIME_NSP } from "@/libs/websocket/namespaces/constants/namespace-constants";
@@ -37,6 +38,7 @@ export class Bootstrap {
     this.middleware();          // apply middleware
     this.setRoutes();           // set routes
     this.middlewareError();     // error handler
+    this.initializeDatabase();
     this.initializeBackgroundServices();  // initialize background services
     this.initializeSocketIO();  // initialize socket
   }
@@ -147,6 +149,10 @@ export class Bootstrap {
     this.app.use(invalidPathHandler);
     this.app.use(errorLogger);
     this.app.use(errorResponder);
+  }
+
+  private async initializeDatabase(): Promise<void> {
+    await sequelizeMigrate();
   }
 
   private initializeBackgroundServices(): void {

@@ -9,6 +9,26 @@ import { UserLogs } from "../user-logs/user-logs-model";
 Role.hasMany(User, { foreignKey: "roleId" });
 User.belongsTo(Role, { foreignKey: "roleId" });
 
+export async function sequelizeMigrate(): Promise<void> {
+  try {
+    console.log("Running database migrations...");
+
+    await Promise.all([
+      Role.sync({ alter: false }),
+      User.sync({ alter: false }),
+      RefreshToken.sync({ alter: false }),
+      DashboardTotal.sync({ alter: false }),
+      Announcement.sync({ alter: false }),
+      UserLogs.sync({ alter: false }),
+    ]);
+
+    console.log("Database migrations completed.");
+  } catch (error) {
+    console.error("Failed to run migrations:", error);
+    process.exit(1);
+  }
+}
+
 export {
   Role,
   User,
