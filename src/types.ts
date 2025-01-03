@@ -12,6 +12,7 @@ const TYPES = {
   BackgroundServiceManager: Symbol.for("BackgroundServiceManager"),
   DashboardTotalService: Symbol.for("DashboardTotalService"),
   ManageDbTransactionService: Symbol.for("ManageDbTransactionService"),
+  MqttService: Symbol.for("MqttService"),
   RefreshTokenService: Symbol.for("RefreshTokenService"),
   RoleService: Symbol.for("RoleService"),
   UserService: Symbol.for("UserService"),

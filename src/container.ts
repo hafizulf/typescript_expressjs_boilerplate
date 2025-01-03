@@ -21,7 +21,7 @@ import { RoleController } from "@/modules/roles/role-controller";
 import { UserController } from "@/modules/users/user-controller";
 import { AnnouncementController } from "@/modules/announcements/announcement-controller";
 // Import Services
-import { BackgroundServiceManager } from "./modules/common/background/background-service-manager";
+import { BackgroundServiceManager } from "./modules/common/services/background-service-manager";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { RoleService } from "@/modules/roles/role-service";
 import { UserService } from "@/modules/users/user-service";
@@ -30,6 +30,7 @@ import { DashboardTotalService } from "@/modules/dashboard-totals/dashboard-tota
 import { AnnouncementService } from "@/modules/announcements/announcement-service";
 import { ManageDbTransactionService } from "@/modules/common/services/manage-db-transaction-service";
 import { UserLogsService } from "@/modules/user-logs/user-logs-service";
+import { MqttService } from "@/modules/common/services/mqtt-service";
 
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
@@ -53,6 +54,9 @@ import { AnnouncementNamespace } from "@/libs/websocket/namespaces/announcement-
 import { SocketAuthenticationMiddleware } from "@/libs/websocket/middlewares/socket-authentication-middleware";
 import { SocketAuthorizationMiddleware } from "@/libs/websocket/middlewares/socket-authorization-middleware";
 import { SocketEventWhitelistMiddleware } from "@/libs/websocket/middlewares/socket-event-whitelist-middleware";
+// Import Mqtt
+import { Mqtt } from "@/libs/mqtt/mqtt-index";
+import { MachineTsBoiler1Subscriber } from "./libs/mqtt/subscribers/machine-ts-boiler1-subscriber";
 
 //
 const container = new Container();
@@ -62,6 +66,7 @@ container.bind<IServer>(TYPES.Server).to(Server).inSingletonScope();
 container.bind<Bootstrap>(TYPES.Bootstrap).to(Bootstrap).inSingletonScope();
 container.bind<Cron>(Cron).toSelf().inSingletonScope();
 container.bind<SocketIO>(TYPES.SocketIO).to(SocketIO).inSingletonScope();
+container.bind<Mqtt>(Mqtt).toSelf().inSingletonScope();
 
 // Routes
 container.bind<Routes>(Routes).toSelf().inSingletonScope();
@@ -86,6 +91,7 @@ container.bind(TYPES.DashboardTotalService).to(DashboardTotalService);
 container.bind(TYPES.AnnouncementService).to(AnnouncementService);
 container.bind(TYPES.ManageDbTransactionService).to(ManageDbTransactionService);
 container.bind(TYPES.UserLogsService).to(UserLogsService);
+container.bind(TYPES.MqttService).to(MqttService).inSingletonScope();
 // Repository
 container
   .bind<IRoleRepository>(TYPES.IRoleRepository)
@@ -127,5 +133,9 @@ container
 container
   .bind<SocketEventWhitelistMiddleware>(TYPES.SocketEventWhitelistMiddleware)
   .to(SocketEventWhitelistMiddleware);
+// MQTT
+container
+  .bind<MachineTsBoiler1Subscriber>(MachineTsBoiler1Subscriber)
+  .toSelf().inSingletonScope();
 
 export default container;

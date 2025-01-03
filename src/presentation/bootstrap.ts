@@ -1,18 +1,19 @@
 import { AnnouncementNamespace } from "@/libs/websocket/namespaces/announcement-namespace";
 import { APP_API_PREFIX } from "@/config/env";
 import { AppError } from "@/exceptions/app-error";
-import { BackgroundServiceManager } from "@/modules/common/background/background-service-manager";
+import { BackgroundServiceManager } from "@/modules/common/services/background-service-manager";
 import * as bodyParser from "body-parser";
 import cookieParser from 'cookie-parser';
 import container from "@/container";
 import cors from "cors";
 import { createServer, Server } from "http";
-import { HttpCorsOptions } from "@/config/cors";
-import { inject, injectable } from "inversify";
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
 import { errorHandler } from "@/exceptions/error-handler";
 import express, { Request, Response, NextFunction, Application } from "express";
+import { HttpCorsOptions } from "@/config/cors";
+import { inject, injectable } from "inversify";
 import { logger } from "@/libs/logger";
+import { Mqtt } from "@/libs/mqtt/mqtt-index";
 import path from "path";
 import rateLimit from "express-rate-limit";
 import { Routes } from "@/presentation/routes";
@@ -31,6 +32,7 @@ export class Bootstrap {
   constructor(
     @inject(Routes) private appRoutes: Routes, // inject routes by class
     @inject(TYPES.BackgroundServiceManager) private backgroundServiceManager: BackgroundServiceManager, // inject by symbol
+    @inject(Mqtt) private mqtt: Mqtt,
   ) {
     this.app = express();
     this.httpServer = createServer(this.app);
@@ -41,6 +43,7 @@ export class Bootstrap {
     this.initializeDatabase();
     this.initializeBackgroundServices();  // initialize background services
     this.initializeSocketIO();  // initialize socket
+    this.initializeMqtt();      // initialize mqtt
   }
 
   private initializeRedis(): void {
@@ -177,5 +180,12 @@ export class Bootstrap {
 
     socketIO.initializeNamespaces(socketNamespaces);
     console.log("Socket.IO initialized with namespaces.");
+  }
+
+  private initializeMqtt(): void {
+    this.mqtt.connect();
+    this.mqtt.setSubscriber();
+
+    console.log("MQTT client initialized and connected to the broker.");
   }
 }

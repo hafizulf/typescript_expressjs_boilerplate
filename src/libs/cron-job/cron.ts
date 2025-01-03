@@ -34,7 +34,7 @@ export class Cron {
 
     this._addJob(
       'insertDashboardTotal',
-      '* */1 * * *', // every minute past the hour
+      '0 * * * *',
       async () => {
         console.log("Running insertDashboardTotal job at:", new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
         await this._dashboardTotalService.insertDashboardTotal();
