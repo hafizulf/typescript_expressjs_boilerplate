@@ -62,3 +62,7 @@ public/storage
 
 # MISC
 .idea
+
+#
+redis/
+!src/libs/redis/
