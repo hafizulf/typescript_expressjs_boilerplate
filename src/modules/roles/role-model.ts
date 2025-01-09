@@ -1,4 +1,5 @@
 import {
+  Association,
   CreationOptional,
   DataTypes,
   InferAttributes,
@@ -8,6 +9,7 @@ import {
 import { IRole } from "./role-domain";
 import { uuidv7 } from "uuidv7";
 import { sequelize } from "@/config/database";
+import { User } from "../users/user-model";
 
 export class Role
   extends Model<InferAttributes<Role>, InferCreationAttributes<Role>>
@@ -18,6 +20,10 @@ export class Role
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
   declare deletedAt: CreationOptional<Date>;
+
+  declare static associations: {
+    users: Association<Role, User>;
+  }
 }
 
 Role.init(
