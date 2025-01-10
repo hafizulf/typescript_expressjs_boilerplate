@@ -12,6 +12,7 @@ const TYPES = {
   BackgroundServiceManager: Symbol.for("BackgroundServiceManager"),
   DashboardTotalService: Symbol.for("DashboardTotalService"),
   ManageDbTransactionService: Symbol.for("ManageDbTransactionService"),
+  MenuService: Symbol.for("MenuService"),
   MqttService: Symbol.for("MqttService"),
   RefreshTokenService: Symbol.for("RefreshTokenService"),
   RoleService: Symbol.for("RoleService"),
@@ -22,6 +23,7 @@ const TYPES = {
   // Repository Interface
   IAnnouncementRepository: Symbol.for("IAnnouncementRepository"),
   IDashboardTotalRepository: Symbol.for("IDashboardTotalRepository"),
+  IMenuRepository: Symbol.for("IMenuRepository"),
   IRefreshTokenRepository: Symbol.for("IRefreshTokenRepository"),
   IRoleRepository: Symbol.for("IRoleRepository"),
   IUserRepository: Symbol.for("IUserRepository"),

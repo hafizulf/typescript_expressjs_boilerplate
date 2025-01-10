@@ -1,23 +1,26 @@
-import { injectable } from "inversify";
 import { Router } from "express";
+import { injectable } from "inversify";
 import { AnnouncementRoutes } from "@/modules/announcements/announcement-routes";
-import { UserRoutes } from "@/modules/users/user-routes";
+import { MenuRoutes } from "@/modules/access-managements/menus/menu-routes";
 import { RoleRoutes } from "@/modules/roles/role-routes";
+import { UserRoutes } from "@/modules/users/user-routes";
 import { WebAuthRoutes } from "@/modules/authentications/web-auth-routes";
 
 @injectable()
 export class Routes {
   constructor(
-    private webAuthRoutes: WebAuthRoutes,
-    private userRoutes: UserRoutes,
-    private roleRoutes: RoleRoutes,
     private announcementRoutes: AnnouncementRoutes,
+    private menuRoutes: MenuRoutes,
+    private roleRoutes: RoleRoutes,
+    private userRoutes: UserRoutes,
+    private webAuthRoutes: WebAuthRoutes,
   ) {}
 
   public setRoutes(router: Router) {
-    this.webAuthRoutes.setRoutes(router);
-    this.userRoutes.setRoutes(router);
-    this.roleRoutes.setRoutes(router);
     this.announcementRoutes.setRoutes(router);
+    this.menuRoutes.setRoutes(router);
+    this.roleRoutes.setRoutes(router);
+    this.userRoutes.setRoutes(router);
+    this.webAuthRoutes.setRoutes(router);
   }
 }

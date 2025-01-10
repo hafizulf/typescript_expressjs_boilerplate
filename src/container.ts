@@ -13,6 +13,7 @@ import { WebAuthRoutes } from "@/modules/authentications/web-auth-routes";
 import { UserRoutes } from "@/modules/users/user-routes";
 import { RoleRoutes } from "@/modules/roles/role-routes";
 import { AnnouncementRoutes } from "@/modules/announcements/announcement-routes";
+import { MenuRoutes } from "@/modules/access-managements/menus/menu-routes";
 // Import Middlewares
 import { AuthMiddleware } from "@/presentation/middlewares/auth-middleware";
 // Import Controllers
@@ -20,6 +21,7 @@ import { WebAuthController } from "@/modules/authentications/web-auth-controller
 import { RoleController } from "@/modules/roles/role-controller";
 import { UserController } from "@/modules/users/user-controller";
 import { AnnouncementController } from "@/modules/announcements/announcement-controller";
+import { MenuController } from "@/modules/access-managements/menus/menu-controller";
 // Import Services
 import { BackgroundServiceManager } from "./modules/common/services/background-service-manager";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
@@ -31,6 +33,7 @@ import { AnnouncementService } from "@/modules/announcements/announcement-servic
 import { ManageDbTransactionService } from "@/modules/common/services/manage-db-transaction-service";
 import { UserLogsService } from "@/modules/user-logs/user-logs-service";
 import { MqttService } from "@/modules/common/services/mqtt-service";
+import { MenuService } from "@/modules/access-managements/menus/menu-service";
 
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
@@ -39,6 +42,7 @@ import { IRefreshTokenRepositoryInterface } from "@/modules/refresh-tokens/refre
 import { IDashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository-interface";
 import { IAnnouncementRepository } from "@/modules/announcements/announcement-repository-interface";
 import { IUserLogsRepository } from "@/modules/user-logs/user-logs-repository-interface";
+import { IMenuRepository } from "@/modules/access-managements/menus/menu-repository-interface";
 // Import Repository
 import { RoleRepository } from "@/modules/roles/role-repository";
 import { UserRepository } from "@/modules/users/user-repository";
@@ -46,6 +50,7 @@ import { RefreshTokenRepository } from "@/modules/refresh-tokens/refresh-token-r
 import { DashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository";
 import { AnnouncementRepository } from "@/modules/announcements/announcement-repository";
 import { UserLogsRepository } from "@/modules/user-logs/user-logs-repository";
+import { MenuRepository } from "@/modules/access-managements/menus/menu-repository";
 // Import Socket Namespace
 import { NamespaceConfigService } from "@/libs/websocket/namespaces/namespace-config-service";
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
@@ -74,6 +79,7 @@ container.bind<WebAuthRoutes>(WebAuthRoutes).toSelf().inSingletonScope();
 container.bind<UserRoutes>(UserRoutes).toSelf().inSingletonScope();
 container.bind<RoleRoutes>(RoleRoutes).toSelf().inSingletonScope();
 container.bind<AnnouncementRoutes>(AnnouncementRoutes).toSelf().inSingletonScope();
+container.bind<MenuRoutes>(MenuRoutes).toSelf().inSingletonScope();
 // Middleware
 container.bind(AuthMiddleware).toSelf();
 // Controllers
@@ -81,6 +87,7 @@ container.bind(WebAuthController).toSelf();
 container.bind(RoleController).toSelf();
 container.bind(UserController).toSelf();
 container.bind(AnnouncementController).toSelf();
+container.bind(MenuController).toSelf();
 // Services
 container.bind<BackgroundServiceManager>(TYPES.BackgroundServiceManager).to(BackgroundServiceManager);
 container.bind(TYPES.WebAuthService).to(WebAuthService);
@@ -89,8 +96,9 @@ container.bind(TYPES.UserService).to(UserService);
 container.bind(TYPES.RefreshTokenService).to(RefreshTokenService);
 container.bind(TYPES.DashboardTotalService).to(DashboardTotalService);
 container.bind(TYPES.AnnouncementService).to(AnnouncementService);
-container.bind(TYPES.ManageDbTransactionService).to(ManageDbTransactionService);
 container.bind(TYPES.UserLogsService).to(UserLogsService);
+container.bind(TYPES.MenuService).to(MenuService);
+container.bind(TYPES.ManageDbTransactionService).to(ManageDbTransactionService);
 container.bind(TYPES.MqttService).to(MqttService).inSingletonScope();
 // Repository
 container
@@ -111,6 +119,9 @@ container
 container
   .bind<IUserLogsRepository>(TYPES.IUserLogsRepository)
   .to(UserLogsRepository);
+container
+  .bind<IMenuRepository>(TYPES.IMenuRepository)
+  .to(MenuRepository);
 
 // Socket Namespace
 container
