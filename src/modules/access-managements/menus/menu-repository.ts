@@ -11,6 +11,16 @@ export class MenuRepository implements IMenuRepository {
     return data.map((el) => MenuDomain.create(el.toJSON()));
   }
 
+  async findAllParents(): Promise<MenuDomain[]> {
+    const data = await MenuPersistence.findAll({ where: { parentId: null } });
+    return data.map((el) => MenuDomain.create(el.toJSON()));
+  }
+
+  async findChildsByParentId(parentId: string): Promise<MenuDomain[]> {
+    const data = await MenuPersistence.findAll({ where: { parentId } });
+    return data.map((el) => MenuDomain.create(el.toJSON()));
+  }
+
   async store(props: IMenu): Promise<MenuDomain> {
     const data = await MenuPersistence.findOne({ where: { name: props.name } });
     if(data) {

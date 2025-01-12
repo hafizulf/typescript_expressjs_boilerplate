@@ -9,6 +9,10 @@ export const createMenuSchema = z.object({
   isActive: z.boolean(),
 });
 
+export const findChildsByParentIdSchema = z.object({
+  parentId: singleUUIDSchema,
+})
+
 export const findMenuByIdSchema = uuidV7RegexSchema;
 
 export const updateMenuSchema = z.object({

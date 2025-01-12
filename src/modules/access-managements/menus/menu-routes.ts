@@ -19,6 +19,18 @@ export class MenuRoutes {
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findAll.bind(this.controller))
     );
+    router.get(
+      `${this.routes}/parents`,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.findAllParents.bind(this.controller))
+    );
+    router.get(
+      `${this.routes}/childs/:parentId`,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.findChildsByParentId.bind(this.controller))
+    );
     router.post(
       this.routes,
       this.authMiddleware.authenticate.bind(this.authMiddleware),

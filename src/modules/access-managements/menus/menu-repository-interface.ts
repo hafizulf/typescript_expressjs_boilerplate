@@ -5,4 +5,7 @@ export interface IMenuRepository
   extends Omit<
     BaseRepository<MenuDomain, IMenu>,
     'findAllWithPagination'
-  > { }
+  > {
+    findAllParents(): Promise<MenuDomain[]>;
+    findChildsByParentId(parentId: string): Promise<MenuDomain[]>
+  }

@@ -1,5 +1,5 @@
 import { AppError, HttpCode } from "@/exceptions/app-error";
-import { createMenuSchema, deleteMenuSchema, findMenuByIdSchema, updateMenuSchema } from "./menu-validation";
+import { createMenuSchema, deleteMenuSchema, findChildsByParentIdSchema, findMenuByIdSchema, updateMenuSchema } from "./menu-validation";
 import { inject, injectable } from "inversify";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import { MenuService } from "./menu-service";
@@ -18,6 +18,35 @@ export class MenuController {
 
     return StandardResponse.create(res).setResponse({
       message: "Menus fetched successfully",
+      status: HttpCode.OK,
+      data: menus,
+    }).send();
+  }
+
+  public async findAllParents(_req: Request, res: Response): Promise<Response> {
+    const menus = await this._service.findAllParents();
+
+    return StandardResponse.create(res).setResponse({
+      message: "Parent menus fetched successfully",
+      status: HttpCode.OK,
+      data: menus,
+    }).send();
+  }
+
+  public async findChildsByParentId(req: Request, res: Response): Promise<Response> {
+    const validatedReq = findChildsByParentIdSchema.safeParse(req.params);
+    if(!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: "Validation error",
+        data: validatedReq.error.flatten().fieldErrors,
+      })
+    }
+
+    const menus = await this._service.findChildsByParentId(validatedReq.data.parentId);
+
+    return StandardResponse.create(res).setResponse({
+      message: "Child menus fetched successfully",
       status: HttpCode.OK,
       data: menus,
     }).send();

@@ -13,6 +13,14 @@ export class MenuService {
     return (await this._repository.findAll()).map((el) => el.unmarshal());
   }
 
+  public async findAllParents(): Promise<IMenu[]> {
+    return (await this._repository.findAllParents()).map((el) => el.unmarshal());
+  }
+
+  public async findChildsByParentId(parentId: string): Promise<IMenu[]> {
+    return (await this._repository.findChildsByParentId(parentId)).map((el) => el.unmarshal());
+  }
+
   public async store(props: IMenu): Promise<IMenu> {
     return (await this._repository.store(props)).unmarshal();
   }
