@@ -14,6 +14,7 @@ import { UserRoutes } from "@/modules/users/user-routes";
 import { RoleRoutes } from "@/modules/roles/role-routes";
 import { AnnouncementRoutes } from "@/modules/announcements/announcement-routes";
 import { MenuRoutes } from "@/modules/access-managements/menus/menu-routes";
+import { PermissionRoutes } from "@/modules/access-managements/permissions/permission-routes";
 // Import Middlewares
 import { AuthMiddleware } from "@/presentation/middlewares/auth-middleware";
 // Import Controllers
@@ -22,6 +23,7 @@ import { RoleController } from "@/modules/roles/role-controller";
 import { UserController } from "@/modules/users/user-controller";
 import { AnnouncementController } from "@/modules/announcements/announcement-controller";
 import { MenuController } from "@/modules/access-managements/menus/menu-controller";
+import { PermissionController } from "@/modules/access-managements/permissions/permission-controller";
 // Import Services
 import { BackgroundServiceManager } from "./modules/common/services/background-service-manager";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
@@ -34,6 +36,7 @@ import { ManageDbTransactionService } from "@/modules/common/services/manage-db-
 import { UserLogsService } from "@/modules/user-logs/user-logs-service";
 import { MqttService } from "@/modules/common/services/mqtt-service";
 import { MenuService } from "@/modules/access-managements/menus/menu-service";
+import { PermissionService } from "@/modules/access-managements/permissions/permission-service";
 
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
@@ -43,6 +46,7 @@ import { IDashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-
 import { IAnnouncementRepository } from "@/modules/announcements/announcement-repository-interface";
 import { IUserLogsRepository } from "@/modules/user-logs/user-logs-repository-interface";
 import { IMenuRepository } from "@/modules/access-managements/menus/menu-repository-interface";
+import { IPermissionRepository } from "@/modules/access-managements/permissions/permission-repository-interface";
 // Import Repository
 import { RoleRepository } from "@/modules/roles/role-repository";
 import { UserRepository } from "@/modules/users/user-repository";
@@ -51,6 +55,7 @@ import { DashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-t
 import { AnnouncementRepository } from "@/modules/announcements/announcement-repository";
 import { UserLogsRepository } from "@/modules/user-logs/user-logs-repository";
 import { MenuRepository } from "@/modules/access-managements/menus/menu-repository";
+import { PermissionRepository } from "@/modules/access-managements/permissions/permission-repository";
 // Import Socket Namespace
 import { NamespaceConfigService } from "@/libs/websocket/namespaces/namespace-config-service";
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
@@ -80,6 +85,7 @@ container.bind<UserRoutes>(UserRoutes).toSelf().inSingletonScope();
 container.bind<RoleRoutes>(RoleRoutes).toSelf().inSingletonScope();
 container.bind<AnnouncementRoutes>(AnnouncementRoutes).toSelf().inSingletonScope();
 container.bind<MenuRoutes>(MenuRoutes).toSelf().inSingletonScope();
+container.bind<PermissionRoutes>(PermissionRoutes).toSelf().inSingletonScope();
 // Middleware
 container.bind(AuthMiddleware).toSelf();
 // Controllers
@@ -88,6 +94,7 @@ container.bind(RoleController).toSelf();
 container.bind(UserController).toSelf();
 container.bind(AnnouncementController).toSelf();
 container.bind(MenuController).toSelf();
+container.bind(PermissionController).toSelf();
 // Services
 container.bind<BackgroundServiceManager>(TYPES.BackgroundServiceManager).to(BackgroundServiceManager);
 container.bind(TYPES.WebAuthService).to(WebAuthService);
@@ -98,6 +105,7 @@ container.bind(TYPES.DashboardTotalService).to(DashboardTotalService);
 container.bind(TYPES.AnnouncementService).to(AnnouncementService);
 container.bind(TYPES.UserLogsService).to(UserLogsService);
 container.bind(TYPES.MenuService).to(MenuService);
+container.bind(TYPES.PermissionService).to(PermissionService);
 container.bind(TYPES.ManageDbTransactionService).to(ManageDbTransactionService);
 container.bind(TYPES.MqttService).to(MqttService).inSingletonScope();
 // Repository
@@ -122,6 +130,9 @@ container
 container
   .bind<IMenuRepository>(TYPES.IMenuRepository)
   .to(MenuRepository);
+container
+  .bind<IPermissionRepository>(TYPES.IPermissionRepository)
+  .to(PermissionRepository);
 
 // Socket Namespace
 container

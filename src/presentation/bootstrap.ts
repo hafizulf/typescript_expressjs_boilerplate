@@ -15,14 +15,14 @@ import { inject, injectable } from "inversify";
 import { logger } from "@/libs/logger";
 import { Mqtt } from "@/libs/mqtt/mqtt-index";
 import path from "path";
+import { PUBLIC_TIME_NSP } from "@/libs/websocket/namespaces/constants/namespace-constants";
+import { PublicTimeNamespace } from "@/libs/websocket/namespaces/public-time-namespace";
 import rateLimit from "express-rate-limit";
 import { Routes } from "@/presentation/routes";
 import { RedisClient } from "@/libs/redis/redis-client";
 import { sequelizeMigrate } from "@/modules/common/sequelize";
 import { SocketIO } from "@/libs/websocket";
 import TYPES from "@/types";
-import { PUBLIC_TIME_NSP } from "@/libs/websocket/namespaces/constants/namespace-constants";
-import { PublicTimeNamespace } from "@/libs/websocket/namespaces/public-time-namespace";
 
 @injectable()
 export class Bootstrap {
