@@ -40,7 +40,14 @@ Menu.init({
     allowNull: false,
   },
   icon: DataTypes.STRING,
-  parentId: DataTypes.STRING,
+  parentId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    references: {
+      model: Menu,
+      key: "id"
+    }
+  },
   isActive: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
