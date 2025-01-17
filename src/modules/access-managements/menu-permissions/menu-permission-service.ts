@@ -1,7 +1,7 @@
 import TYPES from "@/types";
 import { inject, injectable } from "inversify";
-import { IMenuPermission } from "./menu-permission-domain";
 import { IMenuPermissionRepository } from "./menu-permission-repository-interface";
+import { ListPermissionsByMenu } from "./menu-permission-repository";
 
 @injectable()
 export class MenuPermissionService {
@@ -9,8 +9,8 @@ export class MenuPermissionService {
     @inject(TYPES.IMenuPermissionRepository) private _repository: IMenuPermissionRepository,
   ) {}
 
-  public async findAll(): Promise<IMenuPermission[]> {
-    return (await this._repository.findAll()).map((el) => el.unmarshal());
+  public async findAll(): Promise<ListPermissionsByMenu[]> {
+    return await this._repository.findAll();
   }
 
   public async seedMenuPermission(updatedBy: string): Promise<void> {

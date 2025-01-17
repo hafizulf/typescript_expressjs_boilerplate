@@ -1,6 +1,6 @@
-import { MenuPermissionDomain } from "./menu-permission-domain";
+import { ListPermissionsByMenu } from "./menu-permission-repository";
 
 export interface IMenuPermissionRepository {
-  findAll(): Promise<MenuPermissionDomain[]>;
+  findAll(): Promise<ListPermissionsByMenu[]>;
   seedMenuPermission(updatedBy: string): Promise<void>;
 }
