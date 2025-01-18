@@ -1,3 +1,4 @@
+import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import { inject, injectable } from "inversify";
 import TYPES from "@/types";
 import { RoleService } from "./role-service";
@@ -37,7 +38,7 @@ export class RoleController {
     }).withPagination(pagination?.omitProperties("offset")).send();
   }
 
-  public async store(req: Request, res: Response): Promise<Response> {
+  public async store(req: IAuthRequest, res: Response): Promise<Response> {
     const validatedReq = createRoleSchema.safeParse(req.body);
     if(!validatedReq.success) {
       throw new AppError({
@@ -47,7 +48,10 @@ export class RoleController {
       })
     }
 
-    const role = await this._service.store({ name: validatedReq.data.name });
+    const role = await this._service.store({
+      name: validatedReq.data.name,
+      updatedBy: req.authUser.user.id,
+    });
     return StandardResponse.create(res).setResponse({
       message: "Role created successfully",
       status: HttpCode.RESOURCE_CREATED,

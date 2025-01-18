@@ -1,14 +1,18 @@
 import { inject, injectable } from "inversify";
-import TYPES from "@/types";
+import { IMenuPermission } from "../access-managements/menu-permissions/menu-permission-domain";
+import { IMenuPermissionRepository } from "../access-managements/menu-permissions/menu-permission-repository-interface";
 import { IRoleRepository } from "./role-repository-interface";
 import { IRole } from "./role-domain";
-import { TStandardPaginateOption } from "@/modules/common/dto/pagination-dto";
 import { Pagination } from "@/modules/common/pagination";
+import { TStandardPaginateOption } from "@/modules/common/dto/pagination-dto";
+import TYPES from "@/types";
+import { TPropsCreateRole } from "./role-dto";
 
 @injectable()
 export class RoleService {
   constructor(
     @inject(TYPES.IRoleRepository) private _repository: IRoleRepository,
+    @inject(TYPES.IMenuPermissionRepository) private _menuPermissionRepository: IMenuPermissionRepository,
   ) {}
 
   public async findAll(
@@ -29,8 +33,10 @@ export class RoleService {
     return [(await this._repository.findAll()).map((el) => el.unmarshal())];
   }
 
-  public async store(props: IRole): Promise<IRole> {
-    return (await this._repository.store(props)).unmarshal();
+  public async store(props: TPropsCreateRole): Promise<IRole> {
+    const menuPermissions: IMenuPermission[] = (await (this._menuPermissionRepository.findAll())).map((el) => el.unmarshal());
+
+    return (await this._repository.store(props, menuPermissions)).unmarshal();
   }
 
   public async findById(id: string): Promise<IRole> {
