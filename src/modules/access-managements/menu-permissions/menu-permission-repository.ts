@@ -2,6 +2,7 @@ import { ENABLED_MENU } from "../menus/dto/enabled-menu";
 import { IMenuPermission, MenuPermissionDomain } from "./menu-permission-domain";
 import { IMenuPermissionRepository } from "./menu-permission-repository-interface";
 import { injectable } from "inversify";
+import { ListPermissionsByMenu } from "./menu-permission-dto";
 import { Menu as MenuPersistence } from "@/modules/common/sequelize";
 import { MenuPermission as MenuPermissionPersistence } from "@/modules/common/sequelize";
 import { Op } from "sequelize";
@@ -16,47 +17,47 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
     return data.map((el) => MenuPermissionDomain.create(el.toJSON()));
   }
 
-  // async findAll(): Promise<ListPermissionsByMenu[]> {
-  //   const data = await MenuPermissionPersistence.findAll({
-  //     attributes: ["menuId", "permissionId", "isEnabled"],
-  //     include: [
-  //       {
-  //         model: MenuPersistence,
-  //         attributes: ["name"],
-  //       },
-  //       {
-  //         model: PermissionPersistence,
-  //         attributes: ["name"],
-  //       },
-  //     ],
-  //   });
+  async findAllGroupByMenus(): Promise<ListPermissionsByMenu[]> {
+    const data = await MenuPermissionPersistence.findAll({
+      attributes: ["menuId", "permissionId", "isEnabled"],
+      include: [
+        {
+          model: MenuPersistence,
+          attributes: ["name"],
+        },
+        {
+          model: PermissionPersistence,
+          attributes: ["name"],
+        },
+      ],
+    });
 
-  //   let result: ListPermissionsByMenu[] = [];
-  //   for(const item of data) {
-  //     const menu = result.find((el) => el.menuId === item.menuId);
-  //     if(menu) {
-  //       menu.permissionList.push({
-  //         permissionId: item.permissionId,
-  //         permission: item.permission?.name!,
-  //         isEnabled: item.isEnabled,
-  //       });
-  //     } else {
-  //       result.push({
-  //         menuId: item.menuId,
-  //         menu: item.menu?.name!,
-  //         permissionList: [
-  //           {
-  //             permissionId: item.permissionId,
-  //             permission: item.permission?.name!,
-  //             isEnabled: item.isEnabled,
-  //           },
-  //         ],
-  //       });
-  //     }
-  //   }
+    let result: ListPermissionsByMenu[] = [];
+    for(const item of data) {
+      const menu = result.find((el) => el.menuId === item.menuId);
+      if(menu) {
+        menu.permissionList.push({
+          permissionId: item.permissionId,
+          permission: item.permission?.name!,
+          isEnabled: item.isEnabled,
+        });
+      } else {
+        result.push({
+          menuId: item.menuId,
+          menu: item.menu?.name!,
+          permissionList: [
+            {
+              permissionId: item.permissionId,
+              permission: item.permission?.name!,
+              isEnabled: item.isEnabled,
+            },
+          ],
+        });
+      }
+    }
 
-  //   return result;
-  // }
+    return result;
+  }
 
   async store(props: IMenuPermission): Promise<MenuPermissionDomain> {
     try {

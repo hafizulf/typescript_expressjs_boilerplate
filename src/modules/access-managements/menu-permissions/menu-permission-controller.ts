@@ -23,6 +23,16 @@ export class MenuPermissionController {
     }).send();
   }
 
+  public async findAllGroupByMenus(_req: Request, res: Response): Promise<Response> {
+    const data = await this._service.findAllGroupByMenus();
+
+    return StandardResponse.create(res).setResponse({
+      message: "Menu permissions group by menus fetched successfully",
+      status: HttpCode.OK,
+      data,
+    }).send();
+  }
+
   public async store(req: IAuthRequest, res: Response): Promise<Response> {
     const validatedReq = createMenuPermissionSchema.safeParse(req.body);
     if(!validatedReq.success) {
