@@ -13,6 +13,10 @@ export class MenuPermissionService {
     return (await this._repository.findAll()).map((el) => el.unmarshal());
   }
 
+  public async store(props: IMenuPermission): Promise<IMenuPermission> {
+    return (await this._repository.store(props)).unmarshal();
+  }
+
   public async seedMenuPermission(updatedBy: string): Promise<void> {
     return await this._repository.seedMenuPermission(updatedBy);
   }

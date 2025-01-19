@@ -20,6 +20,12 @@ export class MenuPermissionRoutes {
       asyncWrap(this.controller.findAll.bind(this.controller))
     );
     router.post(
+      this.routes,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.store.bind(this.controller))
+    )
+    router.post(
       `${this.routes}/seeds`,
       this.authMiddleware.authenticate.bind(this.authMiddleware),
       this.authMiddleware.roleAuthorize([SUPERADMIN]),

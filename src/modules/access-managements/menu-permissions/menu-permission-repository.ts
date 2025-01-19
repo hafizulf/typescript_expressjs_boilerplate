@@ -1,12 +1,13 @@
-import { injectable } from "inversify";
 import { ENABLED_MENU } from "../menus/dto/enabled-menu";
+import { IMenuPermission, MenuPermissionDomain } from "./menu-permission-domain";
 import { IMenuPermissionRepository } from "./menu-permission-repository-interface";
+import { injectable } from "inversify";
 import { Menu as MenuPersistence } from "@/modules/common/sequelize";
-import { MenuPermissionDomain } from "./menu-permission-domain";
-import { Permission as PermissionPersistence } from "@/modules/common/sequelize";
 import { MenuPermission as MenuPermissionPersistence } from "@/modules/common/sequelize";
 import { Op } from "sequelize";
+import { Permission as PermissionPersistence } from "@/modules/common/sequelize";
 import { toSnakeCase } from "@/libs/formatters";
+import { AppError, HttpCode } from "@/exceptions/app-error";
 
 @injectable()
 export class MenuPermissionRepository implements IMenuPermissionRepository {
@@ -56,6 +57,45 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
 
   //   return result;
   // }
+
+  async store(props: IMenuPermission): Promise<MenuPermissionDomain> {
+    try {
+      const isExist = await MenuPermissionPersistence.findOne({
+        where: {
+          menuId: props.menuId,
+          permissionId: props.permissionId,
+        },
+      });
+
+      if (isExist) {
+        throw new AppError({
+          statusCode: HttpCode.CONFLICT,
+          description: "Menu permission already exists",
+        });
+      }
+
+      await MenuPermissionPersistence.create(props);
+    } catch (e: Error | any) {
+      if (e.name === 'SequelizeForeignKeyConstraintError') {
+        throw new AppError({
+          statusCode: HttpCode.BAD_REQUEST,
+          description: 'Menu or permission does not exist',
+        });
+      }
+
+      if (e instanceof AppError) {
+        throw e;
+      }
+
+      console.error('Unexpected error:', e);
+      throw new AppError({
+        statusCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: 'An unexpected error occurred',
+      });
+    }
+
+    return MenuPermissionDomain.create(props);
+  }
 
   async seedMenuPermission(updatedBy: string): Promise<void> {
     const menus = await MenuPersistence.findAll({
