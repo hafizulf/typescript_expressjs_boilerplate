@@ -3,6 +3,7 @@ const PermissionList = {
   CREATE: "CREATE",
   UPDATE: "UPDATE",
   DELETE: "DELETE",
+  BULK_UPDATE: "BULK UPDATE",
 } as const;
 
 type TPermissionList = typeof PermissionList[keyof typeof PermissionList];
