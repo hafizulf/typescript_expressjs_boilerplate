@@ -5,10 +5,12 @@ import { injectable } from "inversify";
 import { ListPermissionsByMenu } from "./menu-permission-dto";
 import { Menu as MenuPersistence } from "@/modules/common/sequelize";
 import { MenuPermission as MenuPermissionPersistence } from "@/modules/common/sequelize";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import { Permission as PermissionPersistence } from "@/modules/common/sequelize";
 import { toSnakeCase } from "@/libs/formatters";
 import { AppError, HttpCode } from "@/exceptions/app-error";
+import { TStandardPaginateOption } from "@/modules/common/dto/pagination-dto";
+import { Pagination } from "@/modules/common/pagination";
 
 @injectable()
 export class MenuPermissionRepository implements IMenuPermissionRepository {
@@ -27,6 +29,56 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
       ],
     });
     return data.map((el) => MenuPermissionDomain.create(el.toJSON()));
+  }
+
+  async findAllWithPagination(
+    paginateOption: TStandardPaginateOption,
+    pagination: Pagination
+  ): Promise<[MenuPermissionDomain[], Pagination]> {
+    const search = paginateOption.search;
+    const orderBy = paginateOption.orderBy || 'menu.name';
+    const sort = paginateOption.sort ? paginateOption.sort : 'DESC';
+    const searchCondition = search
+      ? {
+          [Op.or]: [
+            Sequelize.literal(`"menu"."name" ILIKE :search`),
+            Sequelize.literal(`"permission"."name" ILIKE :search`),
+          ],
+        }
+      : {};
+
+    const { rows, count } = await MenuPermissionPersistence.findAndCountAll({
+      attributes: ['menuId', 'permissionId', 'isEnabled', 'createdAt'],
+      include: [
+        {
+          model: MenuPersistence,
+          attributes: ['name'],
+        },
+        {
+          model: PermissionPersistence,
+          attributes: ['name'],
+        },
+      ],
+      where: {
+        ...searchCondition,
+      },
+      replacements: { search: `%${search}%` },
+      order: [
+        orderBy === 'menu'
+          ? [Sequelize.col('menu.name'), sort]
+          : orderBy === 'permission'
+          ? [Sequelize.col('permission.name'), sort]
+          : [Sequelize.col(orderBy), sort], // Root-level columns
+      ],
+      offset: pagination.offset,
+      limit: pagination.limit,
+    });
+
+    pagination.generateMeta(count, rows.length);
+    return [
+      rows.map((el) => MenuPermissionDomain.create(el.toJSON())),
+      pagination,
+    ];
   }
 
   async store(props: IMenuPermission): Promise<MenuPermissionDomain> {
@@ -66,6 +118,42 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
     }
 
     return MenuPermissionDomain.create(props);
+  }
+
+  async findById(id: string): Promise<MenuPermissionDomain> {
+    const data = await MenuPermissionPersistence.findByPk(id, {
+      attributes: ['menuId', 'permissionId', 'isEnabled', 'updatedBy', 'createdAt', 'updatedAt'],
+      include: [
+        {
+          model: MenuPersistence,
+          attributes: ['name'],
+        },
+        {
+          model: PermissionPersistence,
+          attributes: ['name'],
+        },
+      ],
+    });
+
+    if (!data) {
+      throw new AppError({
+        statusCode: HttpCode.NOT_FOUND,
+        description: 'Menu permission not found',
+      });
+    }
+
+    return MenuPermissionDomain.create(data.toJSON());
+  }
+
+  async update(
+    _id: string,
+    _props: IMenuPermission
+  ): Promise<MenuPermissionDomain> {
+    throw new Error('Method not implemented.');
+  }
+
+  async delete(_id: string): Promise<boolean> {
+    throw new Error('Method not implemented.');
   }
 
   async findAllGroupByMenus(): Promise<ListPermissionsByMenu[]> {

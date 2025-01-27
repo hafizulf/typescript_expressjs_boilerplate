@@ -25,6 +25,12 @@ export class MenuPermissionRoutes {
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.store.bind(this.controller))
     )
+    router.get(
+      `${this.routes}/:id`,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.findById.bind(this.controller))
+    );
     // router.put(
     //   this.routes,
     //   this.authMiddleware.authenticate.bind(this.authMiddleware),

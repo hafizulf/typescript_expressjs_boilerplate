@@ -1,5 +1,5 @@
 import { AppError, HttpCode } from "@/exceptions/app-error";
-import { bulkUpdateMenuPermissionSchema, createMenuPermissionSchema } from "./menu-permission-validation";
+import { bulkUpdateMenuPermissionSchema, createMenuPermissionSchema, findMenuPermissionByIdSchema, paginatedMenuPermissionSchema } from "./menu-permission-validation";
 import { inject, injectable } from "inversify";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import { MenuPermissionService } from "./menu-permission-service";
@@ -13,8 +13,17 @@ export class MenuPermissionController {
     @inject(TYPES.MenuPermissionService) private _service: MenuPermissionService
   ) {}
 
-  public async findAll(_req: Request, res: Response): Promise<Response> {
-    const data = await this._service.findAll();
+  public async findAll(req: Request, res: Response): Promise<Response> {
+    const validatedReq = paginatedMenuPermissionSchema.safeParse(req.query);
+    if (!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: 'Validation error',
+        data: validatedReq.error.flatten().fieldErrors,
+      });
+    }
+
+    const [data, pagination] = await this._service.findAll(validatedReq.data);
 
     return StandardResponse.create(res)
       .setResponse({
@@ -22,6 +31,7 @@ export class MenuPermissionController {
         status: HttpCode.OK,
         data,
       })
+      .withPagination(pagination?.omitProperties('offset'))
       .send();
   }
 
@@ -43,6 +53,26 @@ export class MenuPermissionController {
       .setResponse({
         message: 'Menu permission created successfully',
         status: HttpCode.RESOURCE_CREATED,
+        data,
+      })
+      .send();
+  }
+
+  public async findById(req: Request, res: Response): Promise<Response> {
+    const validatedReq = findMenuPermissionByIdSchema.safeParse(req.params);
+    if (!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: 'Validation error',
+        data: validatedReq.error.flatten().fieldErrors,
+      });
+    }
+
+    const data = await this._service.findById(validatedReq.data.id);
+    return StandardResponse.create(res)
+      .setResponse({
+        message: 'Menu permission fetched successfully',
+        status: HttpCode.OK,
         data,
       })
       .send();

@@ -1,11 +1,27 @@
+import { paginatedSchema } from "@/modules/common/validation/pagination-schema";
 import { singleUUIDSchema } from "@/modules/common/validation/uuid-schema";
 import { z } from "zod";
+
+export const paginatedMenuPermissionSchema = paginatedSchema.extend({
+  orderBy: z.optional(
+    z
+      .string()
+      .refine(
+        (value) => ['menu', 'permission'].includes(value),
+        'Order by must be menu or permission'
+      )
+  ),
+});
 
 export const createMenuPermissionSchema =  z.object({
   menuId: singleUUIDSchema,
   permissionId: singleUUIDSchema,
   isEnabled: z.boolean(),
 })
+
+export const findMenuPermissionByIdSchema = z.object({
+  id: singleUUIDSchema,
+});
 
 const permissionSchema = z.object({
   permissionId: singleUUIDSchema,

@@ -1,10 +1,14 @@
 import { IMenuPermission } from "./menu-permission-domain";
 
-export interface ResponseFindAllMenuPermissions
-  extends Omit<IMenuPermission, 'menu' | 'permission' | 'updatedAt' | 'deletedAt'> {
+export interface ResponseFindMenuPermission
+  extends Omit<
+    IMenuPermission,
+    'menu' | 'permission' | 'updatedAt' | 'deletedAt'
+  > {
   menu: string;
   permission: string;
 }
+
 interface PermissionDetails {
   permissionId: string;
   permission: string;
