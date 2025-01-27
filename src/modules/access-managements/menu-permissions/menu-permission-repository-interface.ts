@@ -3,7 +3,8 @@ import { ListPermissionsByMenu } from "./menu-permission-dto";
 
 export interface IMenuPermissionRepository {
   findAll(): Promise<MenuPermissionDomain[]>;
-  findAllGroupByMenus(): Promise<ListPermissionsByMenu[]>;
   store(props: IMenuPermission): Promise<MenuPermissionDomain>;
+  findAllGroupByMenus(): Promise<ListPermissionsByMenu[]>;
+  bulkUpdate(props: IMenuPermission[]): Promise<void>;
   seedMenuPermission(updatedBy: string): Promise<void>;
 }

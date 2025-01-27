@@ -13,50 +13,20 @@ import { AppError, HttpCode } from "@/exceptions/app-error";
 @injectable()
 export class MenuPermissionRepository implements IMenuPermissionRepository {
   async findAll(): Promise<MenuPermissionDomain[]> {
-    const data = await MenuPermissionPersistence.findAll();
-    return data.map((el) => MenuPermissionDomain.create(el.toJSON()));
-  }
-
-  async findAllGroupByMenus(): Promise<ListPermissionsByMenu[]> {
     const data = await MenuPermissionPersistence.findAll({
-      attributes: ["menuId", "permissionId", "isEnabled"],
+      attributes: ['menuId', 'permissionId', 'isEnabled', 'createdAt'],
       include: [
         {
           model: MenuPersistence,
-          attributes: ["name"],
+          attributes: ['name'],
         },
         {
           model: PermissionPersistence,
-          attributes: ["name"],
+          attributes: ['name'],
         },
       ],
     });
-
-    let result: ListPermissionsByMenu[] = [];
-    for(const item of data) {
-      const menu = result.find((el) => el.menuId === item.menuId);
-      if(menu) {
-        menu.permissionList.push({
-          permissionId: item.permissionId,
-          permission: item.permission?.name!,
-          isEnabled: item.isEnabled,
-        });
-      } else {
-        result.push({
-          menuId: item.menuId,
-          menu: item.menu?.name!,
-          permissionList: [
-            {
-              permissionId: item.permissionId,
-              permission: item.permission?.name!,
-              isEnabled: item.isEnabled,
-            },
-          ],
-        });
-      }
-    }
-
-    return result;
+    return data.map((el) => MenuPermissionDomain.create(el.toJSON()));
   }
 
   async store(props: IMenuPermission): Promise<MenuPermissionDomain> {
@@ -71,7 +41,7 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
       if (isExist) {
         throw new AppError({
           statusCode: HttpCode.CONFLICT,
-          description: "Menu permission already exists",
+          description: 'Menu permission already exists',
         });
       }
 
@@ -98,19 +68,102 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
     return MenuPermissionDomain.create(props);
   }
 
+  async findAllGroupByMenus(): Promise<ListPermissionsByMenu[]> {
+    const data = await MenuPermissionPersistence.findAll({
+      attributes: ['menuId', 'permissionId', 'isEnabled'],
+      include: [
+        {
+          model: MenuPersistence,
+          attributes: ['name', 'createdAt'],
+        },
+        {
+          model: PermissionPersistence,
+          attributes: ['name'],
+        },
+      ],
+    });
+
+    let result: ListPermissionsByMenu[] = [];
+    for (const item of data) {
+      const menu = result.find((el) => el.menuId === item.menuId);
+      if (menu) {
+        menu.permissionList.push({
+          permissionId: item.permissionId,
+          permission: item.permission?.name!,
+          isEnabled: item.isEnabled,
+        });
+      } else {
+        result.push({
+          menuId: item.menuId,
+          menu: item.menu?.name!,
+          createdAt: item.menu?.createdAt!,
+          permissionList: [
+            {
+              permissionId: item.permissionId,
+              permission: item.permission?.name!,
+              isEnabled: item.isEnabled,
+            },
+          ],
+        });
+      }
+    }
+
+    return result.sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }
+
+  async bulkUpdate(props: IMenuPermission[]): Promise<void> {
+    try {
+      await Promise.all(
+        props.map(async (el) => {
+          await MenuPermissionPersistence.update(
+            { isEnabled: el.isEnabled },
+            {
+              where: {
+                menuId: el.menuId,
+                permissionId: el.permissionId,
+              },
+            }
+          );
+        })
+      );
+    } catch (e: Error | any) {
+      if (e.name === 'SequelizeForeignKeyConstraintError') {
+        throw new AppError({
+          statusCode: HttpCode.BAD_REQUEST,
+          description: 'Menu or permission does not exist',
+        });
+      }
+
+      if (e instanceof AppError) {
+        throw e;
+      }
+
+      console.error('Unexpected error:', e);
+      throw new AppError({
+        statusCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: 'An unexpected error occurred',
+      });
+    }
+  }
+
   async seedMenuPermission(updatedBy: string): Promise<void> {
     const menus = await MenuPersistence.findAll({
       where: {
         parentId: {
           [Op.ne]: null,
-        }
+        },
       },
-      order: [['createdAt', 'ASC']]
-    })
-    const permissions = await PermissionPersistence.findAll({ order: [['createdAt', 'ASC']] });
+      order: [['createdAt', 'ASC']],
+    });
+    const permissions = await PermissionPersistence.findAll({
+      order: [['createdAt', 'ASC']],
+    });
 
-    for(const menu of menus) {
-      for(const permission of permissions) {
+    for (const menu of menus) {
+      for (const permission of permissions) {
         const [row] = await MenuPermissionPersistence.findOrCreate({
           where: {
             menuId: menu.id,
@@ -121,14 +174,14 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
             permissionId: permission.id,
             isEnabled: false,
             updatedBy,
-          }
-        })
+          },
+        });
 
         // Enabling default permissions
-        for(const key in ENABLED_MENU) {
-          if(toSnakeCase(menu.name).toUpperCase() === key) {
-            for(const permissionType of ENABLED_MENU[key]!) {
-              if(permissionType === permission.name) {
+        for (const key in ENABLED_MENU) {
+          if (toSnakeCase(menu.name).toUpperCase() === key) {
+            for (const permissionType of ENABLED_MENU[key]!) {
+              if (permissionType === permission.name) {
                 row.isEnabled = true;
                 await row.save();
                 break;

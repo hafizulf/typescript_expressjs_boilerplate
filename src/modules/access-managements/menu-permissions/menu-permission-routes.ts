@@ -19,17 +19,35 @@ export class MenuPermissionRoutes {
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findAll.bind(this.controller))
     );
+    router.post(
+      this.routes,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.store.bind(this.controller))
+    )
+    // router.put(
+    //   this.routes,
+    //   this.authMiddleware.authenticate.bind(this.authMiddleware),
+    //   this.authMiddleware.roleAuthorize([SUPERADMIN]),
+    //   asyncWrap(this.controller.update.bind(this.controller))
+    // )
+    // router.delete(
+    //   `${this.routes}/:menuId/:permissionId`,
+    //   this.authMiddleware.authenticate.bind(this.authMiddleware),
+    //   this.authMiddleware.roleAuthorize([SUPERADMIN]),
+    //   asyncWrap(this.controller.update.bind(this.controller))
+    // )
     router.get(
       `${this.routes}/group-by-menus`,
       this.authMiddleware.authenticate.bind(this.authMiddleware),
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findAllGroupByMenus.bind(this.controller))
     );
-    router.post(
-      this.routes,
+    router.put(
+      `${this.routes}/bulk-update`,
       this.authMiddleware.authenticate.bind(this.authMiddleware),
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.store.bind(this.controller))
+      asyncWrap(this.controller.bulkUpdate.bind(this.controller))
     )
     router.post(
       `${this.routes}/seeds`,
