@@ -1,3 +1,4 @@
+import { AppError, HttpCode } from "@/exceptions/app-error";
 import { ENABLED_MENU } from "../menus/dto/enabled-menu";
 import { IMenuPermission, MenuPermissionDomain } from "./menu-permission-domain";
 import { IMenuPermissionRepository } from "./menu-permission-repository-interface";
@@ -6,11 +7,12 @@ import { ListPermissionsByMenu } from "./menu-permission-dto";
 import { Menu as MenuPersistence } from "@/modules/common/sequelize";
 import { MenuPermission as MenuPermissionPersistence } from "@/modules/common/sequelize";
 import { Op, Sequelize } from "sequelize";
-import { Permission as PermissionPersistence } from "@/modules/common/sequelize";
-import { toSnakeCase } from "@/libs/formatters";
-import { AppError, HttpCode } from "@/exceptions/app-error";
-import { TStandardPaginateOption } from "@/modules/common/dto/pagination-dto";
 import { Pagination } from "@/modules/common/pagination";
+import { Permission as PermissionPersistence } from "@/modules/common/sequelize";
+import {  RoleMenuPermission as RoleMenuPermissionPersistence } from "@/modules/common/sequelize";
+import { toSnakeCase } from "@/libs/formatters";
+import { TStandardPaginateOption } from "@/modules/common/dto/pagination-dto";
+import { sequelize } from "@/config/database";
 
 @injectable()
 export class MenuPermissionRepository implements IMenuPermissionRepository {
@@ -146,14 +148,77 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
   }
 
   async update(
-    _id: string,
-    _props: IMenuPermission
+    id: string,
+    props: IMenuPermission
   ): Promise<MenuPermissionDomain> {
-    throw new Error('Method not implemented.');
+    try {
+      const data = await MenuPermissionPersistence.findByPk(id);
+      if (!data) {
+        throw new AppError({
+          statusCode: HttpCode.NOT_FOUND,
+          description: 'Menu permission not found',
+        });
+      }
+
+      await data.update(props);
+    } catch (e: Error | any) {
+      if (e instanceof AppError) {
+        throw e;
+      }
+
+      console.error('Unexpected error:', e);
+      throw new AppError({
+        statusCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: 'An unexpected error occurred',
+      });
+    }
+
+    return MenuPermissionDomain.create(props);
   }
 
-  async delete(_id: string): Promise<boolean> {
-    throw new Error('Method not implemented.');
+  async delete(id: string): Promise<boolean> {
+    const transaction = await sequelize.transaction();
+    try {
+      const data = await MenuPermissionPersistence.findByPk(id, {
+        transaction,
+      });
+      if (!data) {
+        throw new AppError({
+          statusCode: HttpCode.NOT_FOUND,
+          description: 'Menu permission not found',
+        });
+      }
+
+      const deletedRoleMenuPermissions =
+        await RoleMenuPermissionPersistence.destroy({
+          where: {
+            menuId: data.menuId,
+            permissionId: data.permissionId,
+          },
+          transaction,
+        }); // Delete related records in RoleMenuPermissionPersistence`
+
+      await data.destroy({ transaction }); // Delete the menu permission
+      await transaction.commit();
+
+      console.log(
+        `Deleted ${deletedRoleMenuPermissions} related role menu permissions.`
+      );
+
+      return true;
+    } catch (e: Error | any) {
+      await transaction.rollback();
+
+      if (e instanceof AppError) {
+        throw e;
+      }
+
+      throw new AppError({
+        statusCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: 'Failed to delete menu permission',
+        error: e,
+      });
+    }
   }
 
   async findAllGroupByMenus(): Promise<ListPermissionsByMenu[]> {

@@ -1,5 +1,5 @@
 import { AppError, HttpCode } from "@/exceptions/app-error";
-import { bulkUpdateMenuPermissionSchema, createMenuPermissionSchema, findMenuPermissionByIdSchema, paginatedMenuPermissionSchema } from "./menu-permission-validation";
+import { bulkUpdateMenuPermissionSchema, createMenuPermissionSchema, deleteMenuPermissionSchema, findMenuPermissionByIdSchema, paginatedMenuPermissionSchema, updateMenuPermissionSchema } from "./menu-permission-validation";
 import { inject, injectable } from "inversify";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import { MenuPermissionService } from "./menu-permission-service";
@@ -74,6 +74,48 @@ export class MenuPermissionController {
         message: 'Menu permission fetched successfully',
         status: HttpCode.OK,
         data,
+      })
+      .send();
+  }
+
+  public async update(req: IAuthRequest, res: Response): Promise<Response> {
+    const validatedReq = updateMenuPermissionSchema.safeParse({...req.params, ...req.body});
+    if (!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: 'Validation error',
+        data: validatedReq.error.flatten().fieldErrors,
+      });
+    }
+
+    const data = await this._service.update(validatedReq.data.id, {
+      ...req.body,
+      updatedBy: req.authUser.user.id,
+    });
+    return StandardResponse.create(res)
+      .setResponse({
+        message: 'Menu permission updated successfully',
+        status: HttpCode.OK,
+        data,
+      })
+      .send();
+  }
+
+  public async delete(req: Request, res: Response): Promise<Response> {
+    const validatedReq = deleteMenuPermissionSchema.safeParse(req.params);
+    if (!validatedReq.success) {
+      throw new AppError({
+        statusCode: HttpCode.VALIDATION_ERROR,
+        description: 'Validation error',
+        data: validatedReq.error.flatten().fieldErrors,
+      });
+    }
+
+    await this._service.delete(validatedReq.data.id);
+    return StandardResponse.create(res)
+      .setResponse({
+        message: 'Menu permission deleted successfully',
+        status: HttpCode.OK,
       })
       .send();
   }

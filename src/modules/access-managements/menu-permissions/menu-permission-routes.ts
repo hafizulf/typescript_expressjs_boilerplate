@@ -14,6 +14,12 @@ export class MenuPermissionRoutes {
 
   public setRoutes(router: Router) {
     router.get(
+      `${this.routes}/group-by-menus`,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.findAllGroupByMenus.bind(this.controller))
+    );
+    router.get(
       this.routes,
       this.authMiddleware.authenticate.bind(this.authMiddleware),
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
@@ -31,23 +37,17 @@ export class MenuPermissionRoutes {
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findById.bind(this.controller))
     );
-    // router.put(
-    //   this.routes,
-    //   this.authMiddleware.authenticate.bind(this.authMiddleware),
-    //   this.authMiddleware.roleAuthorize([SUPERADMIN]),
-    //   asyncWrap(this.controller.update.bind(this.controller))
-    // )
-    // router.delete(
-    //   `${this.routes}/:menuId/:permissionId`,
-    //   this.authMiddleware.authenticate.bind(this.authMiddleware),
-    //   this.authMiddleware.roleAuthorize([SUPERADMIN]),
-    //   asyncWrap(this.controller.update.bind(this.controller))
-    // )
-    router.get(
-      `${this.routes}/group-by-menus`,
+    router.put(
+      `${this.routes}/:id`,
       this.authMiddleware.authenticate.bind(this.authMiddleware),
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.findAllGroupByMenus.bind(this.controller))
+      asyncWrap(this.controller.update.bind(this.controller))
+    );
+    router.delete(
+      `${this.routes}/:id`,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.delete.bind(this.controller))
     );
     router.put(
       `${this.routes}/bulk-update`,

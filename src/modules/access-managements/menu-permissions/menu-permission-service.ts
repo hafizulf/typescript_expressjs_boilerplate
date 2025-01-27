@@ -59,8 +59,16 @@ export class MenuPermissionService {
     };
   }
 
+  public async update(id: string, props: IMenuPermission): Promise<IMenuPermission> {
+    return (await this._repository.update(id, props)).unmarshal();
+  }
+
   public async findAllGroupByMenus(): Promise<ListPermissionsByMenu[]> {
     return await this._repository.findAllGroupByMenus();
+  }
+
+  public async delete(id: string): Promise<boolean> {
+    return await this._repository.delete(id);
   }
 
   public async bulkUpdate(

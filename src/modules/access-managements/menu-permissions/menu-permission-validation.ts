@@ -23,6 +23,13 @@ export const findMenuPermissionByIdSchema = z.object({
   id: singleUUIDSchema,
 });
 
+export const updateMenuPermissionSchema = z.object({
+  id: singleUUIDSchema,
+  isEnabled: z.boolean(),
+});
+
+export const deleteMenuPermissionSchema = findMenuPermissionByIdSchema;
+
 const permissionSchema = z.object({
   permissionId: singleUUIDSchema,
   isEnabled: z.boolean(),
