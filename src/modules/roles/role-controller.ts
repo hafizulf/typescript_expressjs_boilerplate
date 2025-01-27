@@ -4,12 +4,12 @@ import TYPES from "@/types";
 import { RoleService } from "./role-service";
 import { Request, Response } from "express";
 import {
-  paginatedSchema,
+  paginatedRoleSchema,
   createRoleSchema,
   findOneRoleSchema,
   updateRoleSchema,
   deleteRoleSchema,
-} from "./role-validation";
+} from './role-validation';
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { StandardResponse } from "@/libs/standard-response";
 
@@ -21,7 +21,7 @@ export class RoleController {
 
   }
   public async findAll(req: Request, res: Response): Promise<Response> {
-    const validatedReq = paginatedSchema.safeParse(req.query);
+    const validatedReq = paginatedRoleSchema.safeParse(req.query);
     if(!validatedReq.success) {
       throw new AppError({
         statusCode: HttpCode.VALIDATION_ERROR,
