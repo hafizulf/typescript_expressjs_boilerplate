@@ -1,10 +1,11 @@
-import TYPES from "@/types";
-import { inject, injectable } from "inversify";
 import { AnnouncementService } from "./announcement-service";
+import  { createAnnouncementSchema, findByIdSchema } from "./announcement-validation";
+import { HttpCode } from "@/exceptions/app-error";
+import { inject, injectable } from "inversify";
 import { Request, Response } from "express";
-import { AppError, HttpCode } from "@/exceptions/app-error";
 import { StandardResponse } from "@/libs/standard-response";
-import { createAnnouncementSchema, findByIdSchema } from "./announcement-validation";
+import TYPES from "@/types";
+import { validateSchema } from "@/helpers/schema-validator";
 
 @injectable()
 export class AnnouncementController {
@@ -13,16 +14,8 @@ export class AnnouncementController {
   ) {}
 
   public async store(req: Request, res: Response): Promise<Response> {
-    const validatedReq = createAnnouncementSchema.safeParse(req.body);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
-    const data = await this._service.store(validatedReq.data);
+    const validatedReq = validateSchema(createAnnouncementSchema, req.body);
+    const data = await this._service.store(validatedReq);
 
     return StandardResponse.create(res).setResponse({
       message: "Announcement created successfully",
@@ -32,16 +25,8 @@ export class AnnouncementController {
   }
 
   public async findById(req: Request, res: Response): Promise<Response> {
-    const validatedReq = findByIdSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
-    const data = await this._service.findById(validatedReq.data.id);
+    const validatedReq = validateSchema(findByIdSchema, req.body);
+    const data = await this._service.findById(validatedReq.id);
 
     return StandardResponse.create(res).setResponse({
       message: "Announcement fetched successfully",

@@ -1,6 +1,6 @@
+import { HttpCode } from "@/exceptions/app-error";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import { inject, injectable } from "inversify";
-import TYPES from "@/types";
 import { RoleService } from "./role-service";
 import { Request, Response } from "express";
 import {
@@ -10,8 +10,9 @@ import {
   updateRoleSchema,
   deleteRoleSchema,
 } from './role-validation';
-import { AppError, HttpCode } from "@/exceptions/app-error";
 import { StandardResponse } from "@/libs/standard-response";
+import TYPES from "@/types";
+import { validateSchema } from "@/helpers/schema-validator";
 
 @injectable()
 export class RoleController {
@@ -21,16 +22,9 @@ export class RoleController {
 
   }
   public async findAll(req: Request, res: Response): Promise<Response> {
-    const validatedReq = paginatedRoleSchema.safeParse(req.query);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
+    const validatedReq = validateSchema(paginatedRoleSchema, req.query);
+    const [roles, pagination] = await this._service.findAll(validatedReq);
 
-    const [roles, pagination] = await this._service.findAll(validatedReq.data);
     return StandardResponse.create(res).setResponse({
       message: "Roles fetched successfully",
       status: HttpCode.OK,
@@ -39,19 +33,12 @@ export class RoleController {
   }
 
   public async store(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = createRoleSchema.safeParse(req.body);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
+    const validatedReq = validateSchema(createRoleSchema, req.body);
     const role = await this._service.store({
-      name: validatedReq.data.name,
+      name: validatedReq.name,
       updatedBy: req.authUser.user.id,
     });
+
     return StandardResponse.create(res).setResponse({
       message: "Role created successfully",
       status: HttpCode.RESOURCE_CREATED,
@@ -60,16 +47,9 @@ export class RoleController {
   }
 
   public async findById(req: Request, res: Response): Promise<Response> {
-    const validatedReq = findOneRoleSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
+    const validatedReq = validateSchema(findOneRoleSchema, req.params);
+    const role = await this._service.findById(validatedReq.id);
 
-    const role = await this._service.findById(validatedReq.data.id);
     return StandardResponse.create(res).setResponse({
       message: "Role fetched successfully",
       status: HttpCode.OK,
@@ -78,15 +58,8 @@ export class RoleController {
   }
 
   public async update(req: Request, res: Response): Promise<Response> {
-    const validatedReq = updateRoleSchema.safeParse({ ...req.params, ...req.body });
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-    const { id, ...propsData } = validatedReq.data;
+    const validatedReq = validateSchema(updateRoleSchema, { ...req.params, ...req.body });
+    const { id, ...propsData } = validatedReq;
     const role = await this._service.update(id, propsData);
 
     return StandardResponse.create(res).setResponse({
@@ -97,16 +70,9 @@ export class RoleController {
   }
 
   public async delete(req: Request, res: Response): Promise<Response> {
-    const validatedReq = deleteRoleSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
+    const validatedReq = validateSchema(deleteRoleSchema, req.params);
 
-    await this._service.delete(validatedReq.data.id);
+    await this._service.delete(validatedReq.id);
     return StandardResponse.create(res).setResponse({
       message: "Role deleted successfully",
       status: HttpCode.OK,

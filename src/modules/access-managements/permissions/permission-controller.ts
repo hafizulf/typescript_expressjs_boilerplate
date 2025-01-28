@@ -1,4 +1,4 @@
-import { AppError, HttpCode } from "@/exceptions/app-error";
+import { HttpCode } from "@/exceptions/app-error";
 import { createPermissionSchema, deletePermissionSchema, findPermissionByIdSchema, updatePermissionSchema } from "./permission-validation";
 import { inject, injectable } from "inversify";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
@@ -6,6 +6,7 @@ import { PermissionService } from "./permission-service";
 import { Request, Response } from "express";
 import { StandardResponse } from "@/libs/standard-response";
 import TYPES from "@/types";
+import { validateSchema } from "@/helpers/schema-validator";
 
 @injectable()
 export class PermissionController {
@@ -24,19 +25,12 @@ export class PermissionController {
   }
 
   public async store(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = createPermissionSchema.safeParse(req.body);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
+    const validatedReq = validateSchema(createPermissionSchema, req.body);
     const data = await this._service.store({
-      ...validatedReq.data,
+      ...validatedReq,
       updatedBy: req.authUser.user.id,
     });
+
     return StandardResponse.create(res).setResponse({
       message: "Permission created successfully",
       status: HttpCode.RESOURCE_CREATED,
@@ -45,16 +39,9 @@ export class PermissionController {
   }
 
   async findById(req: Request, res: Response): Promise<Response> {
-    const validatedReq = findPermissionByIdSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
+    const validatedReq = validateSchema(findPermissionByIdSchema, req.params);
+    const data = await this._service.findById(validatedReq.id);
 
-    const data = await this._service.findById(validatedReq.data.id);
     return StandardResponse.create(res).setResponse({
       message: "Permission fetched successfully",
       status: HttpCode.OK,
@@ -63,16 +50,11 @@ export class PermissionController {
   }
 
   async update(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = updatePermissionSchema.safeParse({ ...req.params, ...req.body });
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
-    const { id, ...propsData } = validatedReq.data;
+    const validatedReq = validateSchema(updatePermissionSchema, {
+      ...req.params,
+      ...req.body,
+    });
+    const { id, ...propsData } = validatedReq;
     const data = await this._service.update(id, {
       ...propsData,
       updatedBy: req.authUser.user.id,
@@ -86,16 +68,9 @@ export class PermissionController {
   }
 
   async delete(req: Request, res: Response): Promise<Response> {
-    const validatedReq = deletePermissionSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
+    const validatedReq = validateSchema(deletePermissionSchema, req.params);
+    await this._service.delete(validatedReq.id);
 
-    await this._service.delete(validatedReq.data.id);
     return StandardResponse.create(res).setResponse({
       message: "Permission deleted successfully",
       status: HttpCode.OK,

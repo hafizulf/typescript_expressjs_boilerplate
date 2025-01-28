@@ -11,6 +11,7 @@ import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import jwt from "jsonwebtoken";
 import { TdecodedUserToken } from "./web-auth-dto";
 import { RedisClient } from "@/libs/redis/redis-client";
+import { validateSchema } from "@/helpers/schema-validator";
 
 @injectable()
 export class WebAuthController {
@@ -55,16 +56,8 @@ export class WebAuthController {
   }
 
   public async generateAccessToken(req: Request, res: Response): Promise<Response> {
-    const validatedReq = generateAccessTokenSchema.safeParse(req.cookies);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
-
-    const token = await this._service.generateAccessToken(validatedReq.data.refreshToken);
+    const validatedReq = validateSchema(generateAccessTokenSchema, req.cookies);
+    const token = await this._service.generateAccessToken(validatedReq.refreshToken);
 
     return StandardResponse.create(res).setResponse({
       message: "Generated token successfully",
@@ -74,14 +67,7 @@ export class WebAuthController {
   }
 
   public async logout(req: Request, res: Response): Promise<Response> {
-    const validatedReq = logoutSchema.safeParse(req.cookies);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
+    const validatedReq = validateSchema(logoutSchema, req.cookies);
 
     res.clearCookie('refreshToken', {
       httpOnly: true,
@@ -89,7 +75,7 @@ export class WebAuthController {
       sameSite: 'strict',
     });
 
-    const decodedUser = jwt.decode(validatedReq.data.refreshToken) as TdecodedUserToken;
+    const decodedUser = jwt.decode(validatedReq.refreshToken) as TdecodedUserToken;
     const cacheKey = `userRole:${decodedUser.id}`;
     await RedisClient.delete(cacheKey);
 

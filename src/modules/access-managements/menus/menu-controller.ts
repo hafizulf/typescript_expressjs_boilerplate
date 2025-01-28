@@ -1,4 +1,4 @@
-import { AppError, HttpCode } from "@/exceptions/app-error";
+import { HttpCode } from "@/exceptions/app-error";
 import { createMenuSchema, deleteMenuSchema, findChildsByParentIdSchema, findMenuByIdSchema, updateMenuSchema } from "./menu-validation";
 import { inject, injectable } from "inversify";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
@@ -6,6 +6,7 @@ import { MenuService } from "./menu-service";
 import { Request, Response } from "express";
 import { StandardResponse } from "@/libs/standard-response";
 import TYPES from "@/types";
+import { validateSchema } from "@/helpers/schema-validator";
 
 @injectable()
 export class MenuController {
@@ -34,16 +35,8 @@ export class MenuController {
   }
 
   public async findChildsByParentId(req: Request, res: Response): Promise<Response> {
-    const validatedReq = findChildsByParentIdSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
-    const menus = await this._service.findChildsByParentId(validatedReq.data.parentId);
+    const validatedReq = validateSchema(findChildsByParentIdSchema, req.params);
+    const menus = await this._service.findChildsByParentId(validatedReq.parentId);
 
     return StandardResponse.create(res).setResponse({
       message: "Child menus fetched successfully",
@@ -53,19 +46,12 @@ export class MenuController {
   }
 
   public async store(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = createMenuSchema.safeParse(req.body);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
+    const validatedReq = validateSchema(createMenuSchema, req.body);
     const menu = await this._service.store({
-      ...validatedReq.data,
+      ...validatedReq,
       updatedBy: req.authUser.user.id,
     });
+
     return StandardResponse.create(res).setResponse({
       message: "Menu created successfully",
       status: HttpCode.RESOURCE_CREATED,
@@ -74,16 +60,9 @@ export class MenuController {
   }
 
   async findById(req: Request, res: Response): Promise<Response> {
-    const validatedReq = findMenuByIdSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
+    const validatedReq = validateSchema(findMenuByIdSchema, req.params);
+    const data = await this._service.findById(validatedReq.id);
 
-    const data = await this._service.findById(validatedReq.data.id);
     return StandardResponse.create(res).setResponse({
       message: "Menu fetched successfully",
       status: HttpCode.OK,
@@ -92,16 +71,11 @@ export class MenuController {
   }
 
   async update(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = updateMenuSchema.safeParse({ ...req.params, ...req.body });
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
-    const { id, ...propsData } = validatedReq.data;
+    const validatedReq = validateSchema(updateMenuSchema, {
+      ...req.params,
+      ...req.body,
+    });
+    const { id, ...propsData } = validatedReq;
     const data = await this._service.update(id, {
       ...propsData,
       updatedBy: req.authUser.user.id,
@@ -115,16 +89,10 @@ export class MenuController {
   }
 
   async delete(req: Request, res: Response): Promise<Response> {
-    const validatedReq = deleteMenuSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
+    const validatedReq = validateSchema(deleteMenuSchema, req.params);
 
-    await this._service.delete(validatedReq.data.id);
+    await this._service.delete(validatedReq.id);
+
     return StandardResponse.create(res).setResponse({
       message: "Menu deleted successfully",
       status: HttpCode.OK,

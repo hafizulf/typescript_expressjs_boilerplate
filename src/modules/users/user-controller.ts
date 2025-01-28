@@ -1,4 +1,4 @@
-import { AppError, HttpCode } from "@/exceptions/app-error";
+import { HttpCode } from "@/exceptions/app-error";
 import { StandardResponse } from "@/libs/standard-response";
 import { inject, injectable } from "inversify";
 import TYPES from "@/types";
@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import { changePasswordSchema, createUserSchema, deleteUserSchema, findByIdUserSchema, paginatedUsersSchema, updateUserSchema } from "./user-validation";
 import { UserService } from "./user-service";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
+import { validateSchema } from "@/helpers/schema-validator";
 
 @injectable()
 export class UserController {
@@ -14,16 +15,9 @@ export class UserController {
   ) {}
 
   public async findAll(req: Request, res: Response): Promise<Response> {
-    const validatedReq = paginatedUsersSchema.safeParse(req.query);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
+    const validatedReq = validateSchema(paginatedUsersSchema, req.query);
+    const [users, pagination] = await this._service.findAll(validatedReq);
 
-    const [users, pagination] = await this._service.findAll(validatedReq.data);
     return StandardResponse.create(res).setResponse({
       message: "Users fetched successfully",
       status: HttpCode.OK,
@@ -32,22 +26,13 @@ export class UserController {
   }
 
   public async store(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = createUserSchema.safeParse({
+    const validatedReq = validateSchema(createUserSchema, {
       ...req.body,
       avatarPath: req.file
     });
-
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
     const user = await this._service.store({
       updatedBy: req.authUser.user.id,
-      ...validatedReq.data
+      ...validatedReq
     });
 
     return StandardResponse.create(res).setResponse({
@@ -58,16 +43,8 @@ export class UserController {
   }
 
   async findById(req: Request, res: Response): Promise<Response> {
-    const validatedReq = findByIdUserSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      })
-    }
-
-    const data = await this._service.findById(validatedReq.data.id);
+    const validatedReq = validateSchema(findByIdUserSchema, req.params);
+    const data = await this._service.findById(validatedReq.id);
 
     return StandardResponse.create(res).setResponse({
       message: "User fetched successfully",
@@ -77,23 +54,14 @@ export class UserController {
   }
 
   async update(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = updateUserSchema.safeParse({
+    const validatedReq = validateSchema(updateUserSchema, {
       ...req.params,
       ...req.body,
-      avatarPath: req.file
+      avatarPath: req.file,
     });
-
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Request validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
-
     const result = await this._service.update({
       updatedBy: req.authUser.user.id,
-      ...validatedReq.data
+      ...validatedReq
     });
 
     return StandardResponse.create(res).setResponse({
@@ -104,16 +72,8 @@ export class UserController {
   }
 
   public async delete(req: Request, res: Response): Promise<Response> {
-    const validatedReq = deleteUserSchema.safeParse(req.params);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Request validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
-
-    await this._service.destroy(validatedReq.data.id);
+    const validatedReq = validateSchema(deleteUserSchema, req.params);
+    await this._service.destroy(validatedReq.id);
 
     return StandardResponse.create(res).setResponse({
       message: "User deleted successfully",
@@ -122,18 +82,10 @@ export class UserController {
   }
 
   public async changePassword(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = changePasswordSchema.safeParse(req.body);
-    if(!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Request validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
-
+    const validatedReq = validateSchema(changePasswordSchema, req.body);
     await this._service.changePassword({
       updatedBy: req.authUser.user.fullName,
-      ...validatedReq.data
+      ...validatedReq
     });
 
     return StandardResponse.create(res).setResponse({
