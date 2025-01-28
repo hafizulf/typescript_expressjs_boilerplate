@@ -221,6 +221,27 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
     }
   }
 
+  async findEnabledList(): Promise<MenuPermissionDomain[]> {
+    const data = await MenuPermissionPersistence.findAll({
+      attributes: ['menuId', 'permissionId', 'isEnabled'],
+      include: [
+        {
+          model: MenuPersistence,
+          attributes: ['name'],
+        },
+        {
+          model: PermissionPersistence,
+          attributes: ['name'],
+        },
+      ],
+      where: {
+        isEnabled: true,
+      },
+    });
+
+    return data.map((el) => MenuPermissionDomain.create(el.toJSON()));
+  }
+
   async findAllGroupByMenus(): Promise<ListPermissionsByMenu[]> {
     const data = await MenuPermissionPersistence.findAll({
       attributes: ['menuId', 'permissionId', 'isEnabled'],

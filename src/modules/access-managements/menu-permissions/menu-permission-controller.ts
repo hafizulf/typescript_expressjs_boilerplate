@@ -95,6 +95,18 @@ export class MenuPermissionController {
       .send();
   }
 
+  public async findEnabledList(_req: Request, res: Response): Promise<Response> {
+    const data = await this._service.findEnabledList();
+
+    return StandardResponse.create(res)
+      .setResponse({
+        message: 'Menu permissions enabled list fetched successfully',
+        status: HttpCode.OK,
+        data,
+      })
+      .send();
+  }
+
   public async findAllGroupByMenus(
     _req: Request,
     res: Response

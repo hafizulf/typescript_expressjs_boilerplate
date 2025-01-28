@@ -14,6 +14,12 @@ export class MenuPermissionRoutes {
 
   public setRoutes(router: Router) {
     router.get(
+      `${this.routes}/enabled-list`,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.findEnabledList.bind(this.controller))
+    );
+    router.get(
       `${this.routes}/group-by-menus`,
       this.authMiddleware.authenticate.bind(this.authMiddleware),
       this.authMiddleware.roleAuthorize([SUPERADMIN]),

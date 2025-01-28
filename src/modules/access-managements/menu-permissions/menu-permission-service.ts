@@ -63,6 +63,18 @@ export class MenuPermissionService {
     return (await this._repository.update(id, props)).unmarshal();
   }
 
+  public async findEnabledList(): Promise<ResponseFindMenuPermission[]> {
+    const data = await this._repository.findEnabledList();
+    return data.map((el) => {
+      const unmarshalled = el.unmarshal();
+      return {
+        ...unmarshalled,
+        menu: unmarshalled.menu!.name,
+        permission: unmarshalled.permission!.name,
+      };
+    });
+  }
+
   public async findAllGroupByMenus(): Promise<ListPermissionsByMenu[]> {
     return await this._repository.findAllGroupByMenus();
   }
