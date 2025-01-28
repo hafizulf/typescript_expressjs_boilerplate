@@ -1,10 +1,12 @@
-import { AppError, HttpCode } from "@/exceptions/app-error";
+import { HttpCode } from "@/exceptions/app-error";
+import { bulkUpdateRoleMenuPermissionSchema, findRoleMenuPermissionSchema } from "./role-menu-permission-validation";
 import { inject, injectable } from "inversify";
+import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import { RoleMenuPermissionService } from "./role-menu-permission-service";
 import { Request, Response } from "express";
 import { StandardResponse } from "@/libs/standard-response";
 import TYPES from "@/types";
-import { findRoleMenuPermissionSchema } from "./role-menu-permission-validation";
+import { validateSchema } from "@/helpers/schema-validator";
 
 @injectable()
 export class RoleMenuPermissionController {
@@ -13,21 +15,33 @@ export class RoleMenuPermissionController {
   ) {}
 
   public async findByRoleId(req: Request, res: Response): Promise<Response> {
-    const validatedReq = findRoleMenuPermissionSchema.safeParse(req.params);
-    if (!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
-
-    const data = await this._service.findByRoleId(validatedReq.data.roleId);
+    const validatedReq = validateSchema(findRoleMenuPermissionSchema, req.params);
+    const data = await this._service.findByRoleId(validatedReq.roleId);
 
     return StandardResponse.create(res).setResponse({
       message: "Role menu permissions fetched successfully",
       status: HttpCode.OK,
       data,
     }).send();
+  }
+
+  public async bulkUpdate(req: IAuthRequest, res: Response): Promise<Response> {
+    const validatedReq = validateSchema(
+      bulkUpdateRoleMenuPermissionSchema,
+      { ...req.params, ...req.body }
+    );
+
+    const data = await this._service.bulkUpdate(
+      validatedReq,
+      req.authUser.user.id
+    );
+
+    return StandardResponse.create(res)
+      .setResponse({
+        message: 'Role menu permissions updated successfully',
+        status: HttpCode.OK,
+        data,
+      })
+      .send();
   }
 }

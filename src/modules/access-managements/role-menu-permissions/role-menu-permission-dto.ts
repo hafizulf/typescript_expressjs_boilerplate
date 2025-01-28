@@ -15,3 +15,14 @@ export interface RoleMenuPermissionDto {
   role: string;
   menus: MenuInRoleMenuPermission[];
 }
+
+export interface TPropsBulkUpdateRoleMenuPermission {
+  roleId: string;
+  menus: {
+    menuId: string;
+    permissionList: {
+      permissionId: string;
+      isPermitted: boolean;
+    }[];
+  }[];
+}

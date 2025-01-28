@@ -19,5 +19,11 @@ export class RoleMenuPermissionRoutes {
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findByRoleId.bind(this.controller))
     );
+    router.put(
+      `${this.routes}/bulk-update/:roleId`,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.bulkUpdate.bind(this.controller))
+    );
   }
 }

@@ -268,6 +268,7 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
   }
 
   async bulkUpdate(props: IMenuPermission[]): Promise<void> {
+    const transaction = await sequelize.transaction();
     try {
       await Promise.all(
         props.map(async (el) => {
@@ -278,11 +279,16 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
                 menuId: el.menuId,
                 permissionId: el.permissionId,
               },
+              transaction,
             }
           );
         })
       );
+
+      await transaction.commit();
     } catch (e: Error | any) {
+      await transaction.rollback();
+
       if (e.name === 'SequelizeForeignKeyConstraintError') {
         throw new AppError({
           statusCode: HttpCode.BAD_REQUEST,
