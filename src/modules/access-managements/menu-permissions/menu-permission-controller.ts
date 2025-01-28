@@ -1,11 +1,19 @@
-import { AppError, HttpCode } from "@/exceptions/app-error";
-import { bulkUpdateMenuPermissionSchema, createMenuPermissionSchema, deleteMenuPermissionSchema, findMenuPermissionByIdSchema, paginatedMenuPermissionSchema, updateMenuPermissionSchema } from "./menu-permission-validation";
+import {
+  bulkUpdateMenuPermissionSchema,
+  createMenuPermissionSchema,
+  deleteMenuPermissionSchema,
+  findMenuPermissionByIdSchema,
+  paginatedMenuPermissionSchema,
+  updateMenuPermissionSchema
+} from "./menu-permission-validation";
+import { HttpCode } from '@/exceptions/app-error';
 import { inject, injectable } from "inversify";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import { MenuPermissionService } from "./menu-permission-service";
 import { Request, Response } from "express";
 import { StandardResponse } from "@/libs/standard-response";
 import TYPES from "@/types";
+import { validateSchema } from "@/helpers/schema-validator";
 
 @injectable()
 export class MenuPermissionController {
@@ -14,16 +22,8 @@ export class MenuPermissionController {
   ) {}
 
   public async findAll(req: Request, res: Response): Promise<Response> {
-    const validatedReq = paginatedMenuPermissionSchema.safeParse(req.query);
-    if (!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: 'Validation error',
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
-
-    const [data, pagination] = await this._service.findAll(validatedReq.data);
+    const validatedReq = validateSchema(paginatedMenuPermissionSchema, req.query);
+    const [data, pagination] = await this._service.findAll(validatedReq);
 
     return StandardResponse.create(res)
       .setResponse({
@@ -36,17 +36,9 @@ export class MenuPermissionController {
   }
 
   public async store(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = createMenuPermissionSchema.safeParse(req.body);
-    if (!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: 'Validation error',
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
-
+    const validatedReq = validateSchema(createMenuPermissionSchema, req.body);
     const data = await this._service.store({
-      ...validatedReq.data,
+      ...validatedReq,
       updatedBy: req.authUser.user.id,
     });
     return StandardResponse.create(res)
@@ -59,16 +51,9 @@ export class MenuPermissionController {
   }
 
   public async findById(req: Request, res: Response): Promise<Response> {
-    const validatedReq = findMenuPermissionByIdSchema.safeParse(req.params);
-    if (!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: 'Validation error',
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
+    const validatedReq = validateSchema(findMenuPermissionByIdSchema, req.params);
+    const data = await this._service.findById(validatedReq.id);
 
-    const data = await this._service.findById(validatedReq.data.id);
     return StandardResponse.create(res)
       .setResponse({
         message: 'Menu permission fetched successfully',
@@ -79,19 +64,15 @@ export class MenuPermissionController {
   }
 
   public async update(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = updateMenuPermissionSchema.safeParse({...req.params, ...req.body});
-    if (!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: 'Validation error',
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
-
-    const data = await this._service.update(validatedReq.data.id, {
+    const validatedReq = validateSchema(updateMenuPermissionSchema, {
+      ...req.params,
+      ...req.body,
+    });
+    const data = await this._service.update(validatedReq.id, {
       ...req.body,
       updatedBy: req.authUser.user.id,
     });
+
     return StandardResponse.create(res)
       .setResponse({
         message: 'Menu permission updated successfully',
@@ -102,16 +83,10 @@ export class MenuPermissionController {
   }
 
   public async delete(req: Request, res: Response): Promise<Response> {
-    const validatedReq = deleteMenuPermissionSchema.safeParse(req.params);
-    if (!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: 'Validation error',
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
+    const validatedReq = validateSchema(deleteMenuPermissionSchema, req.params);
 
-    await this._service.delete(validatedReq.data.id);
+    await this._service.delete(validatedReq.id);
+
     return StandardResponse.create(res)
       .setResponse({
         message: 'Menu permission deleted successfully',
@@ -136,22 +111,10 @@ export class MenuPermissionController {
   }
 
   public async bulkUpdate(req: IAuthRequest, res: Response): Promise<Response> {
-    const validatedReq = bulkUpdateMenuPermissionSchema.safeParse(req.body);
-    if (!validatedReq.success) {
-      const detailedErrors = validatedReq.error.errors.map((err) => ({
-        path: err.path.join('.'),
-        message: err.message,
-      }));
-
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: 'Validation error',
-        data: detailedErrors, // Detailed errors with field paths and messages
-      });
-    }
+    const validatedReq = validateSchema(bulkUpdateMenuPermissionSchema, req.body);
 
     const data = await this._service.bulkUpdate(
-      validatedReq.data.menuPermissions,
+      validatedReq.menuPermissions,
       req.authUser.user.id
     );
     return StandardResponse.create(res)

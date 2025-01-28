@@ -38,6 +38,12 @@ export class MenuPermissionRoutes {
       asyncWrap(this.controller.findById.bind(this.controller))
     );
     router.put(
+      `${this.routes}/bulk-update`,
+      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(this.controller.bulkUpdate.bind(this.controller))
+    );
+    router.put(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate.bind(this.authMiddleware),
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
@@ -49,12 +55,6 @@ export class MenuPermissionRoutes {
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.delete.bind(this.controller))
     );
-    router.put(
-      `${this.routes}/bulk-update`,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.bulkUpdate.bind(this.controller))
-    )
     router.post(
       `${this.routes}/seeds`,
       this.authMiddleware.authenticate.bind(this.authMiddleware),

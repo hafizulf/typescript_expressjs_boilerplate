@@ -1,4 +1,5 @@
 import { APP_ENV } from "@/config/env";
+import { ZodError } from 'zod';
 
 export enum HttpCode {
   BAD_REQUEST = 400,
@@ -43,5 +44,36 @@ export class AppError extends Error {
     }
 
     Error.captureStackTrace(this);
+  }
+
+  public static fromZodError(
+    error: ZodError,
+    description: string = 'Validation error'
+  ): AppError {
+    const detailedErrors = error.errors.reduce(
+      (
+        acc: Record<string, string[]>,
+        err: { path: (string | number)[]; message: string }
+      ) => {
+        const path = err.path.join('.');
+        const message = err.message;
+
+        if (acc[path]) {
+          acc[path].push(message);
+        } else {
+          acc[path] = [message];
+        }
+
+        return acc;
+      },
+      {}
+    );
+
+    return new AppError({
+      statusCode: HttpCode.VALIDATION_ERROR,
+      description,
+      data: detailedErrors,
+      isOperational: true,
+    });
   }
 }
