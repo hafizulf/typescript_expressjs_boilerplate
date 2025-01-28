@@ -1,5 +1,9 @@
 import { HttpCode } from "@/exceptions/app-error";
-import { bulkUpdateRoleMenuPermissionSchema, findRoleMenuPermissionSchema } from "./role-menu-permission-validation";
+import {
+  bulkUpdateRoleMenuPermissionSchema,
+  createRoleMenuPermissionSchema,
+  findRoleMenuPermissionSchema
+} from "./role-menu-permission-validation";
 import { inject, injectable } from "inversify";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import { RoleMenuPermissionService } from "./role-menu-permission-service";
@@ -40,6 +44,22 @@ export class RoleMenuPermissionController {
       .setResponse({
         message: 'Role menu permissions updated successfully',
         status: HttpCode.OK,
+        data,
+      })
+      .send();
+  }
+
+  public async store(req: IAuthRequest, res: Response): Promise<Response> {
+    const validatedReq = validateSchema(createRoleMenuPermissionSchema, req.body);
+    const data = await this._service.store({
+      ...validatedReq,
+      updatedBy: req.authUser.user.id,
+    });
+
+    return StandardResponse.create(res)
+      .setResponse({
+        message: 'Role menu permission created successfully',
+        status: HttpCode.RESOURCE_CREATED,
         data,
       })
       .send();

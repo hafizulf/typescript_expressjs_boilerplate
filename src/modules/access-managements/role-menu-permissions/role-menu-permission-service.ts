@@ -1,8 +1,10 @@
 import { inject, injectable } from "inversify";
+import { IRoleMenuPermission } from "./role-menu-permission-domain";
 import { IRoleMenuPermissionRepository } from "./role-menu-permission-repository-interface";
 import {
   RoleMenuPermissionDto,
-  TPropsBulkUpdateRoleMenuPermission
+  TPropsBulkUpdateRoleMenuPermission,
+  TPropsCreateRoleMenuPermission
 } from "./role-menu-permission-dto";
 import TYPES from "@/types";
 
@@ -36,5 +38,11 @@ export class RoleMenuPermissionService {
     this._repository.bulkUpdate(permissionsToUpdate);
 
     return this.findByRoleId(data.roleId);
+  }
+
+  public async store(
+    props: TPropsCreateRoleMenuPermission
+  ): Promise<IRoleMenuPermission> {
+    return ((await this._repository.store(props)).unmarshal());
   }
 }

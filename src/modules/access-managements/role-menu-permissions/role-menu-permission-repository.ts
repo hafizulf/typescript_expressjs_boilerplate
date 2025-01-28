@@ -1,11 +1,12 @@
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { injectable } from "inversify";
-import { IRoleMenuPermission } from "./role-menu-permission-domain";
+import { IRoleMenuPermission, RoleMenuPermissionDomain } from "./role-menu-permission-domain";
 import { IRoleMenuPermissionRepository } from "./role-menu-permission-repository-interface";
 import {
   Role as RolePersistence,
   Menu as MenuPersistence,
   Permission as PermissionPersistence,
+  MenuPermission as MenuPermisonPersistence,
   RoleMenuPermission as RoleMenuPermissionPersistence,
 } from '@/modules/common/sequelize';
 import { RoleMenuPermissionDto } from "./role-menu-permission-dto";
@@ -102,6 +103,66 @@ export class RoleMenuPermissionRepository
         statusCode: HttpCode.INTERNAL_SERVER_ERROR,
         description: 'Failed to update role menu permission',
         error,
+      });
+    }
+  }
+
+  async store(props: IRoleMenuPermission): Promise<RoleMenuPermissionDomain> {
+    try {
+      const menuPermission = await MenuPermisonPersistence.findOne({
+        where: {
+          menuId: props.menuId,
+          permissionId: props.permissionId,
+        },
+      });
+
+      if (!menuPermission) {
+        throw new AppError({
+          statusCode: HttpCode.NOT_FOUND,
+          description: 'Menu permission not found',
+        });
+      }
+
+      if (!menuPermission?.isEnabled) {
+        throw new AppError({
+          statusCode: HttpCode.BAD_REQUEST,
+          description: 'Menu permission is disabled',
+        });
+      }
+
+      const roleMenuPermission = await RoleMenuPermissionPersistence.findOne({
+        where: {
+          roleId: props.roleId,
+          menuId: props.menuId,
+          permissionId: props.permissionId,
+        },
+      });
+
+      if (roleMenuPermission) {
+        throw new AppError({
+          statusCode: HttpCode.BAD_REQUEST,
+          description: 'Role menu permission already exists',
+        });
+      }
+
+      const createdRoleMenuPermission = await RoleMenuPermissionPersistence.create(props);
+      return RoleMenuPermissionDomain.create(createdRoleMenuPermission.toJSON());
+    } catch (e: unknown | any) {
+      if(e.name === 'SequelizeForeignKeyConstraintError') {
+        throw new AppError({
+          statusCode: HttpCode.BAD_REQUEST,
+          description: "Invalid reference: Role, Menu, or Permission does not exist",
+        });
+      }
+
+      if(e instanceof AppError) {
+        throw e;
+      }
+
+      throw new AppError({
+        statusCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: "Failed to store role menu permission",
+        error: e,
       });
     }
   }

@@ -26,3 +26,10 @@ export interface TPropsBulkUpdateRoleMenuPermission {
     }[];
   }[];
 }
+
+export interface TPropsCreateRoleMenuPermission {
+  roleId: string;
+  menuId: string;
+  permissionId: string;
+  updatedBy: string;
+}

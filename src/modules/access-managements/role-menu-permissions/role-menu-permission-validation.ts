@@ -21,3 +21,9 @@ export const bulkUpdateRoleMenuPermissionSchema = z.object({
     })
   )
 })
+
+export const createRoleMenuPermissionSchema = z.object({
+  roleId: singleUUIDSchema,
+  menuId: singleUUIDSchema,
+  permissionId: singleUUIDSchema,
+});
