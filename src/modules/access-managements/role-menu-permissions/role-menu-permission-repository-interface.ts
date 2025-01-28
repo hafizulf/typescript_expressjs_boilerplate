@@ -5,4 +5,5 @@ export interface IRoleMenuPermissionRepository {
   findByRoleId(roleId: string): Promise<RoleMenuPermissionDto | []>;
   bulkUpdate(props: IRoleMenuPermission[]): void;
   store(props: TPropsCreateRoleMenuPermission): Promise<RoleMenuPermissionDomain>;
+  update(props: IRoleMenuPermission): Promise<RoleMenuPermissionDomain>;
 }

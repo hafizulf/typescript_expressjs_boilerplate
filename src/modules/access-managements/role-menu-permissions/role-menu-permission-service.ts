@@ -45,4 +45,10 @@ export class RoleMenuPermissionService {
   ): Promise<IRoleMenuPermission> {
     return ((await this._repository.store(props)).unmarshal());
   }
+
+  public async update(
+    props: IRoleMenuPermission
+  ): Promise<IRoleMenuPermission> {
+    return ((await this._repository.update(props)).unmarshal());
+  }
 }

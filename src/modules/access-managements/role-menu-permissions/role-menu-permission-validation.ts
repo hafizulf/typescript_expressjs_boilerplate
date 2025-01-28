@@ -27,3 +27,10 @@ export const createRoleMenuPermissionSchema = z.object({
   menuId: singleUUIDSchema,
   permissionId: singleUUIDSchema,
 });
+
+export const updateRoleMenuPermissionSchema = z.object({
+  roleId: singleUUIDSchema,
+  menuId: singleUUIDSchema,
+  permissionId: singleUUIDSchema,
+  isPermitted: z.boolean(),
+});

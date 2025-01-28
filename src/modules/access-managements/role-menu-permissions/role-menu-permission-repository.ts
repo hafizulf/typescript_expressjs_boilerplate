@@ -166,4 +166,43 @@ export class RoleMenuPermissionRepository
       });
     }
   }
+
+  async update(props: IRoleMenuPermission): Promise<RoleMenuPermissionDomain> {
+    try {
+      const roleMenuPermission = await RoleMenuPermissionPersistence.findOne({
+        where: {
+          roleId: props.roleId,
+          menuId: props.menuId,
+          permissionId: props.permissionId,
+        },
+      });
+
+      if (!roleMenuPermission) {
+        throw new AppError({
+          statusCode: HttpCode.NOT_FOUND,
+          description: 'Role menu permission not found',
+        });
+      }
+
+      await roleMenuPermission.update({ isPermitted: props.isPermitted });
+      return RoleMenuPermissionDomain.create(roleMenuPermission.toJSON());
+    } catch (e: unknown | any) {
+      if(e.name === 'SequelizeForeignKeyConstraintError') {
+        throw new AppError({
+          statusCode: HttpCode.BAD_REQUEST,
+          description: "Invalid reference: Role, Menu, or Permission does not exist",
+        });
+      }
+
+      if(e instanceof AppError) {
+        throw e;
+      }
+
+      throw new AppError({
+        statusCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: "Failed to update role menu permission",
+        error: e,
+      });
+    }
+  }
 }
