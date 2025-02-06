@@ -172,4 +172,21 @@ export class UserService {
 
     return true;
   }
+
+  public async resetPassword(id: string, updatedBy: string): Promise<Record<string, string>> {
+    const user = await this._repository.findById(id);
+    const newPassword = user.generateRandomPassword();
+    user.password = newPassword;
+    user.updatedBy = updatedBy;
+
+    await this._repository.updatePassword({
+      id,
+      password: user.password,
+      updatedBy: user.updatedBy
+    })
+
+    return {
+      password: newPassword,
+    };
+  }
 }

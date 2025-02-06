@@ -3,7 +3,15 @@ import { StandardResponse } from "@/libs/standard-response";
 import { inject, injectable } from "inversify";
 import TYPES from "@/types";
 import { Request, Response } from "express";
-import { changePasswordSchema, createUserSchema, deleteUserSchema, findByIdUserSchema, paginatedUsersSchema, updateUserSchema } from "./user-validation";
+import {
+  changePasswordSchema,
+  createUserSchema,
+  deleteUserSchema,
+  findByIdUserSchema,
+  paginatedUsersSchema,
+  resetPasswordSchema,
+  updateUserSchema
+} from "./user-validation";
 import { UserService } from "./user-service";
 import { IAuthRequest } from "@/presentation/middlewares/auth-interface";
 import { validateSchema } from "@/helpers/schema-validator";
@@ -91,6 +99,17 @@ export class UserController {
     return StandardResponse.create(res).setResponse({
       message: "Password changed successfully",
       status: HttpCode.OK,
+    }).send();
+  }
+
+  public async resetPassword(req: IAuthRequest, res: Response): Promise<Response> {
+    const validatedReq = validateSchema(resetPasswordSchema, req.body);
+    const data = await this._service.resetPassword(validatedReq.id, req.authUser.user.id);
+
+    return StandardResponse.create(res).setResponse({
+      message: "New password generated successfully",
+      status: HttpCode.OK,
+      data,
     }).send();
   }
 }

@@ -35,6 +35,14 @@ export class UserRoutes {
         this.controller.store.bind(this.controller)
       )
     )
+    router.post(
+      `${this.routes}/reset-password`,
+      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
+      asyncWrap(
+        this.controller.resetPassword.bind(this.controller)
+      )
+    )
     router.get(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),

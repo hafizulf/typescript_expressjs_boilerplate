@@ -46,3 +46,5 @@ export const changePasswordSchema = z.object({
   oldPassword: z.string(),
   newPassword: passwordSchema,
 })
+
+export const resetPasswordSchema = uuidV7RegexSchema;

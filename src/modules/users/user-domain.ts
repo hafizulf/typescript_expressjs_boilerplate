@@ -23,9 +23,8 @@ export class UserDomain
   extends DomainEntity<IUser>
   implements DefaultEntityBehaviour<IUser>
 {
-
   private constructor(props: IUser) {
-    const {id, ...data} = props;
+    const { id, ...data } = props;
     super(data, id);
   }
 
@@ -46,14 +45,41 @@ export class UserDomain
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       deletedAt: this.deletedAt,
-    }
+    };
   }
 
   public verifyPassword(password: string): boolean {
-    if(this.password) {
+    if (this.password) {
       return bcrypt.compareSync(password, this.password);
     }
     return false;
+  }
+
+  public generateRandomPassword(): string {
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const symbols = '@$!%*?&';
+
+    const randomLower = lowercase[Math.floor(Math.random() * lowercase.length)]!;
+    const randomUpper = uppercase[Math.floor(Math.random() * uppercase.length)];
+    const randomNumber = numbers[Math.floor(Math.random() * numbers.length)];
+    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+
+    const allChars = lowercase + uppercase + numbers + symbols;
+    let password = randomLower + randomUpper + randomNumber + randomSymbol;
+
+    // Add remaining characters to reach minimum length of 6
+    for (let i = 4; i < 6; i++) {
+      const randomIndex = Math.floor(Math.random() * allChars.length);
+      password += allChars[randomIndex];
+    }
+
+    // Shuffle the password to avoid predictable pattern
+    return password
+      .split('')
+      .sort(() => Math.random() - 0.5)
+      .join('');
   }
 
   get id(): string {
@@ -78,7 +104,7 @@ export class UserDomain
       throw new AppError({
         statusCode: HttpCode.VALIDATION_ERROR,
         description: "Password is required",
-      })
+      });
     }
   }
 
