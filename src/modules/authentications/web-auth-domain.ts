@@ -15,7 +15,7 @@ export class WebAuthDomain {
       ? jwt.sign({
           id: props.user.id,
           fullname: props.user.fullName,
-        }, jwt_key, { expiresIn: jwt_ttl })
+        }, jwt_key, { expiresIn: jwt_ttl as jwt.SignOptions["expiresIn"] })
       : props.token,
     }
   }

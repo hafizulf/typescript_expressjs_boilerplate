@@ -32,7 +32,7 @@ export class WebAuthController {
     const data = await this._service.login(req.body);
 
     // set refresh token to http-only cookie
-    const cookiesMaxAge = ms(JWT_REFRESH_SECRET_TTL);
+    const cookiesMaxAge = ms(JWT_REFRESH_SECRET_TTL as ms.StringValue);
     res.cookie("refreshToken", data.refreshToken, {
       httpOnly: true,
       secure: APP_ENV === "production",

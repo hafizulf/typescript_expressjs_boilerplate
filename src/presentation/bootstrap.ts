@@ -32,6 +32,7 @@ export class Bootstrap {
   constructor(
     @inject(Routes) private appRoutes: Routes, // inject routes by class
     @inject(TYPES.BackgroundServiceManager) private backgroundServiceManager: BackgroundServiceManager, // inject by symbol
+    @inject(TYPES.SocketIO) private socketIO: SocketIO,
     @inject(Mqtt) private mqtt: Mqtt,
   ) {
     this.app = express();
@@ -109,10 +110,10 @@ export class Bootstrap {
     const router = express.Router();
 
     this.app.use(APP_API_PREFIX, router);
-    this.appRoutes.setRoutes(router);                                   // set all routes
-
-    router.get("/health-check", (_req: Request, res: Response): Response => {
-      return res.status(200).json({
+    this.appRoutes.setRoutes(router);   // set routes
+    
+    router.get("/health-check", (_req: Request, res: Response) => {
+      res.status(200).json({
         status: "ok",
         message: "Server is up and running",
       });
@@ -163,12 +164,10 @@ export class Bootstrap {
   }
 
   public initializeSocketIO(): void {
-    const socketIO = container.get<SocketIO>(TYPES.SocketIO);
-
-    socketIO.initialize(this.httpServer);
+    this.socketIO.initialize(this.httpServer);
 
     // specify public namespace
-    socketIO.setPublicNamespaces([
+    this.socketIO.setPublicNamespaces([
       PUBLIC_TIME_NSP,
     ])
 
@@ -178,7 +177,7 @@ export class Bootstrap {
       new PublicTimeNamespace(),
     ];
 
-    socketIO.initializeNamespaces(socketNamespaces);
+    this.socketIO.initializeNamespaces(socketNamespaces);
     console.log("Socket.IO initialized with namespaces.");
   }
 
