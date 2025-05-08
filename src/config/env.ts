@@ -2,7 +2,8 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 
-const defaultEnvPath = path.resolve(__dirname, '../../.env');
+dotenv.config();
+const defaultEnvPath = path.resolve(__dirname, '../../.env.' + process.env.APP_ENV);
 
 if (fs.existsSync(defaultEnvPath)) {
   console.log(`Loading environment file: ${defaultEnvPath}`);
