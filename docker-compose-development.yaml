@@ -8,8 +8,6 @@ services:
       - "6379:6379"
   postgres17:
     container_name: postgres17
-    env_file:
-      - .env.development
     image: postgres:17
     ports:
       - "5433:5432"
@@ -19,6 +17,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres17_data:/var/lib/postgresql/data
+    command: /bin/bash -c "mkdir -p /db-backup && docker-entrypoint.sh postgres" 
 
 volumes:
   postgres17_data:
