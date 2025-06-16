@@ -67,7 +67,18 @@ This is a TypeScript Express.js API Boilerplate built with modern technologies t
    docker compose -f docker-compose-development.yaml up
    ```
 
-5. Compile and run the application in development:
+5. Copy & restore database starter:
+
+   ```bash
+   1. Copy
+   docker cp /path-to-file/dump-starter.tar postgres17:/db-backup/dummy-starter.tar
+
+   
+   2. Restore
+   docker exec -e PGPASSWORD=yourpg_pass -it postgres17 pg_restore --verbose --username=yourpg_user --dbname=typescript_expressjs_boilerplate --format=t /db-backup/dummy-starter.tar
+   ```
+
+6. Compile and run the application in development:
 
    ```bash
    yarn dev
