@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { Request, Response } from "express";
 import TYPES from "@/types";
 import { WebAuthService } from "./web-auth-service";
-import { AppError, HttpCode } from "@/exceptions/app-error";
+import { HttpCode } from "@/exceptions/app-error";
 import { StandardResponse } from "@/libs/standard-response";
 import { generateAccessTokenSchema, loginSchema, logoutSchema } from "./web-auth-validation";
 import ms from "ms";
@@ -20,16 +20,8 @@ export class WebAuthController {
   ) {}
 
   public async login(req: Request, res: Response): Promise<Response> {
-    const validatedReq = loginSchema.safeParse(req.body);
-    if (!validatedReq.success) {
-      throw new AppError({
-        statusCode: HttpCode.VALIDATION_ERROR,
-        description: "Validation error",
-        data: validatedReq.error.flatten().fieldErrors,
-      });
-    }
-
-    const data = await this._service.login(req.body);
+    const validatedReq = validateSchema(loginSchema, req.body)
+    const data = await this._service.login({...validatedReq});
 
     // set refresh token to http-only cookie
     const cookiesMaxAge = ms(JWT_REFRESH_SECRET_TTL as ms.StringValue);
