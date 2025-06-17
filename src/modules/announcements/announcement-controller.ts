@@ -25,7 +25,7 @@ export class AnnouncementController {
   }
 
   public async findById(req: Request, res: Response): Promise<Response> {
-    const validatedReq = validateSchema(findByIdSchema, req.body);
+    const validatedReq = validateSchema(findByIdSchema, req.params);
     const data = await this._service.findById(validatedReq.id);
 
     return StandardResponse.create(res).setResponse({
