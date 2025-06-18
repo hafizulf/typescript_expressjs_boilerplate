@@ -28,8 +28,6 @@ export class SocketIO {
     this.io = new SocketIOServer(httpServer, {
       cors: WebSocketCorsOption,
     });
-
-    console.log("Socket.IO Initialized.");
   }
 
   public setPublicNamespaces(namespaces: string[]): void {
@@ -55,18 +53,18 @@ export class SocketIO {
     nsp.use(this._eventWhitelistMiddleware.handle(eventWhitelist)); // Add event whitelist middleware
 
     nsp.on("connection", (socket: Socket) => {
-      console.log(`Client connected to namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);
+      console.log(`Client connected to namespace: ${namespace}, socket id: ${socket.id}`);
 
-      socket.emit("message", `Welcome to the ${namespaceInstance.namespace} namespace!`);
+      socket.emit("message", `Welcome to the ${namespace} namespace!`);
 
       namespaceInstance.registerEvents(socket);
 
       socket.on("disconnect", () => {
-        console.log(`Client disconnected from namespace: ${namespaceInstance.namespace}, socket id: ${socket.id}`);
+        console.log(`Client disconnected from namespace: ${namespace}, socket id: ${socket.id}`);
       });
     });
 
-    console.log(`Socket with namespace: ${namespaceInstance.namespace} created.`);
+    console.log(`Socket with namespace: ${namespace} created.`);
   }
 
   public getNamespace(namespace: string) {

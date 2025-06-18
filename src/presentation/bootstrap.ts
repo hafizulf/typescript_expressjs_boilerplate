@@ -184,7 +184,5 @@ export class Bootstrap {
   private initializeMqtt(): void {
     this.mqtt.connect();
     this.mqtt.setSubscriber();
-
-    console.log("MQTT client initialized and connected to the broker.");
   }
 }

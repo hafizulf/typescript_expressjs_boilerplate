@@ -21,7 +21,6 @@ export class RefreshTokenService {
         } catch (error) {
           if (error instanceof TokenExpiredError) {
             await this._refreshTokenRepository.delete(el.token);
-            console.log(`Expired refresh token deleted: ${el.token}`);
           } else {
             console.error("An error occurred while verifying the token:", error);
           }
