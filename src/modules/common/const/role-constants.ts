@@ -4,6 +4,8 @@ export enum EnumRoles {
   USER = 'user',
 }
 
-export const ADMIN = EnumRoles.ADMIN;
-export const SUPERADMIN = EnumRoles.SUPERADMIN;
-export const USER = EnumRoles.USER;
+export const {
+  ADMIN,
+  SUPERADMIN,
+  USER
+} = EnumRoles;
