@@ -1,14 +1,14 @@
 import TYPES from "@/types";
 import { injectable, inject } from "inversify";
-import { RefreshTokenRepository } from "./refresh-token-repository";
 import jwt from "jsonwebtoken";
 import { JWT_REFRESH_SECRET_KEY } from "@/config/env";
 import { TokenExpiredError } from "jsonwebtoken";
+import { IRefreshTokenRepository } from "./refresh-token-repository-interface";
 
 @injectable()
 export class RefreshTokenService {
   constructor(
-    @inject(TYPES.IRefreshTokenRepository) private _refreshTokenRepository: RefreshTokenRepository,
+    @inject(TYPES.IRefreshTokenRepository) private _refreshTokenRepository: IRefreshTokenRepository,
   ) {}
 
   public async deleteExpiredTokens(): Promise<void> {

@@ -1,22 +1,22 @@
 import { inject, injectable } from "inversify";
-import { UserRepository } from "../users/user-repository";
 import TYPES from "@/types";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { IWebAuth, WebAuthDomain } from "./web-auth-domain";
 import { IResponseLogin } from "./web-auth-dto";
 import { JWT_SECRET_KEY, JWT_SECRET_KEY_TTL, JWT_REFRESH_SECRET_KEY, JWT_REFRESH_SECRET_TTL } from "@/config/env";
-import { RefreshTokenRepository } from "../refresh-tokens/refresh-token-repository";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { RedisClient } from "@/libs/redis/redis-client";
-import { RoleRepository } from "@/modules/roles/role-repository";
 import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
+import { IUserRepository } from "../users/user-repository-interface";
+import { IRoleRepository } from "../roles/role-repository-interface";
+import { IRefreshTokenRepository } from "../refresh-tokens/refresh-token-repository-interface";
 
 @injectable()
 export class WebAuthService {
   constructor(
-    @inject(TYPES.IUserRepository) private _userRepository: UserRepository,
-    @inject(TYPES.IRefreshTokenRepository) private _refreshTokenRepository: RefreshTokenRepository,
-    @inject(TYPES.IRoleRepository) private _roleRepository: RoleRepository,
+    @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
+    @inject(TYPES.IRefreshTokenRepository) private _refreshTokenRepository: IRefreshTokenRepository,
+    @inject(TYPES.IRoleRepository) private _roleRepository: IRoleRepository,
   ) {}
 
   public async login(

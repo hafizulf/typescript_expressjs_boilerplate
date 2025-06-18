@@ -1,11 +1,11 @@
 import { injectable } from "inversify";
-import { IRefreshTokenRepositoryInterface } from "./refresh-token-repository-interface";
+import { IRefreshTokenRepository } from "./refresh-token-repository-interface";
 import { RefreshToken as RefreshTokenPersistence } from "@/modules/common/sequelize";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { RefreshTokenDomain } from "./refresh-token-domain";
 
 @injectable()
-export class RefreshTokenRepository implements IRefreshTokenRepositoryInterface {
+export class RefreshTokenRepository implements IRefreshTokenRepository {
   async updateOrCreate(userId: string, refreshToken: string): Promise<void> {
     const data = await RefreshTokenPersistence.findOne({ where: { userId } });
     if (data) {

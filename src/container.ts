@@ -51,7 +51,7 @@ import { RoleMenuPermissionService } from "@/modules/access-managements/role-men
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
 import { IUserRepository } from "@/modules/users/user-repository-interface";
-import { IRefreshTokenRepositoryInterface } from "@/modules/refresh-tokens/refresh-token-repository-interface";
+import { IRefreshTokenRepository } from "@/modules/refresh-tokens/refresh-token-repository-interface";
 import { IDashboardTotalRepository } from "@/modules/dashboard-totals/dashboard-total-repository-interface";
 import { IAnnouncementRepository } from "@/modules/announcements/announcement-repository-interface";
 import { IUserLogsRepository } from "@/modules/user-logs/user-logs-repository-interface";
@@ -142,7 +142,7 @@ container
   .bind<IUserRepository>(TYPES.IUserRepository)
   .to(UserRepository);
 container
-  .bind<IRefreshTokenRepositoryInterface>(TYPES.IRefreshTokenRepository)
+  .bind<IRefreshTokenRepository>(TYPES.IRefreshTokenRepository)
   .to(RefreshTokenRepository);
 container
   .bind<IDashboardTotalRepository>(TYPES.IDashboardTotalRepository)
