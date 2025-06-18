@@ -28,7 +28,7 @@ export class DashboardTotalNamespace extends SocketNamespace {
     console.log(`Client connected to namespace: ${this.namespace}, socket id: ${socket.id}`);
 
     socket.on(DASHBOARD_TOTAL_EVENTS.GET_TOTAL_USERS, async () => {
-      const isAllowed = await this.rateLimiter.checkRateLimit(socket.id);
+      const isAllowed = await this.rateLimiter.checkRateLimit(socket.handshake.address);
       if (!isAllowed) {
         socket.emit("error", {
           message: "Rate limit exceeded, please try again later.",

@@ -9,9 +9,9 @@ export class RateLimiter {
     this.rateLimitMap = new Map();
   }
 
-  async checkRateLimit(clientId: string): Promise<boolean> {
+  async checkRateLimit(key: string): Promise<boolean> {
     const currentTime = Date.now();
-    const lastRequestData = this.rateLimitMap.get(clientId);
+    const lastRequestData = this.rateLimitMap.get(key);
 
     if (lastRequestData) {
       const { count, lastRequestTime } = lastRequestData;
@@ -21,13 +21,13 @@ export class RateLimiter {
           console.log('Rate limit exceeded');
           return false; // Exceeded rate limit
         }
-        this.rateLimitMap.set(clientId, { count: count + 1, lastRequestTime });
+        this.rateLimitMap.set(key, { count: count + 1, lastRequestTime });
       } else {
         // Reset the count if the time window has passed
-        this.rateLimitMap.set(clientId, { count: 1, lastRequestTime: currentTime });
+        this.rateLimitMap.set(key, { count: 1, lastRequestTime: currentTime });
       }
     } else {
-      this.rateLimitMap.set(clientId, { count: 1, lastRequestTime: currentTime });
+      this.rateLimitMap.set(key, { count: 1, lastRequestTime: currentTime });
     }
 
     return true; // Allow the request

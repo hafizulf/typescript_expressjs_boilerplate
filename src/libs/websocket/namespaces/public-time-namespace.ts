@@ -18,7 +18,7 @@ export class PublicTimeNamespace extends SocketNamespace {
 
   registerEvents(socket: Socket): void {
     socket.on("get_time", async () => {
-      const isAllowed = await this.rateLimiter.checkRateLimit(socket.id);
+      const isAllowed = await this.rateLimiter.checkRateLimit(socket.handshake.address);
       if(!isAllowed) {
         socket.emit("error", {
           message: "Too many requests. Please try again later.",
