@@ -8,6 +8,7 @@ import { TokenExpiredError } from "jsonwebtoken";
 import TYPES from "@/types";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { TokenErrMessage } from "@/exceptions/error-message-constants";
+import { getUserDataKey } from "@/helpers/redis-keys";
 
 @injectable()
 export class SocketAuthenticationMiddleware {
@@ -36,28 +37,34 @@ export class SocketAuthenticationMiddleware {
       }
 
       try {
-        const redisKey = `auth:token:${token}`;
-        const userAuthenticated = await RedisClient.get(redisKey);
-        if (userAuthenticated) {
-          const parsedUser = JSON.parse(userAuthenticated);
-          socket.data.user = parsedUser.user;
+        const decoded = jwt.verify(token, JWT_SECRET_KEY) as JwtPayload;
+        console.log("Decoded token:", decoded);
+        if (!decoded.id || !decoded.exp || typeof decoded.tokenVersion !== 'number') {
+          return next(new Error("Authentication error: " + TokenErrMessage.INVALID_PAYLOAD));
+        }
+
+        const userDataKey = getUserDataKey(decoded.id);
+        const userData = await RedisClient.get(userDataKey);
+        if (userData) {
+          const parsedUser = JSON.parse(userData);
+          socket.data.user = parsedUser;
           return next();
         }
 
-        const decoded = jwt.decode(token) as JwtPayload;
-        if (!decoded?.exp) {
-          return next(new Error(TokenErrMessage.INVALID_PAYLOAD_EXP));
+        const authUser = await this._webAuthService.getMe(token, JWT_SECRET_KEY);
+        if (!authUser?.user?.id) {
+          return next(new Error("Authentication error: Failed to resolve authenticated user"));
+        }
+
+        if(decoded.tokenVersion !== authUser.user.tokenVersion) {
+          return next(new Error("Authentication error: Token has been revoked"));
         }
 
         const ttl = decoded.exp - Math.floor(Date.now() / 1000);
-        if (ttl <= 0) {
-          return next(new Error(TokenErrMessage.EXPIRED));
-        }
+        await RedisClient.set(userDataKey, JSON.stringify(authUser.user), ttl);
 
-        const authUser = await this._webAuthService.getMe(token, JWT_SECRET_KEY);
-        await RedisClient.set(redisKey, JSON.stringify(authUser), ttl);
-        socket.data.user = authUser.user; // Attach user to socket instance
-        next(); // Allow connection
+        socket.data.user = authUser.user;
+        return next();
       } catch (error) {
         console.error("Invalid token, rejecting connection.");
         if (error instanceof TokenExpiredError) {

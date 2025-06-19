@@ -6,10 +6,10 @@ import { IResponseLogin } from "./web-auth-dto";
 import { JWT_SECRET_KEY, JWT_SECRET_TTL, JWT_REFRESH_SECRET_KEY, JWT_REFRESH_SECRET_TTL } from "@/config/env";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { RedisClient } from "@/libs/redis/redis-client";
-import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
 import { IUserRepository } from "../users/user-repository-interface";
 import { IRoleRepository } from "../roles/role-repository-interface";
 import { IRefreshTokenRepository } from "../refresh-tokens/refresh-token-repository-interface";
+import { getUserDataKey } from "@/helpers/redis-keys";
 
 @injectable()
 export class WebAuthService {
@@ -29,6 +29,8 @@ export class WebAuthService {
         description: "Wrong password",
       })
     }
+    const userRole = await this._roleRepository.findById(userData.roleId);
+    userData.role = userRole.unmarshal();
 
     const userDataUnmarshal = { ...userData.unmarshal(), password: undefined };
     const auth = WebAuthDomain.create({ user: userDataUnmarshal }, JWT_SECRET_KEY, JWT_SECRET_TTL).unmarshal();
@@ -44,17 +46,16 @@ export class WebAuthService {
     ).unmarshal().token;
     await this._refreshTokenRepository.updateOrCreate(userData.id, refreshToken!);
 
-    // caching user role
-    const cacheKey = `userRole:${user.id}`;
-    const userRoleData = await this._roleRepository.findById(auth.user.roleId);
-    await RedisClient.set(cacheKey, userRoleData.name, USER_ROLE_EXPIRATION);
+    // caching user data
+    const userDataKey = getUserDataKey(user.id!);
+    await RedisClient.set(userDataKey, JSON.stringify(userDataUnmarshal), JWT_SECRET_TTL);
 
     return { user, refreshToken, token: auth.token, };
   }
 
   public async getMe(token: string, jwt_key: string): Promise<IWebAuth> {
     const auth = WebAuthDomain.createFromToken(token, jwt_key);
-    const userData = await this._userRepository.findById(auth.user.id);
+    const userData = await this._userRepository.findWithRoleByUserId(auth.user.id);
 
     auth.user = {
       ...userData.unmarshal(),

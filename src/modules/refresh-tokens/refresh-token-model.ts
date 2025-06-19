@@ -7,6 +7,7 @@ export class RefreshToken extends Model
 implements IRefreshToken {
   declare userId: string;
   declare token: string;
+  declare isRevoked: boolean;
   declare createdAt: Date;
   declare updatedAt: CreationOptional<Date>;
 }
@@ -20,6 +21,11 @@ RefreshToken.init({
     type: DataTypes.TEXT,
     allowNull: false,
     unique: true,
+  },
+  isRevoked: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   },
   createdAt: {
     type: DataTypes.DATE,

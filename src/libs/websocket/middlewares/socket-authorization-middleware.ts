@@ -3,16 +3,18 @@ import { NamespaceConfigService } from "../namespaces/namespace-config-service";
 import { Socket } from "socket.io";
 import TYPES from "@/types";
 import { RedisClient } from "@/libs/redis/redis-client";
-import { RoleService } from "@/modules/roles/role-service";
-import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
+import { getUserDataKey } from "@/helpers/redis-keys";
+import { JWT_REFRESH_SECRET_TTL } from "@/config/env";
+import { UserService } from "@/modules/users/user-service";
+import { IUser } from "@/modules/users/user-domain";
 
 @injectable()
 export class SocketAuthorizationMiddleware {
   constructor(
     @inject(TYPES.NamespaceConfigService)
     private namespaceConfig: NamespaceConfigService,
-    @inject(TYPES.RoleService)
-    private _roleService: RoleService
+    @inject(TYPES.UserService)
+    private _userService: UserService
   ) {}
 
   public handle(allowedRoles: string[]) {
@@ -27,28 +29,30 @@ export class SocketAuthorizationMiddleware {
 
       try {
         const user = socket.data.user;
-        if (!user) {
-          return next(new Error("Authentication error: User not authenticated"));
+        if (!user?.id) {
+          return next(new Error("Authorization error: Missing user in socket context"));
         }
 
-        // based on webApi auth middleware
-        const cacheKey = `userRole:${user.id}`;
-        let userRole = await RedisClient.get(cacheKey);
+        const userDataKey = getUserDataKey(user.id);
+        let userData: IUser;
 
-        if (!userRole) {
-          const userRoleData = await this._roleService.findById(user.roleId);
-          userRole = userRoleData.name;
-          await RedisClient.set(cacheKey, userRole, USER_ROLE_EXPIRATION);
+        const cachedUserData = await RedisClient.get(userDataKey);
+        if (cachedUserData) {
+          userData = JSON.parse(cachedUserData);
+        } else {
+          const freshUser = await this._userService.findById(user.id);
+          userData = freshUser;
+          await RedisClient.set(userDataKey, JSON.stringify(userData), JWT_REFRESH_SECRET_TTL);
         }
 
-        if (!allowedRoles.includes(userRole)) {
+        if (!allowedRoles.includes(userData.role!.name)) {
           return next(new Error("Authorization error: Forbidden"));
         }
 
-        next(); // Role is authorized
+        return next();
       } catch (error) {
-        console.error("Authorization middleware error:", error);
-        next(new Error("Authorization error"));
+        console.error("Socket role authorization error:", error);
+        return next(new Error("Authorization error"));
       }
     };
   }

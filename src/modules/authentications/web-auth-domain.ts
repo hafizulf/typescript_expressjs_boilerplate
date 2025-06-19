@@ -8,19 +8,20 @@ export interface IWebAuth {
 
 export class WebAuthDomain {
   private props: IWebAuth;
-  private constructor(props: IWebAuth, jwt_key: string, jwt_ttl?: string) {
+  private constructor(props: IWebAuth, jwt_key: string, jwt_ttl?: number) {
     this.props = {
       ...props,
       token: jwt_ttl
       ? jwt.sign({
           id: props.user.id,
           fullname: props.user.fullName,
+          tokenVersion: props.user.tokenVersion,
         }, jwt_key, { expiresIn: jwt_ttl as jwt.SignOptions["expiresIn"] })
       : props.token,
     }
   }
 
-  public static create(props: IWebAuth, jwt_key: string, jwt_ttl?: string): WebAuthDomain {
+  public static create(props: IWebAuth, jwt_key: string, jwt_ttl?: number): WebAuthDomain {
     return new WebAuthDomain(props, jwt_key, jwt_ttl);
   }
 

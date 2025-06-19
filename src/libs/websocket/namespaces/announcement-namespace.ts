@@ -21,7 +21,7 @@ export class AnnouncementNamespace extends SocketNamespace {
       ANNOUNCEMENT_EVENTS.GET_ANNOUNCEMENTS,
       ANNOUNCEMENT_EVENTS.DATA_ANNOUNCEMENTS,
     ]);
-    this.rateLimiter = new RateLimiter(100, 60);
+    this.rateLimiter = new RateLimiter(1, 60);
   }
 
   registerEvents(socket: Socket): void {

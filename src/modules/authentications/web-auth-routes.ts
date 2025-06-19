@@ -26,6 +26,10 @@ export class WebAuthRoutes {
       asyncWrap(this.controller.generateAccessToken.bind(this.controller))
     )
     router.post(
+      `${this.routes}/refresh-token/revoke/:userId`,
+      asyncWrap(this.controller.revokeRefreshToken.bind(this.controller))
+    )
+    router.post(
       `${this.routes}/logout`,
       asyncWrap(this.controller.logout.bind(this.controller))
     )

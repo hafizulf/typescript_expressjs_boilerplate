@@ -5,4 +5,5 @@ export interface IRefreshTokenRepository {
   findOne(userId: string, token: string): Promise<boolean>;
   findAll(): Promise<RefreshTokenDomain[]>;
   delete(token: string): Promise<void>;
+  revoke(userId: string): Promise<RefreshTokenDomain>;
 }

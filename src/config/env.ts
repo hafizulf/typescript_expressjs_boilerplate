@@ -49,9 +49,9 @@ export const DB_CONFIG = {
 
 // json web token
 export const JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY!
-export const JWT_REFRESH_SECRET_TTL = process.env.JWT_REFRESH_SECRET_TTL!
+export const JWT_REFRESH_SECRET_TTL = parseInt(process.env.JWT_REFRESH_SECRET_TTL!)
 export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!
-export const JWT_SECRET_TTL = process.env.JWT_SECRET_TTL!
+export const JWT_SECRET_TTL = parseInt(process.env.JWT_SECRET_TTL!)
 
 // MQTT
 export const MQTT_SERVER = process.env.MQTT_SERVER!

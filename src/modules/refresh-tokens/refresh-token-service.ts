@@ -4,11 +4,15 @@ import jwt from "jsonwebtoken";
 import { JWT_REFRESH_SECRET_KEY } from "@/config/env";
 import { TokenExpiredError } from "jsonwebtoken";
 import { IRefreshTokenRepository } from "./refresh-token-repository-interface";
+import { RedisClient } from "@/libs/redis/redis-client";
+import { getUserDataKey } from "@/helpers/redis-keys";
+import { IUserRepository } from "../users/user-repository-interface";
 
 @injectable()
 export class RefreshTokenService {
   constructor(
     @inject(TYPES.IRefreshTokenRepository) private _refreshTokenRepository: IRefreshTokenRepository,
+    @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
   ) {}
 
   public async deleteExpiredTokens(): Promise<void> {
@@ -26,6 +30,19 @@ export class RefreshTokenService {
           }
         }
       }
+    }
+  }
+
+  public async revokeRefreshToken(userId: string): Promise<void> {
+    const revoked = await this._refreshTokenRepository.revoke(userId);
+    if(revoked.isRevoked) {
+      const userDataKey = getUserDataKey(userId);
+      const getUserData = await RedisClient.get(userDataKey);
+      if(getUserData) {
+        await RedisClient.delete(userDataKey);
+      }
+
+      await this._userRepository.incrementTokenVersion(userId);
     }
   }
 }

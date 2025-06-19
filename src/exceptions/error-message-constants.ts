@@ -1,8 +1,10 @@
 export enum TokenErrMessage {
-  INVALID = 'Invalid token',
-  INVALID_PAYLOAD_EXP = 'Invalid token payload (no exp)',
-  MISSING = 'Token is missing',
   EXPIRED = 'Token has been expired',
+  INVALID = 'Invalid token',
+  INVALID_PAYLOAD = 'Invalid token payload',
+  MISSING = 'Token is missing',
+  REFRESH_TOKEN_NOT_FOUND = 'Refresh token not found',
+  REVOKED = 'Token has been revoked',
 }
 
 export enum UserErrMessage {
