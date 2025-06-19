@@ -8,7 +8,9 @@ export interface IUserRepository extends Omit<BaseRepository<UserDomain, IUser>,
   update(id: string, props: Omit<IUser, "password">): Promise<UserDomain>;
   delete(id: string): Promise<UserDomain>;
   findByEmail(email: string): Promise<UserDomain>;
+  findWithRoleByUserId(id: string): Promise<UserDomain>;
   updatePassword(props: TPropsUpdatePassword): Promise<boolean>;
+  incrementTokenVersion(id: string): Promise<void>;
   countRegisteredUser(): Promise<number>;
   countActiveUser(): Promise<number>;
 }

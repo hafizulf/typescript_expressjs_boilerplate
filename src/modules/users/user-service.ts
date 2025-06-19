@@ -9,10 +9,11 @@ import { IMulterFile } from "../common/interfaces/multer-interface";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { TParamsChangePassword } from "./user-dto";
 import { RedisClient } from "@/libs/redis/redis-client";
-import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
 import { ManageDbTransactionService } from "../common/services/manage-db-transaction-service";
 import { Transaction as DbTransaction } from "sequelize";
 import { IUserLogsRepository } from "../user-logs/user-logs-repository-interface";
+import { getUserDataKey } from "@/helpers/redis-keys";
+import { JWT_SECRET_TTL } from "@/config/env";
 
 @injectable()
 export class UserService {
@@ -108,7 +109,8 @@ export class UserService {
 
       // if user role changed, update user role name incache
       if(updatedUser.roleId !== userData.roleId) {
-        await RedisClient.set(`userRole:${updatedUser.id}`, updatedUser.role!.name, USER_ROLE_EXPIRATION);
+        const userDataKey = getUserDataKey(updatedUser.id);
+        await RedisClient.set(userDataKey, JSON.stringify(updatedUser), JWT_SECRET_TTL);
       }
 
       const { password, role, ...restData } = updatedUser.unmarshal();

@@ -13,6 +13,7 @@ export interface IUser {
   avatarPath?: string | IMulterFile;
   roleId: string;
   role?: IRole;
+  tokenVersion?: number;
   updatedBy: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -41,6 +42,7 @@ export class UserDomain
       avatarPath: this.avatarPath,
       roleId: this.roleId,
       role: this.role,
+      tokenVersion: this.tokenVersion,
       updatedBy: this.updatedBy,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
@@ -121,6 +123,14 @@ export class UserDomain
 
   get role(): IRole | undefined {
     return this.props.role;
+  }
+
+  set role(role: IRole | undefined) {
+    this.props.role = role;
+  }
+
+  get tokenVersion(): number | undefined {
+    return this.props.tokenVersion;
   }
 
   get updatedBy(): string {

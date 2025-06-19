@@ -183,6 +183,20 @@ export class UserRepository implements IUserRepository {
     return UserDomain.create(isExistUser.toJSON());
   }
 
+  async findWithRoleByUserId(id: string): Promise<UserDomain> {
+    const isExistUser = await UserPersistence.findByPk(id, {
+      include: [{ model: RolePersistence }],
+    });
+    if(!isExistUser) {
+      throw new AppError({
+        statusCode: HttpCode.NOT_FOUND,
+        description: UserErrMessage.NOT_FOUND,
+      })
+    }
+
+    return UserDomain.create(isExistUser.toJSON());
+  }
+
   async updatePassword(props: TPropsUpdatePassword): Promise<boolean> {
     const updatedUser = await UserPersistence.update(
       {
@@ -197,6 +211,19 @@ export class UserRepository implements IUserRepository {
     )
 
     return updatedUser[0] > 0; // return true if updated
+  }
+
+  async incrementTokenVersion(id: string): Promise<void> {
+    const user = await UserPersistence.findByPk(id);
+
+    if(!user) {
+      throw new AppError({
+        statusCode: HttpCode.NOT_FOUND,
+        description: UserErrMessage.NOT_FOUND,
+      })
+    }
+
+    await user.increment("tokenVersion");
   }
 
   async countRegisteredUser(): Promise<number> {

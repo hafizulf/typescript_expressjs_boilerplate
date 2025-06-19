@@ -21,6 +21,7 @@ export class User extends Model<
   declare password: string;
   declare avatarPath: CreationOptional<string>;
   declare roleId: string;
+  declare tokenVersion: CreationOptional<number>;
   declare updatedBy: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -54,6 +55,11 @@ User.init({
       key: "id"
     },
     allowNull: false
+  },
+  tokenVersion: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   },
   updatedBy: DataTypes.STRING,
   createdAt: DataTypes.DATE,
