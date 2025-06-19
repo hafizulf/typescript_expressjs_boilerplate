@@ -13,6 +13,7 @@ import {  RoleMenuPermission as RoleMenuPermissionPersistence } from "@/modules/
 import { toSnakeCase } from "@/libs/formatters";
 import { TStandardPaginateOption } from "@/modules/common/dto/pagination-dto";
 import { sequelize } from "@/config/database";
+import { MenuPermissionErrMessage } from "@/exceptions/error-message-constants";
 
 @injectable()
 export class MenuPermissionRepository implements IMenuPermissionRepository {
@@ -95,7 +96,7 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
       if (isExist) {
         throw new AppError({
           statusCode: HttpCode.CONFLICT,
-          description: 'Menu permission already exists',
+          description: MenuPermissionErrMessage.ALREADY_EXISTS,
         });
       }
 
@@ -140,7 +141,7 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
     if (!data) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: 'Menu permission not found',
+        description: MenuPermissionErrMessage.NOT_FOUND,
       });
     }
 
@@ -156,7 +157,7 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
       if (!data) {
         throw new AppError({
           statusCode: HttpCode.NOT_FOUND,
-          description: 'Menu permission not found',
+          description: MenuPermissionErrMessage.NOT_FOUND,
         });
       }
 
@@ -185,7 +186,7 @@ export class MenuPermissionRepository implements IMenuPermissionRepository {
       if (!data) {
         throw new AppError({
           statusCode: HttpCode.NOT_FOUND,
-          description: 'Menu permission not found',
+          description: MenuPermissionErrMessage.NOT_FOUND,
         });
       }
 

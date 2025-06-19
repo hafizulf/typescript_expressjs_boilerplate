@@ -3,6 +3,7 @@ import { injectable } from "inversify";
 import { IMenuRepository } from "./menu-repository-interface";
 import { MenuDomain, IMenu } from "./menu-domain";
 import { Menu as MenuPersistence } from "@/modules/common/sequelize";
+import { MenuErrMessage } from "@/exceptions/error-message-constants";
 
 @injectable()
 export class MenuRepository implements IMenuRepository {
@@ -26,7 +27,7 @@ export class MenuRepository implements IMenuRepository {
     if(data) {
       throw new AppError({
         statusCode: HttpCode.BAD_REQUEST,
-        description: "Menu name already exist",
+        description: MenuErrMessage.ALREADY_EXISTS,
       })
     }
 
@@ -39,7 +40,7 @@ export class MenuRepository implements IMenuRepository {
     if(!data) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Menu not found",
+        description: MenuErrMessage.NOT_FOUND,
       })
     }
     return MenuDomain.create(data.toJSON());
@@ -50,7 +51,7 @@ export class MenuRepository implements IMenuRepository {
     if(!data) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Menu not found",
+        description: MenuErrMessage.NOT_FOUND,
       })
     }
 
@@ -58,7 +59,7 @@ export class MenuRepository implements IMenuRepository {
     if(nameIsExists && nameIsExists.id !== id) {
       throw new AppError({
         statusCode: HttpCode.CONFLICT,
-        description: "Menu name already exist",
+        description: MenuErrMessage.ALREADY_EXISTS,
       })
     }
 
@@ -79,7 +80,7 @@ export class MenuRepository implements IMenuRepository {
     if(!data) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Menu not found",
+        description: MenuErrMessage.NOT_FOUND,
       })
     }
 

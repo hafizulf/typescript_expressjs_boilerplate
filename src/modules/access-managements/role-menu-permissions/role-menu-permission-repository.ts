@@ -11,6 +11,7 @@ import {
 } from '@/modules/common/sequelize';
 import { RoleMenuPermissionDto } from "./role-menu-permission-dto";
 import { sequelize } from "@/config/database";
+import { MenuPermissionErrMessage, RoleErrMessage, RoleMenuPermissionErrMessage } from "@/exceptions/error-message-constants";
 
 @injectable()
 export class RoleMenuPermissionRepository
@@ -21,7 +22,7 @@ export class RoleMenuPermissionRepository
     if (!role) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: 'Role not found',
+        description: RoleErrMessage.NOT_FOUND,
       });
     }
 
@@ -119,14 +120,14 @@ export class RoleMenuPermissionRepository
       if (!menuPermission) {
         throw new AppError({
           statusCode: HttpCode.NOT_FOUND,
-          description: 'Menu permission not found',
+          description: MenuPermissionErrMessage.NOT_FOUND,
         });
       }
 
       if (!menuPermission?.isEnabled) {
         throw new AppError({
           statusCode: HttpCode.BAD_REQUEST,
-          description: 'Menu permission is disabled',
+          description: MenuPermissionErrMessage.IS_DISABLED,
         });
       }
 
@@ -141,7 +142,7 @@ export class RoleMenuPermissionRepository
       if (roleMenuPermission) {
         throw new AppError({
           statusCode: HttpCode.BAD_REQUEST,
-          description: 'Role menu permission already exists',
+          description: RoleMenuPermissionErrMessage.ALREADY_EXISTS,
         });
       }
 
@@ -180,7 +181,7 @@ export class RoleMenuPermissionRepository
       if (!roleMenuPermission) {
         throw new AppError({
           statusCode: HttpCode.NOT_FOUND,
-          description: 'Role menu permission not found',
+          description: RoleMenuPermissionErrMessage.NOT_FOUND,
         });
       }
 

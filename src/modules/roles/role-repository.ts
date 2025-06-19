@@ -11,6 +11,7 @@ import { RoleMenuPermission as RoleMenuPermissionPersistence } from "@/modules/c
 import { sequelize } from "@/config/database";
 import { TStandardPaginateOption } from "../common/dto/pagination-dto";
 import { TPropsCreateRole } from "./role-dto";
+import { RoleErrMessage } from "@/exceptions/error-message-constants";
 
 @injectable()
 export class RoleRepository implements IRoleRepository {
@@ -51,7 +52,7 @@ export class RoleRepository implements IRoleRepository {
     if(isExistRole) {
       throw new AppError({
         statusCode: HttpCode.BAD_REQUEST,
-        description: "Role already exists",
+        description: RoleErrMessage.ALREADY_EXISTS,
       })
     }
 
@@ -91,7 +92,7 @@ export class RoleRepository implements IRoleRepository {
     if(!isExistRole) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Role not found",
+        description: RoleErrMessage.NOT_FOUND,
       })
     }
 
@@ -103,7 +104,7 @@ export class RoleRepository implements IRoleRepository {
     if(!isExistRole) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Role not found",
+        description: RoleErrMessage.NOT_FOUND,
       })
     }
 
@@ -111,7 +112,7 @@ export class RoleRepository implements IRoleRepository {
     if(isExistOtherRole && isExistOtherRole.id !== id) {
       throw new AppError({
         statusCode: HttpCode.CONFLICT,
-        description: "Role already exists",
+        description: RoleErrMessage.ALREADY_EXISTS,
       })
     }
 
@@ -124,7 +125,7 @@ export class RoleRepository implements IRoleRepository {
     if(!isExistRole) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Role not found",
+        description: RoleErrMessage.NOT_FOUND,
       })
     }
 

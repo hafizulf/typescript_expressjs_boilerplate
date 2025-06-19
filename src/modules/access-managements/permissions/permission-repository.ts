@@ -3,6 +3,7 @@ import { injectable } from "inversify";
 import { IPermissionRepository } from "./permission-repository-interface";
 import { PermissionDomain, IPermission } from "./permission-domain";
 import { Permission as PermissionPersistence } from "@/modules/common/sequelize";
+import { PermissionErrMessage } from "@/exceptions/error-message-constants";
 
 @injectable()
 export class PermissionRepository implements IPermissionRepository {
@@ -16,7 +17,7 @@ export class PermissionRepository implements IPermissionRepository {
     if(data) {
       throw new AppError({
         statusCode: HttpCode.BAD_REQUEST,
-        description: "Permission name already exist",
+        description: PermissionErrMessage.ALREADY_EXISTS,
       })
     }
 
@@ -29,7 +30,7 @@ export class PermissionRepository implements IPermissionRepository {
     if(!data) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Permission not found",
+        description: PermissionErrMessage.NOT_FOUND,
       })
     }
     return PermissionDomain.create(data.toJSON());
@@ -40,7 +41,7 @@ export class PermissionRepository implements IPermissionRepository {
     if(!data) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Permission not found",
+        description: PermissionErrMessage.NOT_FOUND,
       })
     }
 
@@ -48,7 +49,7 @@ export class PermissionRepository implements IPermissionRepository {
     if(nameIsExists && nameIsExists.id !== id) {
       throw new AppError({
         statusCode: HttpCode.CONFLICT,
-        description: "Permission name already exist",
+        description: PermissionErrMessage.ALREADY_EXISTS,
       })
     }
 
@@ -61,7 +62,7 @@ export class PermissionRepository implements IPermissionRepository {
     if(!data) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Permission not found",
+        description: PermissionErrMessage.NOT_FOUND,
       })
     }
 

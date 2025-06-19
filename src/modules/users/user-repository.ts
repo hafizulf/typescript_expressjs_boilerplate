@@ -9,6 +9,7 @@ import { Op, Sequelize } from "sequelize";
 import { ICreateUserProps, TPropsUpdatePassword } from "./user-dto";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { BaseQueryOption } from "../common/dto/common-dto";
+import { RoleErrMessage, UserErrMessage } from "@/exceptions/error-message-constants";
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -77,7 +78,7 @@ export class UserRepository implements IUserRepository {
     if(!isExistRole) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "Role not found",
+        description: RoleErrMessage.NOT_FOUND,
       })
     }
 
@@ -88,7 +89,7 @@ export class UserRepository implements IUserRepository {
       if(e?.name === "SequelizeUniqueConstraintError") {
         throw new AppError({
           statusCode: HttpCode.CONFLICT,
-          description: "User already exists",
+          description: UserErrMessage.ALREADY_EXISTS,
         })
       }
 
@@ -104,7 +105,7 @@ export class UserRepository implements IUserRepository {
     if(!isExistUser) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "User not found",
+        description: UserErrMessage.NOT_FOUND,
       })
     }
 
@@ -117,7 +118,7 @@ export class UserRepository implements IUserRepository {
     if(!user) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "User not found",
+        description: UserErrMessage.NOT_FOUND,
       })
     }
 
@@ -130,7 +131,7 @@ export class UserRepository implements IUserRepository {
     if(isExistEmail && isExistEmail.id !== id) {
       throw new AppError({
         statusCode: HttpCode.CONFLICT,
-        description: "Email already exists",
+        description: UserErrMessage.EMAIL_ALREADY_EXISTS,
       })
     }
 
@@ -157,7 +158,7 @@ export class UserRepository implements IUserRepository {
     if(!isExistUser) {
       throw new AppError({
         statusCode: HttpCode.NOT_FOUND,
-        description: "User not found",
+        description: UserErrMessage.NOT_FOUND,
       })
     }
 

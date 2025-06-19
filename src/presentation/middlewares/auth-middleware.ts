@@ -10,6 +10,7 @@ import jwt, { JsonWebTokenError, JwtPayload, TokenExpiredError } from "jsonwebto
 import { RedisClient } from "@/libs/redis/redis-client";
 import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
 import { RoleService } from "@/modules/roles/role-service";
+import { TokenErrMessage } from "@/exceptions/error-message-constants";
 
 @injectable()
 export class AuthMiddleware {
@@ -22,7 +23,7 @@ export class AuthMiddleware {
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) {
       return next(new AppError({
-        description: 'Token is missing',
+        description: TokenErrMessage.MISSING,
         statusCode: HttpCode.UNAUTHORIZED
       }));
     }
@@ -42,7 +43,7 @@ export class AuthMiddleware {
       if (!decoded?.exp) {
         return next(new AppError({
           statusCode: HttpCode.UNAUTHORIZED,
-          description: 'Invalid token payload (no exp)',
+          description: TokenErrMessage.INVALID_PAYLOAD_EXP,
         }));
       }
 
@@ -50,7 +51,7 @@ export class AuthMiddleware {
       if (ttl <= 0) {
         return next(new AppError({
           statusCode: HttpCode.UNAUTHORIZED,
-          description: 'Token has been expired',
+          description: TokenErrMessage.EXPIRED,
         }));
       }
 
@@ -69,12 +70,12 @@ export class AuthMiddleware {
       if (error instanceof TokenExpiredError) {
         return next(new AppError({
           statusCode: HttpCode.UNAUTHORIZED,
-          description: 'Token has been expired',
+          description: TokenErrMessage.EXPIRED,
         }));
       } else if (error instanceof JsonWebTokenError) {
         return next(new AppError({
           statusCode: HttpCode.UNAUTHORIZED,
-          description: "Invalid token",
+          description: TokenErrMessage.INVALID,
         }));
       } else {
         console.error(error);

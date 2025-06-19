@@ -7,6 +7,7 @@ import { Socket } from "socket.io";
 import { TokenExpiredError } from "jsonwebtoken";
 import TYPES from "@/types";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
+import { TokenErrMessage } from "@/exceptions/error-message-constants";
 
 @injectable()
 export class SocketAuthenticationMiddleware {
@@ -45,12 +46,12 @@ export class SocketAuthenticationMiddleware {
 
         const decoded = jwt.decode(token) as JwtPayload;
         if (!decoded?.exp) {
-          return next(new Error('Invalid token payload (no exp)'));
+          return next(new Error(TokenErrMessage.INVALID_PAYLOAD_EXP));
         }
 
         const ttl = decoded.exp - Math.floor(Date.now() / 1000);
         if (ttl <= 0) {
-          return next(new Error('Token has been expired'));
+          return next(new Error(TokenErrMessage.EXPIRED));
         }
 
         const authUser = await this._webAuthService.getMe(token, JWT_SECRET_KEY);
@@ -60,9 +61,9 @@ export class SocketAuthenticationMiddleware {
       } catch (error) {
         console.error("Invalid token, rejecting connection.");
         if (error instanceof TokenExpiredError) {
-          next(new Error("Authentication error: Token has expired"));
+          next(new Error(`Authentication error: ${TokenErrMessage.EXPIRED}`));
         } else {
-          next(new Error("Authentication error: Invalid token"));
+          next(new Error(`Authentication error: ${TokenErrMessage.INVALID}`));
         }
       }
     };
