@@ -3,7 +3,7 @@ import TYPES from "@/types";
 import { AppError, HttpCode } from "@/exceptions/app-error";
 import { IWebAuth, WebAuthDomain } from "./web-auth-domain";
 import { IResponseLogin } from "./web-auth-dto";
-import { JWT_SECRET_KEY, JWT_SECRET_KEY_TTL, JWT_REFRESH_SECRET_KEY, JWT_REFRESH_SECRET_TTL } from "@/config/env";
+import { JWT_SECRET_KEY, JWT_SECRET_TTL, JWT_REFRESH_SECRET_KEY, JWT_REFRESH_SECRET_TTL } from "@/config/env";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { RedisClient } from "@/libs/redis/redis-client";
 import { USER_ROLE_EXPIRATION } from "@/libs/redis/redis-env";
@@ -31,7 +31,7 @@ export class WebAuthService {
     }
 
     const userDataUnmarshal = { ...userData.unmarshal(), password: undefined };
-    const auth = WebAuthDomain.create({ user: userDataUnmarshal }, JWT_SECRET_KEY, JWT_SECRET_KEY_TTL).unmarshal();
+    const auth = WebAuthDomain.create({ user: userDataUnmarshal }, JWT_SECRET_KEY, JWT_SECRET_TTL).unmarshal();
     const user = {
       id: auth.user.id,
       fullName: auth.user.fullName,
@@ -69,7 +69,7 @@ export class WebAuthService {
       const authUser = WebAuthDomain.createFromToken(refreshToken, JWT_REFRESH_SECRET_KEY); // verify signature and get user
       await this._refreshTokenRepository.findOne(authUser.user.id, refreshToken);
 
-      return WebAuthDomain.create(authUser.unmarshal(), JWT_SECRET_KEY, JWT_SECRET_KEY_TTL).token;
+      return WebAuthDomain.create(authUser.unmarshal(), JWT_SECRET_KEY, JWT_SECRET_TTL).token;
     } catch (error) {
       if(error instanceof AppError) {
         // refresh token not found error
