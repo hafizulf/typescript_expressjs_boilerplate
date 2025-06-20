@@ -40,7 +40,7 @@ export class SocketAuthorizationMiddleware {
         if (cachedUserData) {
           userData = JSON.parse(cachedUserData);
         } else {
-          const freshUser = await this._userService.findById(user.id);
+          const freshUser = await this._userService.findWithRoleByUserId(user.id);
           userData = freshUser;
           await RedisClient.set(userDataKey, JSON.stringify(userData), JWT_REFRESH_SECRET_TTL);
         }

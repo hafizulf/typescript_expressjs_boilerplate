@@ -38,7 +38,6 @@ export class SocketAuthenticationMiddleware {
 
       try {
         const decoded = jwt.verify(token, JWT_SECRET_KEY) as JwtPayload;
-        console.log("Decoded token:", decoded);
         if (!decoded.id || !decoded.exp || typeof decoded.tokenVersion !== 'number') {
           return next(new Error("Authentication error: " + TokenErrMessage.INVALID_PAYLOAD));
         }

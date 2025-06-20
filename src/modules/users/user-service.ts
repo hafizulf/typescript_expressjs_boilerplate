@@ -91,6 +91,10 @@ export class UserService {
     return (await this._repository.findById(id)).unmarshal();
   }
 
+  public findWithRoleByUserId = async (id: string): Promise<IUser> => {
+    return (await this._repository.findWithRoleByUserId(id)).unmarshal();
+  }
+
   public async update(props: Omit<IUser, "password">): Promise<Omit<IUser, "password">> {
     try {
       const userData = await this._repository.findById(props.id!);
