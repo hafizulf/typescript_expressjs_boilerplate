@@ -19,7 +19,7 @@ export class AuthMiddleware {
     @inject(TYPES.UserService) private _userService: UserService,
   ) {}
 
-  async authenticate(req: Request, _res: Response, next: NextFunction): Promise<void> {
+  authenticate = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) {
       return next(new AppError({
@@ -91,7 +91,7 @@ export class AuthMiddleware {
     }
   }
 
-  roleAuthorize(allowedRoles: string[]) {
+  roleAuthorize = (allowedRoles: string[]) => {
     return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
       const authUser = (req as IAuthRequest).authUser;
       const userId = authUser.user.id;

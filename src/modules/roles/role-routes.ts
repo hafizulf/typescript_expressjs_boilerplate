@@ -15,7 +15,7 @@ export class RoleRoutes {
   public setRoutes(router: Router) {
     router.get(
       this.routes,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(
         this.controller.findAll.bind(this.controller)
@@ -23,25 +23,25 @@ export class RoleRoutes {
     )
     router.post(
       this.routes,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.store.bind(this.controller))
     )
     router.get(
       `${this.routes}/:id`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findById.bind(this.controller))
     )
     router.put(
       `${this.routes}/:id`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.update.bind(this.controller))
     )
     router.delete(
       `${this.routes}/:id`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.delete.bind(this.controller))
     )

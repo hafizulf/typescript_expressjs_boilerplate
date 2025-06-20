@@ -15,55 +15,55 @@ export class MenuPermissionRoutes {
   public setRoutes(router: Router) {
     router.get(
       `${this.routes}/enabled-list`,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findEnabledList.bind(this.controller))
     );
     router.get(
       `${this.routes}/group-by-menus`,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findAllGroupByMenus.bind(this.controller))
     );
     router.get(
       this.routes,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findAll.bind(this.controller))
     );
     router.post(
       this.routes,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.store.bind(this.controller))
     )
     router.get(
       `${this.routes}/:id`,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.findById.bind(this.controller))
     );
     router.put(
       `${this.routes}/bulk-update`,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.bulkUpdate.bind(this.controller))
     );
     router.put(
       `${this.routes}/:id`,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.update.bind(this.controller))
     );
     router.delete(
       `${this.routes}/:id`,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.delete.bind(this.controller))
     );
     router.post(
       `${this.routes}/seeds`,
-      this.authMiddleware.authenticate.bind(this.authMiddleware),
+      this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(this.controller.seedMenuPermission.bind(this.controller))
     );

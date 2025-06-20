@@ -20,7 +20,7 @@ export class UserRoutes {
   public setRoutes(router: Router) {
     router.get(
       this.routes,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN]),
       asyncWrap(
         this.controller.findAll.bind(this.controller)
@@ -28,7 +28,7 @@ export class UserRoutes {
     )
     router.post(
       this.routes,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
       tempUploadedFiles.single("avatarPath"),
       asyncWrap(
@@ -37,7 +37,7 @@ export class UserRoutes {
     )
     router.post(
       `${this.routes}/reset-password`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(
         this.controller.resetPassword.bind(this.controller)
@@ -45,7 +45,7 @@ export class UserRoutes {
     )
     router.get(
       `${this.routes}/:id`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN, USER]),
       asyncWrap(
         this.controller.findById.bind(this.controller)
@@ -53,7 +53,7 @@ export class UserRoutes {
     )
     router.put(
       `${this.routes}/change-password`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN, USER]),
       asyncWrap(
         this.controller.changePassword.bind(this.controller)
@@ -61,7 +61,7 @@ export class UserRoutes {
     )
     router.put(
       `${this.routes}/:id`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN, USER]),
       tempUploadedFiles.single("avatarPath"),
       asyncWrap(
@@ -70,7 +70,7 @@ export class UserRoutes {
     )
     router.delete(
       `${this.routes}/:id`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
       asyncWrap(
         this.controller.delete.bind(this.controller)

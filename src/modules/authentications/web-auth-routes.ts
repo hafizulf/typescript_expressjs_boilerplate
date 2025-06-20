@@ -18,7 +18,7 @@ export class WebAuthRoutes {
     )
     router.get(
       `${this.routes}/getMe`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       asyncWrap(this.controller.getMe.bind(this.controller))
     )
     router.post(

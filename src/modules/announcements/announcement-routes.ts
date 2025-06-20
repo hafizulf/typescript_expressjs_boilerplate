@@ -15,14 +15,14 @@ export class AnnouncementRoutes {
   public setRoutes(router: Router) {
     router.post(
       this.routes,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN]),
       asyncWrap(this.controller.store.bind(this.controller))
     )
 
     router.get(
       `${this.routes}/:id`,
-      this.AuthMiddleware.authenticate.bind(this.AuthMiddleware),
+      this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN, USER]),
       asyncWrap(this.controller.findById.bind(this.controller))
     )
