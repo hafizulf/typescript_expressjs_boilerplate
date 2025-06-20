@@ -18,6 +18,7 @@ import { MenuRoutes } from "@/modules/access-managements/menus/menu-routes";
 import { PermissionRoutes } from "@/modules/access-managements/permissions/permission-routes";
 import { MenuPermissionRoutes } from "@/modules/access-managements/menu-permissions/menu-permission-routes";
 import { RoleMenuPermissionRoutes } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-routes";
+import { OriginRoutes } from "@/modules/origins/origin-routes";
 
 // Import Middlewares
 import { AuthMiddleware } from "@/presentation/middlewares/auth-middleware";
@@ -31,6 +32,7 @@ import { MenuController } from "@/modules/access-managements/menus/menu-controll
 import { PermissionController } from "@/modules/access-managements/permissions/permission-controller";
 import { MenuPermissionController } from "@/modules/access-managements/menu-permissions/menu-permission-controller";
 import { RoleMenuPermissionController } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-controller";
+import { OriginController } from "@/modules/origins/origin-controller";
 
 // Import Services
 import { BackgroundServiceManager } from "./modules/common/services/background-service-manager";
@@ -47,6 +49,7 @@ import { MenuService } from "@/modules/access-managements/menus/menu-service";
 import { PermissionService } from "@/modules/access-managements/permissions/permission-service";
 import { MenuPermissionService } from "@/modules/access-managements/menu-permissions/menu-permission-service";
 import { RoleMenuPermissionService } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-service";
+import { OriginService } from "@/modules/origins/origin-service";
 
 // Import Interface Repository
 import { IRoleRepository } from "@/modules/roles/role-repository-interface";
@@ -59,6 +62,7 @@ import { IMenuRepository } from "@/modules/access-managements/menus/menu-reposit
 import { IPermissionRepository } from "@/modules/access-managements/permissions/permission-repository-interface";
 import { IMenuPermissionRepository } from "@/modules/access-managements/menu-permissions/menu-permission-repository-interface";
 import { IRoleMenuPermissionRepository } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-repository-interface";
+import { IOriginRepository } from "@/modules/origins/origin-repository-interface";
 
 // Import Repository
 import { RoleRepository } from "@/modules/roles/role-repository";
@@ -71,6 +75,7 @@ import { MenuRepository } from "@/modules/access-managements/menus/menu-reposito
 import { PermissionRepository } from "@/modules/access-managements/permissions/permission-repository";
 import { MenuPermissionRepository } from "@/modules/access-managements/menu-permissions/menu-permission-repository";
 import { RoleMenuPermissionRepository } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-repository";
+import { OriginRepository } from "@/modules/origins/origin-repository";
 
 // Import Socket Namespace
 import { NamespaceConfigService } from "@/libs/websocket/namespaces/namespace-config-service";
@@ -104,6 +109,7 @@ container.bind<MenuRoutes>(MenuRoutes).toSelf().inSingletonScope();
 container.bind<PermissionRoutes>(PermissionRoutes).toSelf().inSingletonScope();
 container.bind<MenuPermissionRoutes>(MenuPermissionRoutes).toSelf().inSingletonScope();
 container.bind<RoleMenuPermissionRoutes>(RoleMenuPermissionRoutes).toSelf().inSingletonScope();
+container.bind<OriginRoutes>(OriginRoutes).toSelf().inSingletonScope();
 
 // Middleware
 container.bind(AuthMiddleware).toSelf();
@@ -117,6 +123,7 @@ container.bind(MenuController).toSelf();
 container.bind(PermissionController).toSelf();
 container.bind(MenuPermissionController).toSelf();
 container.bind(RoleMenuPermissionController).toSelf();
+container.bind(OriginController).toSelf();
 
 // Services
 container.bind<BackgroundServiceManager>(TYPES.BackgroundServiceManager).to(BackgroundServiceManager);
@@ -133,6 +140,7 @@ container.bind(TYPES.MenuPermissionService).to(MenuPermissionService);
 container.bind(TYPES.RoleMenuPermissionService).to(RoleMenuPermissionService);
 container.bind(TYPES.ManageDbTransactionService).to(ManageDbTransactionService);
 container.bind(TYPES.MqttService).to(MqttService).inSingletonScope();
+container.bind(TYPES.OriginService).to(OriginService);
 
 // Repository
 container
@@ -165,6 +173,9 @@ container
 container
   .bind<IRoleMenuPermissionRepository>(TYPES.IRoleMenuPermissionRepository)
   .to(RoleMenuPermissionRepository);
+container
+  .bind<IOriginRepository>(TYPES.IOriginRepository)
+  .to(OriginRepository);
 
 // Socket Namespace
 container

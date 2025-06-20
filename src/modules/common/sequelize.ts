@@ -8,6 +8,7 @@ import { Menu } from "@/modules/access-managements/menus/menu-model";
 import { Permission } from "@/modules/access-managements/permissions/permission-model";
 import { MenuPermission } from "@/modules/access-managements/menu-permissions/menu-permission-model";
 import { RoleMenuPermission } from "../access-managements/role-menu-permissions/role-menu-permission-model";
+import { Origin } from "../origins/origin-model";
 
 export async function sequelizeMigrate(): Promise<void> {
   try {
@@ -18,6 +19,7 @@ export async function sequelizeMigrate(): Promise<void> {
       DashboardTotal.sync({ alter: false }),
       Announcement.sync({ alter: false }),
       UserLogs.sync({ alter: false }),
+      Origin.sync({ alter: false }),
     ]);
 
     // Sync dependent tables sequentially
@@ -66,4 +68,5 @@ export {
   Permission,
   MenuPermission,
   RoleMenuPermission,
+  Origin,
 };

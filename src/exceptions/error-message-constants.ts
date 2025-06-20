@@ -38,3 +38,8 @@ export enum RoleMenuPermissionErrMessage {
   NOT_FOUND = 'Role menu permission not found',
   ALREADY_EXISTS = 'Role menu permission already exists',
 }
+
+export enum OriginErrMessage {
+  NOT_FOUND = 'Origin not found',
+  ALREADY_EXISTS = 'Origin already exists',
+}

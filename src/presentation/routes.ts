@@ -8,6 +8,7 @@ import { RoleMenuPermissionRoutes } from "@/modules/access-managements/role-menu
 import { RoleRoutes } from "@/modules/roles/role-routes";
 import { UserRoutes } from "@/modules/users/user-routes";
 import { WebAuthRoutes } from "@/modules/authentications/web-auth-routes";
+import { OriginRoutes } from "@/modules/origins/origin-routes";
 
 @injectable()
 export class Routes {
@@ -15,6 +16,7 @@ export class Routes {
     private announcementRoutes: AnnouncementRoutes,
     private menuPermissionRoutes: MenuPermissionRoutes,
     private menuRoutes: MenuRoutes,
+    private originRoutes: OriginRoutes,
     private permissionRoutes: PermissionRoutes,
     private roleMenuPermissionRoutes: RoleMenuPermissionRoutes,
     private roleRoutes: RoleRoutes,
@@ -26,6 +28,7 @@ export class Routes {
     this.announcementRoutes.setRoutes(router);
     this.menuPermissionRoutes.setRoutes(router);
     this.menuRoutes.setRoutes(router);
+    this.originRoutes.setRoutes(router);
     this.permissionRoutes.setRoutes(router);
     this.roleMenuPermissionRoutes.setRoutes(router);
     this.roleRoutes.setRoutes(router);
