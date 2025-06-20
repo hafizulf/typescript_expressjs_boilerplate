@@ -14,24 +14,24 @@ export class WebAuthRoutes {
   public setRoutes(router: Router) {
     router.post(
       `${this.routes}/login`,
-      asyncWrap(this.controller.login.bind(this.controller))
+      asyncWrap(this.controller.login)
     )
     router.get(
       `${this.routes}/getMe`,
       this.AuthMiddleware.authenticate,
-      asyncWrap(this.controller.getMe.bind(this.controller))
+      asyncWrap(this.controller.getMe)
     )
     router.post(
       `${this.routes}/refresh-token`,
-      asyncWrap(this.controller.generateAccessToken.bind(this.controller))
+      asyncWrap(this.controller.generateAccessToken)
     )
     router.post(
       `${this.routes}/refresh-token/revoke/:userId`,
-      asyncWrap(this.controller.revokeRefreshToken.bind(this.controller))
+      asyncWrap(this.controller.revokeRefreshToken)
     )
     router.post(
       `${this.routes}/logout`,
-      asyncWrap(this.controller.logout.bind(this.controller))
+      asyncWrap(this.controller.logout)
     )
   }
 }

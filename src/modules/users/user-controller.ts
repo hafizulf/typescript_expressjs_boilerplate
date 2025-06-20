@@ -22,7 +22,7 @@ export class UserController {
     @inject(TYPES.UserService) private _service: UserService,
   ) {}
 
-  public async findAll(req: Request, res: Response): Promise<Response> {
+  public findAll = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(paginatedUsersSchema, req.query);
     const [users, pagination] = await this._service.findAll(validatedReq);
 
@@ -33,7 +33,7 @@ export class UserController {
     }).withPagination(pagination?.omitProperties("offset")).send();
   }
 
-  public async store(req: IAuthRequest, res: Response): Promise<Response> {
+  public store = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(createUserSchema, {
       ...req.body,
       avatarPath: req.file
@@ -50,7 +50,7 @@ export class UserController {
     }).send();
   }
 
-  async findById(req: Request, res: Response): Promise<Response> {
+  public findById = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(findByIdUserSchema, req.params);
     const data = await this._service.findById(validatedReq.id);
 
@@ -61,7 +61,7 @@ export class UserController {
     }).send();
   }
 
-  async update(req: IAuthRequest, res: Response): Promise<Response> {
+  public update = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(updateUserSchema, {
       ...req.params,
       ...req.body,
@@ -79,7 +79,7 @@ export class UserController {
     }).send();
   }
 
-  public async delete(req: Request, res: Response): Promise<Response> {
+  public delete = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(deleteUserSchema, req.params);
     await this._service.destroy(validatedReq.id);
 
@@ -89,7 +89,7 @@ export class UserController {
     }).send();
   }
 
-  public async changePassword(req: IAuthRequest, res: Response): Promise<Response> {
+  public changePassword = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(changePasswordSchema, req.body);
     await this._service.changePassword({
       updatedBy: req.authUser.user.fullName,
@@ -102,7 +102,7 @@ export class UserController {
     }).send();
   }
 
-  public async resetPassword(req: IAuthRequest, res: Response): Promise<Response> {
+  public resetPassword = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(resetPasswordSchema, req.body);
     const data = await this._service.resetPassword(validatedReq.id, req.authUser.user.id);
 

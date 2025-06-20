@@ -17,25 +17,25 @@ export class RoleMenuPermissionRoutes {
       `${this.routes}/:roleId`,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.findByRoleId.bind(this.controller))
+      asyncWrap(this.controller.findByRoleId)
     );
     router.put(
       `${this.routes}/bulk-update/:roleId`,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.bulkUpdate.bind(this.controller))
+      asyncWrap(this.controller.bulkUpdate)
     );
     router.post(
       this.routes,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.store.bind(this.controller))
+      asyncWrap(this.controller.store)
     );
     router.put(
       `${this.routes}/:roleId`,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.update.bind(this.controller))
+      asyncWrap(this.controller.update)
     );
   }
 }

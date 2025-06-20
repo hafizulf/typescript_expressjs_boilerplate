@@ -14,7 +14,7 @@ export class MenuController {
     @inject(TYPES.MenuService) private _service: MenuService,
   ) {}
 
-  public async findAll(_req: Request, res: Response): Promise<Response> {
+  public findAll = async (_req: Request, res: Response): Promise<Response> => {
     const menus = await this._service.findAll();
 
     return StandardResponse.create(res).setResponse({
@@ -24,7 +24,7 @@ export class MenuController {
     }).send();
   }
 
-  public async findAllParents(_req: Request, res: Response): Promise<Response> {
+  public findAllParents = async (_req: Request, res: Response): Promise<Response> => {
     const menus = await this._service.findAllParents();
 
     return StandardResponse.create(res).setResponse({
@@ -34,7 +34,7 @@ export class MenuController {
     }).send();
   }
 
-  public async findChildsByParentId(req: Request, res: Response): Promise<Response> {
+  public findChildsByParentId = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(findChildsByParentIdSchema, req.params);
     const menus = await this._service.findChildsByParentId(validatedReq.parentId);
 
@@ -45,7 +45,7 @@ export class MenuController {
     }).send();
   }
 
-  public async store(req: IAuthRequest, res: Response): Promise<Response> {
+  public store = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(createMenuSchema, req.body);
     const menu = await this._service.store({
       ...validatedReq,
@@ -59,7 +59,7 @@ export class MenuController {
     }).send();
   }
 
-  async findById(req: Request, res: Response): Promise<Response> {
+  public findById = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(findMenuByIdSchema, req.params);
     const data = await this._service.findById(validatedReq.id);
 
@@ -70,7 +70,7 @@ export class MenuController {
     }).send();
   }
 
-  async update(req: IAuthRequest, res: Response): Promise<Response> {
+  public update = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(updateMenuSchema, {
       ...req.params,
       ...req.body,
@@ -88,7 +88,7 @@ export class MenuController {
     }).send();
   }
 
-  async delete(req: Request, res: Response): Promise<Response> {
+  public delete = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(deleteMenuSchema, req.params);
 
     await this._service.delete(validatedReq.id);

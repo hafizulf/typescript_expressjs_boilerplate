@@ -19,7 +19,7 @@ export class RoleMenuPermissionController {
     @inject(TYPES.RoleMenuPermissionService) private _service: RoleMenuPermissionService,
   ) {}
 
-  public async findByRoleId(req: Request, res: Response): Promise<Response> {
+  public findByRoleId = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(findRoleMenuPermissionSchema, req.params);
     const data = await this._service.findByRoleId(validatedReq.roleId);
 
@@ -30,7 +30,7 @@ export class RoleMenuPermissionController {
     }).send();
   }
 
-  public async bulkUpdate(req: IAuthRequest, res: Response): Promise<Response> {
+  public bulkUpdate = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(
       bulkUpdateRoleMenuPermissionSchema,
       { ...req.params, ...req.body }
@@ -50,7 +50,7 @@ export class RoleMenuPermissionController {
       .send();
   }
 
-  public async store(req: IAuthRequest, res: Response): Promise<Response> {
+  public store = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(createRoleMenuPermissionSchema, req.body);
     const data = await this._service.store({
       ...validatedReq,
@@ -66,7 +66,7 @@ export class RoleMenuPermissionController {
       .send();
   }
 
-  public async update(req: IAuthRequest, res: Response): Promise<Response> {
+  public update = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(updateRoleMenuPermissionSchema, { ...req.params, ...req.body });
     const data = await this._service.update({
       ...validatedReq,

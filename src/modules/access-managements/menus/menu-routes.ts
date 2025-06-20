@@ -17,43 +17,43 @@ export class MenuRoutes {
       this.routes,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.findAll.bind(this.controller))
+      asyncWrap(this.controller.findAll)
     );
     router.get(
       `${this.routes}/parents`,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.findAllParents.bind(this.controller))
+      asyncWrap(this.controller.findAllParents)
     );
     router.get(
       `${this.routes}/childs/:parentId`,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.findChildsByParentId.bind(this.controller))
+      asyncWrap(this.controller.findChildsByParentId)
     );
     router.post(
       this.routes,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.store.bind(this.controller))
+      asyncWrap(this.controller.store)
     );
     router.get(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.findById.bind(this.controller))
+      asyncWrap(this.controller.findById)
     );
     router.put(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.update.bind(this.controller))
+      asyncWrap(this.controller.update)
     );
     router.delete(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.delete.bind(this.controller))
+      asyncWrap(this.controller.delete)
     )
   }
 }

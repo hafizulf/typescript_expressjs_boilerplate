@@ -21,7 +21,7 @@ export class RoleController {
   ) {
 
   }
-  public async findAll(req: Request, res: Response): Promise<Response> {
+  public findAll = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(paginatedRoleSchema, req.query);
     const [roles, pagination] = await this._service.findAll(validatedReq);
 
@@ -32,7 +32,7 @@ export class RoleController {
     }).withPagination(pagination?.omitProperties("offset")).send();
   }
 
-  public async store(req: IAuthRequest, res: Response): Promise<Response> {
+  public store = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(createRoleSchema, req.body);
     const role = await this._service.store({
       name: validatedReq.name,
@@ -46,7 +46,7 @@ export class RoleController {
     }).send();
   }
 
-  public async findById(req: Request, res: Response): Promise<Response> {
+  public findById = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(findOneRoleSchema, req.params);
     const role = await this._service.findById(validatedReq.id);
 
@@ -57,7 +57,7 @@ export class RoleController {
     }).send();
   }
 
-  public async update(req: Request, res: Response): Promise<Response> {
+  public update = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(updateRoleSchema, { ...req.params, ...req.body });
     const { id, ...propsData } = validatedReq;
     const role = await this._service.update(id, propsData);
@@ -69,7 +69,7 @@ export class RoleController {
     }).send();
   }
 
-  public async delete(req: Request, res: Response): Promise<Response> {
+  public delete = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(deleteRoleSchema, req.params);
 
     await this._service.delete(validatedReq.id);

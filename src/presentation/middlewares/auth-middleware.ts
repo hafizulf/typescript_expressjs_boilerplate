@@ -98,12 +98,10 @@ export class AuthMiddleware {
       const userDataKey = getUserDataKey(userId);
       const getUserData = await RedisClient.get(userDataKey);
       let userData = getUserData ? JSON.parse(getUserData) : null;
-      console.log("userData", userData);
       if(!userData) {
         userData = await this._userService.findById(userId);
         await RedisClient.set(userDataKey, JSON.stringify(userData), JWT_SECRET_TTL);
       }
-      console.log("user data after", userData);
 
       if (!allowedRoles.includes(userData.role.name)) {
         return next(new AppError({

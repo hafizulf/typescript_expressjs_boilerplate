@@ -13,7 +13,7 @@ export class AnnouncementController {
     @inject(TYPES.AnnouncementService) private _service: AnnouncementService,
   ) {}
 
-  public async store(req: Request, res: Response): Promise<Response> {
+  public store = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(createAnnouncementSchema, req.body);
     const data = await this._service.store(validatedReq);
 
@@ -24,7 +24,7 @@ export class AnnouncementController {
     }).send();
   }
 
-  public async findById(req: Request, res: Response): Promise<Response> {
+  public findById = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(findByIdSchema, req.params);
     const data = await this._service.findById(validatedReq.id);
 

@@ -19,7 +19,7 @@ export class WebAuthController {
     @inject(TYPES.RefreshTokenService) private _refreshTokenService: RefreshTokenService,
   ) {}
 
-  public async login(req: Request, res: Response): Promise<Response> {
+  public login = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(loginSchema, req.body)
     const data = await this._service.login({...validatedReq});
 
@@ -39,7 +39,7 @@ export class WebAuthController {
     }).send();
   }
 
-  public async getMe(req: IAuthRequest, res: Response): Promise<Response> {
+  public getMe = async (req: IAuthRequest, res: Response): Promise<Response> => {
     return StandardResponse.create(res).setResponse({
       message: "Fetched me successfully",
       status: HttpCode.OK,
@@ -47,7 +47,7 @@ export class WebAuthController {
     }).send();
   }
 
-  public async generateAccessToken(req: Request, res: Response): Promise<Response> {
+  public generateAccessToken = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(generateAccessTokenSchema, req.cookies);
     const token = await this._service.generateAccessToken(validatedReq.refreshToken);
 
@@ -58,7 +58,7 @@ export class WebAuthController {
     }).send();
   }
 
-  public async revokeRefreshToken(req: Request, res: Response): Promise<Response> {
+  public revokeRefreshToken = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(revokeRefreshTokenSchema, req.params);
     await this._refreshTokenService.revokeRefreshToken(validatedReq.userId);
 
@@ -68,7 +68,7 @@ export class WebAuthController {
     }).send();
   }
 
-  public async logout(req: Request, res: Response): Promise<Response> {
+  public logout = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(logoutSchema, req.cookies);
 
     res.clearCookie('refreshToken', {

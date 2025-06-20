@@ -22,59 +22,45 @@ export class UserRoutes {
       this.routes,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN]),
-      asyncWrap(
-        this.controller.findAll.bind(this.controller)
-      )
+      asyncWrap(this.controller.findAll)
     )
     router.post(
       this.routes,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
       tempUploadedFiles.single("avatarPath"),
-      asyncWrap(
-        this.controller.store.bind(this.controller)
-      )
+      asyncWrap(this.controller.store)
     )
     router.post(
       `${this.routes}/reset-password`,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(
-        this.controller.resetPassword.bind(this.controller)
-      )
+      asyncWrap(this.controller.resetPassword)
     )
     router.get(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN, USER]),
-      asyncWrap(
-        this.controller.findById.bind(this.controller)
-      )
+      asyncWrap(this.controller.findById)
     )
     router.put(
       `${this.routes}/change-password`,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN, USER]),
-      asyncWrap(
-        this.controller.changePassword.bind(this.controller)
-      )
+      asyncWrap(this.controller.changePassword)
     )
     router.put(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN, ADMIN, USER]),
       tempUploadedFiles.single("avatarPath"),
-      asyncWrap(
-        this.controller.update.bind(this.controller)
-      )
+      asyncWrap( this.controller.update)
     )
     router.delete(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(
-        this.controller.delete.bind(this.controller)
-      )
+      asyncWrap( this.controller.delete)
     )
   }
 }

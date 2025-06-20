@@ -17,33 +17,31 @@ export class RoleRoutes {
       this.routes,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(
-        this.controller.findAll.bind(this.controller)
-      )
+      asyncWrap(this.controller.findAll)
     )
     router.post(
       this.routes,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.store.bind(this.controller))
+      asyncWrap(this.controller.store)
     )
     router.get(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.findById.bind(this.controller))
+      asyncWrap(this.controller.findById)
     )
     router.put(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.update.bind(this.controller))
+      asyncWrap(this.controller.update)
     )
     router.delete(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate,
       this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.delete.bind(this.controller))
+      asyncWrap(this.controller.delete)
     )
   }
 }

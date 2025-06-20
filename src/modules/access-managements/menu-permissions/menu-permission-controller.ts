@@ -21,7 +21,7 @@ export class MenuPermissionController {
     @inject(TYPES.MenuPermissionService) private _service: MenuPermissionService
   ) {}
 
-  public async findAll(req: Request, res: Response): Promise<Response> {
+  public findAll = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(paginatedMenuPermissionSchema, req.query);
     const [data, pagination] = await this._service.findAll(validatedReq);
 
@@ -35,7 +35,7 @@ export class MenuPermissionController {
       .send();
   }
 
-  public async store(req: IAuthRequest, res: Response): Promise<Response> {
+  public store = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(createMenuPermissionSchema, req.body);
     const data = await this._service.store({
       ...validatedReq,
@@ -50,7 +50,7 @@ export class MenuPermissionController {
       .send();
   }
 
-  public async findById(req: Request, res: Response): Promise<Response> {
+  public findById = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(findMenuPermissionByIdSchema, req.params);
     const data = await this._service.findById(validatedReq.id);
 
@@ -63,7 +63,7 @@ export class MenuPermissionController {
       .send();
   }
 
-  public async update(req: IAuthRequest, res: Response): Promise<Response> {
+  public update = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(updateMenuPermissionSchema, {
       ...req.params,
       ...req.body,
@@ -82,7 +82,7 @@ export class MenuPermissionController {
       .send();
   }
 
-  public async delete(req: Request, res: Response): Promise<Response> {
+  public delete = async (req: Request, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(deleteMenuPermissionSchema, req.params);
 
     await this._service.delete(validatedReq.id);
@@ -95,7 +95,7 @@ export class MenuPermissionController {
       .send();
   }
 
-  public async findEnabledList(_req: Request, res: Response): Promise<Response> {
+  public findEnabledList = async (_req: Request, res: Response): Promise<Response> => {
     const data = await this._service.findEnabledList();
 
     return StandardResponse.create(res)
@@ -107,10 +107,10 @@ export class MenuPermissionController {
       .send();
   }
 
-  public async findAllGroupByMenus(
+  public findAllGroupByMenus = async (
     _req: Request,
     res: Response
-  ): Promise<Response> {
+  ): Promise<Response> => {
     const data = await this._service.findAllGroupByMenus();
 
     return StandardResponse.create(res)
@@ -122,7 +122,7 @@ export class MenuPermissionController {
       .send();
   }
 
-  public async bulkUpdate(req: IAuthRequest, res: Response): Promise<Response> {
+  public bulkUpdate = async (req: IAuthRequest, res: Response): Promise<Response> => {
     const validatedReq = validateSchema(bulkUpdateMenuPermissionSchema, req.body);
 
     const data = await this._service.bulkUpdate(
@@ -138,10 +138,10 @@ export class MenuPermissionController {
       .send();
   }
 
-  public async seedMenuPermission(
+  public seedMenuPermission = async (
     req: IAuthRequest,
     res: Response
-  ): Promise<Response> {
+  ): Promise<Response> => {
     await this._service.seedMenuPermission(req.authUser.user.id);
     return StandardResponse.create(res)
       .setResponse({
