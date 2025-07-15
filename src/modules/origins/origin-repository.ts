@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { TStandardPaginateOption } from "@/modules/common/dto/pagination-dto";
 import { Pagination } from "@/modules/common/pagination";
-import { TPropsCreateOrigin } from "./origin-dto";
+import { OriginType, TPropsCreateOrigin } from "./origin-dto";
 import { IOriginRepository } from "./origin-repository-interface";
 import { Origin, IOrigin } from "./origin-domain";
 import { Origin as OriginPersistence } from "@/modules/common/sequelize";
@@ -93,5 +93,13 @@ export class OriginRepository implements IOriginRepository {
     await data.destroy();
     return true;
   }
-
+  findAllByType = async (type: OriginType): Promise<Origin[]> => {
+    const data = await OriginPersistence.findAll({
+      where: {
+        type,
+        isBlocked: false,
+      }
+    });
+    return data.map((el) => Origin.create(el.toJSON()));
+  }
 }

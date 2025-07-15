@@ -4,7 +4,7 @@ import { IOriginRepository } from "./origin-repository-interface";
 import { IOrigin } from "./origin-domain";
 import { Pagination } from "../common/pagination";
 import { TStandardPaginateOption } from "../common/dto/pagination-dto";
-import { TPropsCreateOrigin } from "./origin-dto";
+import { OriginType, TPropsCreateOrigin } from "./origin-dto";
 
 @injectable()
 export class OriginService {
@@ -45,5 +45,9 @@ export class OriginService {
 
   public delete = async (id: string): Promise<boolean> => {
     return (await this._repository.delete(id));
+  }
+
+  public findAllByType = async (type: OriginType): Promise<IOrigin[]> => {
+    return (await this._repository.findAllByType(type)).map((el) => el.unmarshal());
   }
 }

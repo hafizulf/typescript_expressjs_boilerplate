@@ -3,14 +3,13 @@ import { APP_API_PREFIX } from "@/config/env";
 import { AppError } from "@/exceptions/app-error";
 import { BackgroundServiceManager } from "@/modules/common/services/background-service-manager";
 import * as bodyParser from "body-parser";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import container from "@/container";
 import cors from "cors";
 import { createServer, Server } from "http";
 import { DashboardTotalNamespace } from "@/libs/websocket/namespaces/dashboard-total-namespace";
 import { errorHandler } from "@/exceptions/error-handler";
 import express, { Request, Response, NextFunction, Application } from "express";
-import { HttpCorsOptions } from "@/config/cors";
 import { inject, injectable } from "inversify";
 import { logger } from "@/libs/logger";
 import { Mqtt } from "@/libs/mqtt/mqtt-index";
@@ -23,6 +22,9 @@ import { RedisClient } from "@/libs/redis/redis-client";
 import { sequelizeMigrate } from "@/modules/common/sequelize";
 import { SocketIO } from "@/libs/websocket";
 import TYPES from "@/types";
+import { OriginService } from "@/modules/origins/origin-service";
+import { createCorsOptions } from "@/config/cors-option";
+import { OriginType } from "@/modules/origins/origin-dto";
 
 @injectable()
 export class Bootstrap {
@@ -30,21 +32,34 @@ export class Bootstrap {
   public httpServer: Server;
 
   constructor(
-    @inject(Routes) private appRoutes: Routes, // inject routes by class
-    @inject(TYPES.BackgroundServiceManager) private backgroundServiceManager: BackgroundServiceManager, // inject by symbol
-    @inject(TYPES.SocketIO) private socketIO: SocketIO,
+    @inject(Routes) private appRoutes: Routes,
+    @inject(TYPES.BackgroundServiceManager) private backgroundServiceManager: BackgroundServiceManager,
     @inject(Mqtt) private mqtt: Mqtt,
+    @inject(TYPES.OriginService) private originService: OriginService
   ) {
     this.app = express();
     this.httpServer = createServer(this.app);
-    this.initializeRedis();     // initialize redis
-    this.middleware();          // apply middleware
-    this.setRoutes();           // set routes
-    this.middlewareError();     // error handler
-    this.initializeDatabase();
-    this.initializeBackgroundServices();  // initialize background services
-    this.initializeSocketIO();  // initialize socket
-    this.initializeMqtt();      // initialize mqtt
+    this.app.set("trust proxy", 1); // Trust the first proxy
+
+    (async () => {
+      try {
+        await this.init();
+      } catch (err) {
+        console.error("Failed to initialize Bootstrap:", err);
+        process.exit(1);
+      }
+    })();
+  }
+
+  private async init(): Promise<void> {
+    await this.middleware();
+    this.setRoutes();
+    this.middlewareError();
+    this.initializeRedis();
+    await this.initializeDatabase();
+    this.initializeBackgroundServices();
+    await this.initializeSocketIO();
+    this.initializeMqtt();
   }
 
   private initializeRedis(): void {
@@ -52,7 +67,7 @@ export class Bootstrap {
     console.log('Redis client initialized');
   }
 
-  private middleware(): void {
+  private async middleware(): Promise<void> {
     const apiRateLimiter = rateLimit({
       windowMs: 15 * 60 * 1000,     // 15 minutes
       max: 100,                     // limit each IP to 100 requests per windowMs
@@ -66,12 +81,20 @@ export class Bootstrap {
 
     this.app.use(APP_API_PREFIX, apiRateLimiter);                       // apply rate limiter
 
-    // Handle CORS errors
-    this.app.use(cors(HttpCorsOptions));
-    this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-      if (err instanceof Error && err.message.includes("Blocked by CORS")) {
-        console.error(`[${new Date().toISOString()}] ${err.message} for URL: ${req.url}`);
-        return res.status(403).json({ error: "CORS policy: origin not allowed" });
+    // Handle CORS
+    const httpCorsOptions = await createCorsOptions(this.originService, OriginType.HTTP);
+    this.app.use(cors(httpCorsOptions));
+      this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+        if (err instanceof Error && err.message.includes("Blocked by CORS")) {
+          console.error(`[${new Date().toISOString()}] ${err.message} for URL: ${req.url}`);
+          res.removeHeader("Access-Control-Allow-Origin");
+          res.removeHeader("Access-Control-Allow-Credentials");
+          res.removeHeader("Access-Control-Allow-Methods");
+          res.removeHeader("Access-Control-Allow-Headers");
+          if (req.method === "OPTIONS") {
+            return res.status(200).end();
+          }
+        return res.status(400).json({ error: "CORS policy: invalid origin" });
       }
       return next(err);
     });
@@ -87,18 +110,9 @@ export class Bootstrap {
       next: NextFunction
     ) => {
       response.removeHeader("X-Powered-By");
-      response.header("Access-Control-Allow-Origin", "*");
-      response.header(
-        "Access-Control-Allow-Headers",
-        "content-type, Authorization"
-      );
-      response.header(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS"
-      );
-
-      const clientIp = request.headers["x-forwarded-for"] || request.socket.remoteAddress || 'unknown';
+      const clientIp = request.headers["x-forwarded-for"] || request.socket.remoteAddress || "unknown";
       console.log(`${request.method} url:: ${request.url} from ip:: ${clientIp}`);
+      console.log("Raw Headers:", JSON.stringify(request.headers, null, 2));
 
       next();
     }
@@ -163,21 +177,18 @@ export class Bootstrap {
     this.backgroundServiceManager.startServices();
   }
 
-  public initializeSocketIO(): void {
-    this.socketIO.initialize(this.httpServer);
+  public async initializeSocketIO(): Promise<void> {
+    const socketIO = container.get<SocketIO>(TYPES.SocketIO);
+    await socketIO.initialize(this.httpServer);
 
-    // specify public namespace
-    this.socketIO.setPublicNamespaces([
-      PUBLIC_TIME_NSP,
-    ])
+    socketIO.setPublicNamespaces([PUBLIC_TIME_NSP]);
 
     const socketNamespaces = [
       container.get<DashboardTotalNamespace>(TYPES.DashboardTotalNamespace),
       container.get<AnnouncementNamespace>(TYPES.AnnouncementNamespace),
       new PublicTimeNamespace(),
     ];
-
-    this.socketIO.initializeNamespaces(socketNamespaces);
+    socketIO.initializeNamespaces(socketNamespaces);
     console.log("Socket.IO initialized with namespaces.");
   }
 

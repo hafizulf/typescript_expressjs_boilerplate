@@ -7,7 +7,9 @@ import TYPES from "@/types";
 import { SocketAuthenticationMiddleware } from "./middlewares/socket-authentication-middleware";
 import { SocketAuthorizationMiddleware } from "./middlewares/socket-authorization-middleware";
 import { SocketEventWhitelistMiddleware } from "./middlewares/socket-event-whitelist-middleware";
-import { WebSocketCorsOption } from "@/config/cors";
+import { OriginService } from "@/modules/origins/origin-service";
+import { createCorsOptions } from "@/config/cors-option";
+import { OriginType } from "@/modules/origins/origin-dto";
 
 @injectable()
 export class SocketIO {
@@ -22,11 +24,15 @@ export class SocketIO {
     private _authorizationMiddleware: SocketAuthorizationMiddleware,
     @inject(TYPES.SocketEventWhitelistMiddleware)
     private _eventWhitelistMiddleware: SocketEventWhitelistMiddleware,
+    @inject(TYPES.OriginService)
+    private originService: OriginService,
   ) {}
 
-  public initialize(httpServer: HttpServer): void {
+  public async initialize(httpServer: HttpServer): Promise<void> {
+    const wsCorsOptions = await createCorsOptions(this.originService, OriginType.WS);
+
     this.io = new SocketIOServer(httpServer, {
-      cors: WebSocketCorsOption,
+      cors: wsCorsOptions,
     });
   }
 
