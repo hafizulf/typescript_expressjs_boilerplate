@@ -17,7 +17,7 @@ export class OriginRoutes {
       this.routes,
       this.authMiddleware.authenticate,
       this.authMiddleware.roleAuthorize([SUPERADMIN]),
-      asyncWrap(this.controller.findAll)
+      asyncWrap(this.controller.store)
     );
     router.get(
       `${this.routes}/:id`,

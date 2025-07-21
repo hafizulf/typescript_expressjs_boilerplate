@@ -94,7 +94,7 @@ export class Bootstrap {
           if (req.method === "OPTIONS") {
             return res.status(200).end();
           }
-        return res.status(400).json({ error: "CORS policy: invalid origin" });
+        return res.status(403).json({ error: "CORS policy: invalid origin" });
       }
       return next(err);
     });

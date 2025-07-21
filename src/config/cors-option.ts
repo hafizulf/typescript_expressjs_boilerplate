@@ -10,28 +10,36 @@ export const createCorsOptions = async (
   type: OriginType,
 ): Promise<CorsOptions> => {
   const allowedOrigins = (await originService.findAllByType(type)).map((el) => el.origin);
-  console.log(`ALLOWED ${type} ORIGINS: `, allowedOrigins);
+  console.log(`ALLOWED ${type} ORIGINS:`, allowedOrigins);
+
+  // For WebSocket, include corresponding HTTP origins
+  const wsHttpOrigins = type === OriginType.WS
+    ? (await originService.findAllByType(OriginType.HTTP)).map((el) => el.origin)
+    : [];
+  const allAllowedOrigins = [...allowedOrigins, ...wsHttpOrigins];
+  console.log(`ALL ALLOWED ${type} ORIGINS (including HTTP for WS):`, allAllowedOrigins);
 
   return {
     origin: (origin, callback) => {
-      console.log("REQUEST ORIGIN:", origin);
-
-      if (isDevelopment) {
-        console.log("Development mode: Allowing all origins");
+      if (!origin) {
+        console.warn("No origin header — possibly Postman or internal request. Allowing.");
         return callback(null, true);
       }
 
-      if (!origin) {
-        console.warn("No origin header — possibly Postman or internal request. Allowing.");
-        return callback(null, true); // Allow when Origin header is missing
+      if (isDevelopment) {
+        return callback(null, true);
       }
 
-      if (!allowedOrigins.includes(origin)) {
+      // Normalize origins for comparison (to handle ws:// vs http://)
+      const normalizedOrigin = origin.replace(/^ws/, 'http');
+      const match = allAllowedOrigins.includes(origin) || allAllowedOrigins.includes(normalizedOrigin);
+      console.log("Comparing origin:", { received: origin, allowedOrigins: allAllowedOrigins, match });
+
+      if (!match) {
         console.error(`Blocked by CORS: Origin ${origin} not allowed`);
         return callback(new Error("Blocked by CORS: Origin not allowed"));
       }
 
-      console.log("Origin passed CORS check:", origin);
       return callback(null, true);
     },
     credentials: true,
