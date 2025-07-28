@@ -9,14 +9,16 @@ import { WebAuthDomain } from "@/modules/authentications/web-auth-domain";
 import jwt, { JsonWebTokenError, JwtPayload, TokenExpiredError } from "jsonwebtoken";
 import { RedisClient } from "@/libs/redis/redis-client";
 import { TokenErrMessage } from "@/exceptions/error-message-constants";
-import { getUserDataKey, } from "@/helpers/redis-keys";
-import { UserService } from "@/modules/users/user-service";
+import { getRoleMenuPermissionsKey, getUserDataKey, } from "@/helpers/redis-keys";
+import { RoleMenuPermissionRepository } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-repository";
+import { RoleMenuPermissionDto } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-dto";
+import { REQUEST_PERMISSIONS } from "@/modules/access-managements/menus/dto/enabled-menu";
 
 @injectable()
 export class AuthMiddleware {
   constructor(
     @inject(TYPES.WebAuthService) private _webAuthService: WebAuthService,
-    @inject(TYPES.UserService) private _userService: UserService,
+    @inject(TYPES.IRoleMenuPermissionRepository) private _roleMenuPermissionRepository: RoleMenuPermissionRepository,
   ) {}
 
   authenticate = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
@@ -91,26 +93,51 @@ export class AuthMiddleware {
     }
   }
 
-  roleAuthorize = (allowedRoles: string[]) => {
-    return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-      const authUser = (req as IAuthRequest).authUser;
-      const userId = authUser.user.id;
-      const userDataKey = getUserDataKey(userId);
-      const getUserData = await RedisClient.get(userDataKey);
-      let userData = getUserData ? JSON.parse(getUserData) : null;
-      if(!userData) {
-        userData = await this._userService.findWithRoleByUserId(userId);
-        await RedisClient.set(userDataKey, JSON.stringify(userData), JWT_SECRET_TTL);
-      }
+  roleAuthorize = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    const authReq = req as IAuthRequest;
+    const userRoleId = authReq.authUser.user.roleId;
 
-      if (!allowedRoles.includes(userData.role.name)) {
+    let rmp: RoleMenuPermissionDto | [];
+    const userRoleMenuPermissionKey = getRoleMenuPermissionsKey(userRoleId);
+    const userRoleMenuPermissions = await RedisClient.get(userRoleMenuPermissionKey);
+    if(userRoleMenuPermissions) {
+      rmp = JSON.parse(userRoleMenuPermissions);
+    } else {
+      rmp = await this._roleMenuPermissionRepository.findByRoleId(userRoleId);
+      await RedisClient.set(userRoleMenuPermissionKey, JSON.stringify(rmp), JWT_SECRET_TTL);
+    }
+
+    if (!Array.isArray(rmp) && rmp.menus.length === 0) {
+      return next(new AppError({
+        statusCode: HttpCode.FORBIDDEN,
+        description: 'Forbidden',
+      }));
+    }
+
+    if (!Array.isArray(rmp)) {
+      const segments = req.path.split('/').filter(Boolean); 
+      const basePath = '/' + segments[0]; 
+      const menu = rmp.menus.find(menu => `${menu.path}s` === basePath);
+      if (!menu) {
         return next(new AppError({
           statusCode: HttpCode.FORBIDDEN,
           description: 'Forbidden',
         }));
       }
 
-      return next();
+      // then check if permission is allowed like READ ["GET"] is allowed
+      const method = req.method as keyof typeof REQUEST_PERMISSIONS;
+      const allowedPermissions = REQUEST_PERMISSIONS[method] || [];
+      const hasPermission = menu.permissionList.some(p => allowedPermissions.includes(p.permission) && p.isPermitted); // check if permission is allowed
+
+      if (!hasPermission) {
+        return next(new AppError({
+          statusCode: HttpCode.FORBIDDEN,
+          description: 'Forbidden',
+        }));
+      }
     }
+
+    return next();
   }
 }

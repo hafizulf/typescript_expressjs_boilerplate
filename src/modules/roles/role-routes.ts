@@ -4,7 +4,6 @@ import { injectable } from "inversify";
 import asyncWrap from "@/modules/common/asyncWrapper";
 import { RoleController } from "./role-controller";
 import { AuthMiddleware } from "@/presentation/middlewares/auth-middleware";
-import { SUPERADMIN } from "../common/const/role-constants";
 
 @injectable()
 export class RoleRoutes {
@@ -16,31 +15,31 @@ export class RoleRoutes {
     router.get(
       this.routes,
       this.AuthMiddleware.authenticate,
-      this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
+      this.AuthMiddleware.roleAuthorize,
       asyncWrap(this.controller.findAll)
     )
     router.post(
       this.routes,
       this.AuthMiddleware.authenticate,
-      this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
+      this.AuthMiddleware.roleAuthorize,
       asyncWrap(this.controller.store)
     )
     router.get(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate,
-      this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
+      this.AuthMiddleware.roleAuthorize,
       asyncWrap(this.controller.findById)
     )
     router.put(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate,
-      this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
+      this.AuthMiddleware.roleAuthorize,
       asyncWrap(this.controller.update)
     )
     router.delete(
       `${this.routes}/:id`,
       this.AuthMiddleware.authenticate,
-      this.AuthMiddleware.roleAuthorize([SUPERADMIN]),
+      this.AuthMiddleware.roleAuthorize,
       asyncWrap(this.controller.delete)
     )
   }

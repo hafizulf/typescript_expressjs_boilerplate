@@ -4,7 +4,6 @@ import { injectable } from "inversify";
 import { OriginController } from "./origin-controller";
 import { Router } from "express";
 import asyncWrap from "../common/asyncWrapper";
-import { SUPERADMIN } from "../common/const/role-constants";
 
 @injectable()
 export class OriginRoutes { 
@@ -16,31 +15,31 @@ export class OriginRoutes {
     router.post(
       this.routes,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.store)
     );
     router.get(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.findById)
     );
     router.get(
       this.routes,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.findAll)
     );
     router.put(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.update)
     );
     router.delete(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.delete)
     );
   }

@@ -4,7 +4,6 @@ import container from "@/container";
 import { injectable } from "inversify";
 import { RoleMenuPermissionController } from "./role-menu-permission-controller";
 import { Router } from "express";
-import { SUPERADMIN } from "@/modules/common/const/role-constants";
 
 @injectable()
 export class RoleMenuPermissionRoutes {
@@ -16,25 +15,25 @@ export class RoleMenuPermissionRoutes {
     router.get(
       `${this.routes}/:roleId`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.findByRoleId)
     );
     router.put(
       `${this.routes}/bulk-update/:roleId`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.bulkUpdate)
     );
     router.post(
       this.routes,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.store)
     );
     router.put(
       `${this.routes}/:roleId`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.update)
     );
   }

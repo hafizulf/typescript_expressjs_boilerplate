@@ -31,7 +31,7 @@ export class RoleMenuPermissionRepository
       include: [
         {
           model: MenuPersistence,
-          attributes: ['name'],
+          attributes: ['name', 'path'],
         },
         {
           model: PermissionPersistence,
@@ -57,6 +57,7 @@ export class RoleMenuPermissionRepository
         menu = {
           menuId: item.menuId,
           menu: item.menu!.name,
+          path: item.menu!.path,
           permissionList: [],
         };
         result.menus.push(menu);

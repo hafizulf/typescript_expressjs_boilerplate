@@ -7,6 +7,7 @@ export interface PermissionInRoleMenuPermission {
 export interface MenuInRoleMenuPermission {
   menuId: string;
   menu: string;
+  path: string;
   permissionList: PermissionInRoleMenuPermission[];
 }
 

@@ -27,10 +27,13 @@ export class WebAuthRoutes {
     )
     router.post(
       `${this.routes}/refresh-token/revoke/:userId`,
+      this.AuthMiddleware.authenticate,
       asyncWrap(this.controller.revokeRefreshToken)
     )
     router.post(
       `${this.routes}/logout`,
+      this.AuthMiddleware.authenticate,
+      this.AuthMiddleware.roleAuthorize,
       asyncWrap(this.controller.logout)
     )
   }

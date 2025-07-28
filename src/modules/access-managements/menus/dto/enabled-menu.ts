@@ -12,3 +12,10 @@ export const ENABLED_MENU: IEnabledMenu = {
   MENU_PERMISSION: ["READ", "CREATE", "UPDATE", "DELETE", "BULK UPDATE"],
   ROLE_MENU_PERMISSION: ["READ", "CREATE", "UPDATE", "BULK UPDATE"],
 }
+
+export const REQUEST_PERMISSIONS: Record<'GET' | 'POST' | 'PUT' | 'DELETE', string[]> = {
+  GET: ['READ'],
+  POST: ['CREATE'],
+  PUT: ['UPDATE', 'BULK UPDATE'],
+  DELETE: ['DELETE'],
+}

@@ -4,7 +4,6 @@ import container from "@/container";
 import { injectable } from "inversify";
 import { MenuController } from "./menu-controller";
 import { Router } from "express";
-import { SUPERADMIN } from "@/modules/common/const/role-constants";
 
 @injectable()
 export class MenuRoutes {
@@ -16,43 +15,43 @@ export class MenuRoutes {
     router.get(
       this.routes,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.findAll)
     );
     router.get(
       `${this.routes}/parents`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.findAllParents)
     );
     router.get(
       `${this.routes}/childs/:parentId`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.findChildsByParentId)
     );
     router.post(
       this.routes,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.store)
     );
     router.get(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.findById)
     );
     router.put(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.update)
     );
     router.delete(
       `${this.routes}/:id`,
       this.authMiddleware.authenticate,
-      this.authMiddleware.roleAuthorize([SUPERADMIN]),
+      this.authMiddleware.roleAuthorize,
       asyncWrap(this.controller.delete)
     )
   }
