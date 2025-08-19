@@ -12,7 +12,6 @@ import { errorHandler } from "@/exceptions/error-handler";
 import express, { Request, Response, NextFunction, Application } from "express";
 import { inject, injectable } from "inversify";
 import { logger } from "@/libs/logger";
-import { Mqtt } from "@/libs/mqtt/mqtt-index";
 import path from "path";
 import { PUBLIC_TIME_NSP } from "@/libs/websocket/namespaces/constants/namespace-constants";
 import { PublicTimeNamespace } from "@/libs/websocket/namespaces/public-time-namespace";
@@ -34,7 +33,6 @@ export class Bootstrap {
   constructor(
     @inject(Routes) private appRoutes: Routes,
     @inject(TYPES.BackgroundServiceManager) private backgroundServiceManager: BackgroundServiceManager,
-    @inject(Mqtt) private mqtt: Mqtt,
     @inject(TYPES.OriginService) private originService: OriginService
   ) {
     this.app = express();
@@ -59,7 +57,6 @@ export class Bootstrap {
     await this.initializeDatabase();
     this.initializeBackgroundServices();
     await this.initializeSocketIO();
-    this.initializeMqtt();
   }
 
   private initializeRedis(): void {
@@ -112,7 +109,6 @@ export class Bootstrap {
       response.removeHeader("X-Powered-By");
       const clientIp = request.headers["x-forwarded-for"] || request.socket.remoteAddress || "unknown";
       console.log(`${request.method} url:: ${request.url} from ip:: ${clientIp}`);
-      console.log("Raw Headers:", JSON.stringify(request.headers, null, 2));
 
       next();
     }
@@ -190,10 +186,5 @@ export class Bootstrap {
     ];
     socketIO.initializeNamespaces(socketNamespaces);
     console.log("Socket.IO initialized with namespaces.");
-  }
-
-  private initializeMqtt(): void {
-    this.mqtt.connect();
-    this.mqtt.setSubscriber();
   }
 }
