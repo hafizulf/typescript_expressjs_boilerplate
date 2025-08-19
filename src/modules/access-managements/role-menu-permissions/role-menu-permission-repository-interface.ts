@@ -3,7 +3,7 @@ import { RoleMenuPermissionDto, TPropsCreateRoleMenuPermission } from "./role-me
 
 export interface IRoleMenuPermissionRepository {
   findByRoleId(roleId: string): Promise<RoleMenuPermissionDto | []>;
-  bulkUpdate(props: IRoleMenuPermission[]): void;
+  bulkUpdate(props: IRoleMenuPermission[]): Promise<void>;
   store(props: TPropsCreateRoleMenuPermission): Promise<RoleMenuPermissionDomain>;
   update(props: IRoleMenuPermission): Promise<RoleMenuPermissionDomain>;
 }
