@@ -87,6 +87,7 @@ import { SocketEventWhitelistMiddleware } from "@/libs/websocket/middlewares/soc
 
 // Cache
 import { UserCache } from "@/modules/users/user-cache";
+import { RoleMenuPermissionCache } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-cache";
 
 //
 const container = new Container();
@@ -198,5 +199,6 @@ container
 
 // cache
 container.bind<UserCache>(TYPES.UserCache).to(UserCache).inSingletonScope();
+container.bind<RoleMenuPermissionCache>(TYPES.RoleMenuPermissionCache).to(RoleMenuPermissionCache).inSingletonScope();
 
 export default container;

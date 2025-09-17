@@ -49,6 +49,7 @@ const TYPES = {
 
   // cache
   UserCache: Symbol.for("UserCache"),
+  RoleMenuPermissionCache: Symbol.for("RoleMenuPermissionCache"),
 }
 
 export default TYPES;

@@ -7,15 +7,15 @@ import {
   TPropsCreateRoleMenuPermission
 } from "./role-menu-permission-dto";
 import TYPES from "@/types";
-import { RedisClient } from "@/libs/redis/redis-client";
-import { getRoleMenuPermissionsKey } from "@/helpers/redis-keys";
-import { JWT_SECRET_TTL } from "@/config/env";
+import { RoleMenuPermissionCache } from "./role-menu-permission-cache";
 
 @injectable()
 export class RoleMenuPermissionService {
   constructor(
     @inject(TYPES.IRoleMenuPermissionRepository)
-    private _repository: IRoleMenuPermissionRepository
+    private _repository: IRoleMenuPermissionRepository,
+    @inject(TYPES.RoleMenuPermissionCache) 
+    private _roleMenuPermissionCache: RoleMenuPermissionCache,
   ) {}
 
   public async findByRoleId(
@@ -41,7 +41,10 @@ export class RoleMenuPermissionService {
     await this._repository.bulkUpdate(permissionsToUpdate);
 
     const updatedData = await this.findByRoleId(data.roleId);
-    this._updateRoleMenuPermissionCache(data.roleId, updatedData);
+    const getCachedData = await this._roleMenuPermissionCache.get(data.roleId);
+    if (!Array.isArray(getCachedData)) {
+      this._roleMenuPermissionCache.set(data.roleId, updatedData);
+    }
 
     return updatedData;
   }
@@ -58,16 +61,11 @@ export class RoleMenuPermissionService {
     const updated = (await this._repository.update(props)).unmarshal();
     const updatedData = await this.findByRoleId(props.roleId);
     
-    await this._updateRoleMenuPermissionCache(props.roleId, updatedData);
+    const getCachedData = await this._roleMenuPermissionCache.get(props.roleId);
+    if (!Array.isArray(getCachedData)) {
+      this._roleMenuPermissionCache.set(props.roleId, updatedData);
+    }
 
     return updated;
-  }
-
-  private async _updateRoleMenuPermissionCache(
-    roleId: string, 
-    updatedData: RoleMenuPermissionDto | []
-  ): Promise<void> {
-    const userRoleMenuPermissionKey = getRoleMenuPermissionsKey(roleId);
-    await RedisClient.set(userRoleMenuPermissionKey, JSON.stringify(updatedData), JWT_SECRET_TTL);
   }
 }

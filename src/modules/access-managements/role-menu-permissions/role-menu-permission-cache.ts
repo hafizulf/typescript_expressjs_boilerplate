@@ -4,7 +4,7 @@ import { injectable } from "inversify";
 import { RoleMenuPermissionDto } from "./role-menu-permission-dto";
 
 @injectable()
-export class UserCache {
+export class RoleMenuPermissionCache {
   private readonly ttl: number = JWT_SECRET_TTL;
 
   private key(roleId: string): string {
@@ -16,8 +16,8 @@ export class UserCache {
     return raw ? (JSON.parse(raw) as RoleMenuPermissionDto) : [];
   }
 
-  async set(roleId: string, data: RoleMenuPermissionDto, ttl?: number): Promise<void> {
-    await RedisClient.set(this.key(roleId), JSON.stringify(data), ttl || this.ttl);
+  async set(roleId: string, rmp: RoleMenuPermissionDto | [], ttl?: number): Promise<void> {
+    await RedisClient.set(this.key(roleId), JSON.stringify(rmp), ttl || this.ttl);
   }
 
   async invalidate(roleId: string): Promise<void> {

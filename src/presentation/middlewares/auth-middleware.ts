@@ -2,18 +2,17 @@ import { Request, Response, NextFunction } from "express";
 import { inject, injectable } from "inversify";
 import TYPES from "@/types";
 import { AppError, HttpCode } from "@/exceptions/app-error";
-import { JWT_SECRET_KEY, JWT_SECRET_TTL } from "@/config/env";
+import { JWT_SECRET_KEY } from "@/config/env";
 import { IAuthRequest } from "./auth-interface";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { WebAuthDomain } from "@/modules/authentications/web-auth-domain";
 import jwt, { JsonWebTokenError, JwtPayload, TokenExpiredError } from "jsonwebtoken";
-import { RedisClient } from "@/libs/redis/redis-client";
 import { TokenErrMessage } from "@/exceptions/error-message-constants";
-import { getRoleMenuPermissionsKey } from "@/helpers/redis-keys";
-import { RoleMenuPermissionRepository } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-repository";
 import { RoleMenuPermissionDto } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-dto";
 import { REQUEST_PERMISSIONS } from "@/modules/access-managements/menus/dto/enabled-menu";
 import { UserCache } from "@/modules/users/user-cache";
+import { RoleMenuPermissionCache } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-cache";
+import { RoleMenuPermissionRepository } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-repository";
 
 @injectable()
 export class AuthMiddleware {
@@ -21,6 +20,7 @@ export class AuthMiddleware {
     @inject(TYPES.WebAuthService) private _webAuthService: WebAuthService,
     @inject(TYPES.IRoleMenuPermissionRepository) private _roleMenuPermissionRepository: RoleMenuPermissionRepository,
     @inject(TYPES.UserCache) private _userCache: UserCache,
+    @inject(TYPES.RoleMenuPermissionCache) private _roleMenuPermissionCache: RoleMenuPermissionCache,
   ) {}
 
   authenticate = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
@@ -95,25 +95,21 @@ export class AuthMiddleware {
   roleAuthorize = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const authReq = req as IAuthRequest;
     const userRoleId = authReq.authUser.user.roleId;
+    let rmp: RoleMenuPermissionDto | [] = await this._roleMenuPermissionCache.get(userRoleId);
 
-    let rmp: RoleMenuPermissionDto | [];
-    const userRoleMenuPermissionKey = getRoleMenuPermissionsKey(userRoleId);
-    const userRoleMenuPermissions = await RedisClient.get(userRoleMenuPermissionKey);
-    if(userRoleMenuPermissions) {
-      rmp = JSON.parse(userRoleMenuPermissions);
-    } else {
-      rmp = await this._roleMenuPermissionRepository.findByRoleId(userRoleId);
-      await RedisClient.set(userRoleMenuPermissionKey, JSON.stringify(rmp), JWT_SECRET_TTL);
+    if(Array.isArray(rmp)) {
+      const roleMenuPermissions = await this._roleMenuPermissionRepository.findByRoleId(userRoleId);
+      if(Array.isArray(roleMenuPermissions)) {
+        return next(new AppError({
+          statusCode: HttpCode.FORBIDDEN,
+          description: 'Forbidden',
+        }));
+      } else {
+        rmp = roleMenuPermissions;
+      }
     }
 
-    if (!Array.isArray(rmp) && rmp.menus.length === 0) {
-      return next(new AppError({
-        statusCode: HttpCode.FORBIDDEN,
-        description: 'Forbidden',
-      }));
-    }
-
-    if (!Array.isArray(rmp)) {
+    if(!Array.isArray(rmp) && rmp.menus.length > 0) {
       const segments = req.path.split('/').filter(Boolean); 
       const basePath = '/' + segments[0]; 
       const menu = rmp.menus.find(menu => `${menu.path}s` === basePath);
@@ -135,6 +131,13 @@ export class AuthMiddleware {
           description: 'Forbidden',
         }));
       }
+
+      await this._roleMenuPermissionCache.set(userRoleId, rmp);
+    } else {
+      return next(new AppError({
+        statusCode: HttpCode.FORBIDDEN,
+        description: 'Forbidden',
+      }));
     }
 
     return next();
