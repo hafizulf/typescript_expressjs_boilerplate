@@ -85,6 +85,9 @@ import { SocketAuthenticationMiddleware } from "@/libs/websocket/middlewares/soc
 import { SocketAuthorizationMiddleware } from "@/libs/websocket/middlewares/socket-authorization-middleware";
 import { SocketEventWhitelistMiddleware } from "@/libs/websocket/middlewares/socket-event-whitelist-middleware";
 
+// Cache
+import { UserCache } from "@/modules/users/user-cache";
+
 //
 const container = new Container();
 
@@ -192,5 +195,8 @@ container
 container
   .bind<SocketEventWhitelistMiddleware>(TYPES.SocketEventWhitelistMiddleware)
   .to(SocketEventWhitelistMiddleware);
+
+// cache
+container.bind<UserCache>(TYPES.UserCache).to(UserCache).inSingletonScope();
 
 export default container;

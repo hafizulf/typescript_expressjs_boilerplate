@@ -9,16 +9,18 @@ import { WebAuthDomain } from "@/modules/authentications/web-auth-domain";
 import jwt, { JsonWebTokenError, JwtPayload, TokenExpiredError } from "jsonwebtoken";
 import { RedisClient } from "@/libs/redis/redis-client";
 import { TokenErrMessage } from "@/exceptions/error-message-constants";
-import { getRoleMenuPermissionsKey, getUserDataKey, } from "@/helpers/redis-keys";
+import { getRoleMenuPermissionsKey } from "@/helpers/redis-keys";
 import { RoleMenuPermissionRepository } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-repository";
 import { RoleMenuPermissionDto } from "@/modules/access-managements/role-menu-permissions/role-menu-permission-dto";
 import { REQUEST_PERMISSIONS } from "@/modules/access-managements/menus/dto/enabled-menu";
+import { UserCache } from "@/modules/users/user-cache";
 
 @injectable()
 export class AuthMiddleware {
   constructor(
     @inject(TYPES.WebAuthService) private _webAuthService: WebAuthService,
     @inject(TYPES.IRoleMenuPermissionRepository) private _roleMenuPermissionRepository: RoleMenuPermissionRepository,
+    @inject(TYPES.UserCache) private _userCache: UserCache,
   ) {}
 
   authenticate = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
@@ -39,13 +41,10 @@ export class AuthMiddleware {
         }));
       }
 
-      const userDataKey = getUserDataKey(decoded.id);
-      const userData = await RedisClient.get(userDataKey);
-
+      const userData = await this._userCache.get(decoded.id);
       const newReq = req as IAuthRequest;
       if (userData) {
-        const parsedUser = JSON.parse(userData);
-        newReq.authUser = WebAuthDomain.create({ token, user: parsedUser }, JWT_SECRET_KEY);
+        newReq.authUser = WebAuthDomain.create({ token, user: userData }, JWT_SECRET_KEY);
         return next();
       }
 
@@ -65,7 +64,7 @@ export class AuthMiddleware {
       }
 
       const ttl = decoded.exp - Math.floor(Date.now() / 1000);
-      await RedisClient.set(userDataKey, JSON.stringify(authUser.user), ttl);
+      await this._userCache.set(authUser.user, ttl);
       
       newReq.authUser = WebAuthDomain.create(authUser, JWT_SECRET_KEY);
 

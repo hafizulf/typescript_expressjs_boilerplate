@@ -46,6 +46,9 @@ const TYPES = {
   SocketAuthenticationMiddleware: Symbol.for("SocketAuthenticationMiddleware"),
   SocketAuthorizationMiddleware: Symbol.for("SocketAuthorizationMiddleware"),
   SocketEventWhitelistMiddleware: Symbol.for("SocketEventWhitelistMiddleware"),
+
+  // cache
+  UserCache: Symbol.for("UserCache"),
 }
 
 export default TYPES;
