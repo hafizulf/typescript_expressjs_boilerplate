@@ -2,13 +2,12 @@ import { injectable, inject } from "inversify";
 import { JWT_SECRET_KEY } from "@/config/env";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { NamespaceConfigService } from "../namespaces/namespace-config-service";
-import { RedisClient } from "@/libs/redis/redis-client";
 import { Socket } from "socket.io";
 import { TokenExpiredError } from "jsonwebtoken";
 import TYPES from "@/types";
 import { WebAuthService } from "@/modules/authentications/web-auth-service";
 import { TokenErrMessage } from "@/exceptions/error-message-constants";
-import { getUserDataKey } from "@/helpers/redis-keys";
+import { UserCache } from "@/modules/users/user-cache";
 
 @injectable()
 export class SocketAuthenticationMiddleware {
@@ -17,6 +16,8 @@ export class SocketAuthenticationMiddleware {
     private namespaceConfig: NamespaceConfigService,
     @inject(TYPES.WebAuthService)
     private _webAuthService: WebAuthService,
+    @inject(TYPES.UserCache)
+    private _userCache: UserCache,
   ) {}
 
   public handle() {
@@ -41,12 +42,9 @@ export class SocketAuthenticationMiddleware {
         if (!decoded.id || !decoded.exp || typeof decoded.tokenVersion !== 'number') {
           return next(new Error("Authentication error: " + TokenErrMessage.INVALID_PAYLOAD));
         }
-
-        const userDataKey = getUserDataKey(decoded.id);
-        const userData = await RedisClient.get(userDataKey);
+        const userData = await this._userCache.get(decoded.id);
         if (userData) {
-          const parsedUser = JSON.parse(userData);
-          socket.data.user = parsedUser;
+          socket.data.user = userData;
           return next();
         }
 
@@ -60,7 +58,7 @@ export class SocketAuthenticationMiddleware {
         }
 
         const ttl = decoded.exp - Math.floor(Date.now() / 1000);
-        await RedisClient.set(userDataKey, JSON.stringify(authUser.user), ttl);
+        await this._userCache.set(authUser.user, ttl);
 
         socket.data.user = authUser.user;
         return next();

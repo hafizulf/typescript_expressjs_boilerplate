@@ -12,6 +12,7 @@ export class RefreshTokenRepository implements IRefreshTokenRepository {
     if (data) {
       data.token = refreshToken;
       data.updatedAt = new Date();
+      data.isRevoked = false;
       await data.save();
     } else {
       await RefreshTokenPersistence.create({ 

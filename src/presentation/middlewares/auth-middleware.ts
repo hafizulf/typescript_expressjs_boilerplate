@@ -111,8 +111,21 @@ export class AuthMiddleware {
 
     if(!Array.isArray(rmp) && rmp.menus.length > 0) {
       const segments = req.path.split('/').filter(Boolean); 
-      const basePath = '/' + segments[0]; 
-      const menu = rmp.menus.find(menu => `${menu.path}s` === basePath);
+      let basePath = '/' + segments[0]; 
+      if (segments[0] === 'auths' && segments[1]) {
+        basePath = '/' + segments[1];
+      }
+
+      const menu = rmp.menus.find((menu) => {
+        let menuPath: string;
+        if (segments[0] === 'auths' && segments[1]) {
+          menuPath = menu.path;
+        } else {
+          menuPath = `${menu.path}s`;
+        }
+
+        return menuPath === basePath;
+      });
       if (!menu) {
         return next(new AppError({
           statusCode: HttpCode.FORBIDDEN,

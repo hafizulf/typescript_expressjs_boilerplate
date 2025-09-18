@@ -2,11 +2,10 @@ import { injectable, inject } from "inversify";
 import { NamespaceConfigService } from "../namespaces/namespace-config-service";
 import { Socket } from "socket.io";
 import TYPES from "@/types";
-import { RedisClient } from "@/libs/redis/redis-client";
-import { getUserDataKey } from "@/helpers/redis-keys";
 import { JWT_REFRESH_SECRET_TTL } from "@/config/env";
 import { UserService } from "@/modules/users/user-service";
 import { IUser } from "@/modules/users/user-domain";
+import { UserCache } from "@/modules/users/user-cache";
 
 @injectable()
 export class SocketAuthorizationMiddleware {
@@ -14,7 +13,9 @@ export class SocketAuthorizationMiddleware {
     @inject(TYPES.NamespaceConfigService)
     private namespaceConfig: NamespaceConfigService,
     @inject(TYPES.UserService)
-    private _userService: UserService
+    private _userService: UserService,
+    @inject(TYPES.UserCache)
+    private _userCache: UserCache
   ) {}
 
   public handle(allowedRoles: string[]) {
@@ -33,16 +34,11 @@ export class SocketAuthorizationMiddleware {
           return next(new Error("Authorization error: Missing user in socket context"));
         }
 
-        const userDataKey = getUserDataKey(user.id);
-        let userData: IUser;
-
-        const cachedUserData = await RedisClient.get(userDataKey);
-        if (cachedUserData) {
-          userData = JSON.parse(cachedUserData);
-        } else {
+        let userData: IUser | null = await this._userCache.get(user.id);
+        if (!userData) {
           const freshUser = await this._userService.findWithRoleByUserId(user.id);
           userData = freshUser;
-          await RedisClient.set(userDataKey, JSON.stringify(userData), JWT_REFRESH_SECRET_TTL);
+          await this._userCache.set(freshUser, JWT_REFRESH_SECRET_TTL);
         }
 
         if (!allowedRoles.includes(userData.role!.name)) {
