@@ -1,0 +1,12 @@
+const path = require("path");
+const isBuild = process.env.BUILD === "true";
+
+module.exports = {
+  config: path.resolve("sequelize-config.cjs"),
+  "migrations-path": isBuild
+    ? path.resolve("dist/migrations") 
+    : path.resolve("src/migrations"),
+  "seeders-path": isBuild
+    ? path.resolve("dist/seeders")
+    : path.resolve("src/seeders"),
+};

@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon -e ts --ignore ./dist/* --exec \"tsc && tsc-alias && node ./dist/index.js\"",
-    "serve": "node ./dist/index.js"
+    "serve": "node ./dist/index.js",
+    "db:migration:generate": "sequelize-cli migration:generate --name",
+    "db:migrate": "tsc && BUILD=true npx sequelize-cli db:migrate",
+    "db:migrate:undo": "BUILD=true npx sequelize-cli db:migrate:undo",
+    "db:status": "BUILD=true npx sequelize-cli db:migrate:status"
   },
   "keywords": [
     "typescript",
@@ -59,6 +63,7 @@
     "@types/node": "22.3.0",
     "@types/reflect-metadata": "0.1.0",
     "@types/socket.io": "3.0.2",
+    "sequelize-cli": "^6.6.3",
     "typescript": "5.5.4"
   }
 }
