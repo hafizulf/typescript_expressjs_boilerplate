@@ -37,19 +37,8 @@ This is a TypeScript Express.js API Boilerplate built with modern technologies t
 2. Install dependencies:
 
    ```bash
-   yarn install --frozen-lockfile
+   yarn install
    ```
-
-   > **Important:**  
-   > Using `--frozen-lockfile` ensures that dependencies are installed exactly as specified in the `yarn.lock` file, preventing unexpected changes.  
-   > 
-   > If you intentionally want to apply updates or allow breaking changes (e.g., updating versions), you can skip the flag and run:
-   > 
-   > ```bash
-   > yarn install
-   > ```
-   > 
-   > _(Be careful: skipping `--frozen-lockfile` may modify your `yarn.lock` and update packages.)_
 
 3. Set up environment variables:
 
@@ -67,26 +56,72 @@ This is a TypeScript Express.js API Boilerplate built with modern technologies t
    docker compose -f docker-compose-development.yaml up
    ```
 
-5. Copy & restore database starter:
+5. 🛠️ Database Setup
 
-   ```bash
-   1. Copy
-   docker cp /path-to-file/dump-starter.tar postgres17:/db-backup/dummy-starter.tar
+   Before running the app for the first time, you need to migrate and seed the database.
 
-   
-   2. Restore
-   docker exec -e PGPASSWORD=yourpg_pass -it postgres17 pg_restore --verbose --username=yourpg_user --dbname=typescript_expressjs_boilerplate --format=t /db-backup/dummy-starter.tar
-   ```
+   - Run Migrations, This will create all necessary tables:
+
+      ```bash
+      yarn db:migrate
+      ```
+
+   - Run Seeders, This will insert initial data (roles, users, menus, permissions, etc.):
+
+      ```bash
+      yarn db:seed
+      ```
+
+   ------------------------------------------------------------
+
+   - 🔐 Secure the Superadmin Role
+
+      By default, the superadmin role is created with a fixed UUID from the seeder.
+      For security reasons, you should replace it with your own UUID.
+
+      ⚠️ Replace `your-uuid` with a freshly generated UUID (for example using uuidgen or uuidv7).
+
+      Run this SQL in your Postgres instance:
+
+      ```bash
+      DO $$
+         DECLARE
+         v_old_role_id UUID;
+         v_new_role_id UUID := 'your-uuid'; -- new secure ID
+         BEGIN
+         -- Find the existing role (superadmin)
+         SELECT id INTO v_old_role_id
+         FROM roles
+         WHERE name = 'superadmin';
+
+         IF v_old_role_id IS NULL THEN
+            RAISE EXCEPTION 'Superadmin role not found';
+         END IF;
+
+         -- Update roles table
+         UPDATE roles
+         SET id = v_new_role_id
+         WHERE id = v_old_role_id;
+
+         -- Update users referencing old role
+         UPDATE users
+         SET role_id = v_new_role_id
+         WHERE role_id = v_old_role_id;
+
+         -- Update role_menu_permissions referencing old role
+         UPDATE role_menu_permissions
+         SET role_id = v_new_role_id
+         WHERE role_id = v_old_role_id;
+
+         RAISE NOTICE 'Superadmin role id updated from % to %', v_old_role_id, v_new_role_id;
+      END $$;
+      ```
 
 6. Compile and run the application in development:
 
    ```bash
    yarn dev
    ```
-
-## Socket Usage
-
-- dsadsa
 
 ## Project Structure Overview
 
