@@ -10,6 +10,7 @@ import { MenuPermission } from "@/modules/access-managements/menu-permissions/me
 import { RoleMenuPermission } from "../access-managements/role-menu-permissions/role-menu-permission-model";
 import { Origin } from "../origins/origin-model";
 
+// for development
 export async function sequelizeMigrate(): Promise<void> {
   try {
     console.log("Running database migrations...");

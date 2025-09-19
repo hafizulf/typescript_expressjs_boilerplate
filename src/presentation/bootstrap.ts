@@ -18,7 +18,6 @@ import { PublicTimeNamespace } from "@/libs/websocket/namespaces/public-time-nam
 import rateLimit from "express-rate-limit";
 import { Routes } from "@/presentation/routes";
 import { RedisClient } from "@/libs/redis/redis-client";
-import { sequelizeMigrate } from "@/modules/common/sequelize";
 import { SocketIO } from "@/libs/websocket";
 import TYPES from "@/types";
 import { OriginService } from "@/modules/origins/origin-service";
@@ -54,7 +53,6 @@ export class Bootstrap {
     this.setRoutes();
     this.middlewareError();
     this.initializeRedis();
-    await this.initializeDatabase();
     this.initializeBackgroundServices();
     await this.initializeSocketIO();
   }
@@ -163,10 +161,6 @@ export class Bootstrap {
     this.app.use(invalidPathHandler);
     this.app.use(errorLogger);
     this.app.use(errorResponder);
-  }
-
-  private async initializeDatabase(): Promise<void> {
-    await sequelizeMigrate();
   }
 
   private initializeBackgroundServices(): void {
