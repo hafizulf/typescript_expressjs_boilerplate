@@ -7,13 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon -e ts --ignore ./dist/* --exec \"tsc && tsc-alias && node ./dist/index.js\"",
     "serve": "node ./dist/index.js",
-    "db:migration:generate": "sequelize-cli migration:generate --name",
-    "db:migrate": "rm -rf dist && tsc && BUILD=true npx sequelize-cli db:migrate",
-    "db:migrate:undo": "BUILD=true npx sequelize-cli db:migrate:undo",
-    "db:status": "BUILD=true npx sequelize-cli db:migrate:status",
-    "db:seeder:generate": "sequelize-cli seed:generate --name",
-    "db:seed": "rm -rf dist && tsc && BUILD=true npx sequelize-cli db:seed:all",
-    "db:seed:undo": "BUILD=true npx sequelize-cli db:seed:undo:all"
+    "db:migrate": "rm -rf dist && tsc && BUILD=true npx sequelize-cli db:migrate --config dist/sequelize-config.js",
+    "db:migrate:undo": "BUILD=true npx sequelize-cli db:migrate:undo --config dist/sequelize-config.js",
+    "db:status": "BUILD=true npx sequelize-cli db:migrate:status --config dist/sequelize-config.js",
+    "db:seed": "rm -rf dist && tsc && BUILD=true npx sequelize-cli db:seed:all --config dist/sequelize-config.js",
+    "db:seed:undo": "BUILD=true npx sequelize-cli db:seed:undo:all --config dist/sequelize-config.js",
+    "db:migration:generate": "sequelize-cli migration:generate --name --migrations-path src/migrations",
+    "db:seeder:generate": "sequelize-cli seed:generate --name --seeders-path src/seeders"
   },
   "keywords": [
     "typescript",
