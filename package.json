@@ -8,7 +8,7 @@
     "dev": "nodemon -e ts --ignore ./dist/* --exec \"tsc && tsc-alias && node ./dist/index.js\"",
     "serve": "node ./dist/index.js",
     "db:migration:generate": "sequelize-cli migration:generate --name",
-    "db:migrate": "tsc && BUILD=true npx sequelize-cli db:migrate",
+    "db:migrate": "rm -rf dist && tsc && BUILD=true npx sequelize-cli db:migrate",
     "db:migrate:undo": "BUILD=true npx sequelize-cli db:migrate:undo",
     "db:status": "BUILD=true npx sequelize-cli db:migrate:status"
   },
