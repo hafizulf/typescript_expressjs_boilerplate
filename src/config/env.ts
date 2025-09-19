@@ -13,7 +13,7 @@ if (fs.existsSync(defaultEnvPath)) {
   process.exit(1);
 }
 
-const requiredEnvVars = ['APP_ENV', 'APP_HOST', 'APP_PORT', 'APP_API_PREFIX', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_HOST', 'DB_PORT', 'DB_DIALECT', 'JWT_SECRET_KEY', 'JWT_REFRESH_SECRET_KEY', 'JWT_SECRET_TTL', 'JWT_REFRESH_SECRET_TTL', 'MQTT_SERVER', 'MQTT_PORT'];
+const requiredEnvVars = ['APP_ENV', 'APP_HOST', 'APP_PORT', 'APP_API_PREFIX', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_HOST', 'DB_PORT', 'DB_DIALECT', 'JWT_SECRET_KEY', 'JWT_REFRESH_SECRET_KEY', 'JWT_SECRET_TTL', 'JWT_REFRESH_SECRET_TTL'];
 
 const optionalEnvVars = ['MQTT_USERNAME', 'MQTT_PASSWORD'];
 
@@ -53,8 +53,3 @@ export const JWT_REFRESH_SECRET_TTL = parseInt(process.env.JWT_REFRESH_SECRET_TT
 export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!
 export const JWT_SECRET_TTL = parseInt(process.env.JWT_SECRET_TTL!)
 
-// MQTT
-export const MQTT_SERVER = process.env.MQTT_SERVER!
-export const MQTT_PORT = process.env.MQTT_PORT!
-export const MQTT_USERNAME = process.env.MQTT_USERNAME!
-export const MQTT_PASSWORD = process.env.MQTT_PASSWORD!

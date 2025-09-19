@@ -18,19 +18,6 @@ services:
     volumes:
       - postgres17_data:/var/lib/postgresql/data
     command: /bin/bash -c "mkdir -p /db-backup && docker-entrypoint.sh postgres" 
-  db_migration:
-    container_name: db_migration
-    image: postgres:17
-    ports:
-      - "5434:5432"
-    environment:
-      POSTGRES_USER: ${DB_MIGRATE_USER}
-      POSTGRES_PASSWORD: ${DB_MIGRATE_PASSWORD}
-      POSTGRES_DB: ${DB_MIGRATE_NAME}
-    volumes:
-      - db_migration_data:/var/lib/postgresql/data
-    command: /bin/bash -c "mkdir -p /db-backup && docker-entrypoint.sh postgres" 
 
 volumes:
   postgres17_data:
-  db_migration_data:
