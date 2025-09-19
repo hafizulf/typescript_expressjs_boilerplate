@@ -117,6 +117,16 @@ This is a TypeScript Express.js API Boilerplate built with modern technologies t
       END $$;
       ```
 
+   - Default username & password for credentials, change later:
+
+      ```bash
+         #username
+         superadmin
+
+         #password
+         superadmin123
+      ```
+
 6. Compile and run the application in development:
 
    ```bash
