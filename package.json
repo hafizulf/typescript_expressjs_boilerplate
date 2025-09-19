@@ -13,8 +13,7 @@
     "db:status": "BUILD=true npx sequelize-cli db:migrate:status",
     "db:seeder:generate": "sequelize-cli seed:generate --name",
     "db:seed": "rm -rf dist && tsc && BUILD=true npx sequelize-cli db:seed:all",
-    "db:seed:undo": "BUILD=true npx sequelize-cli db:seed:undo:all",
-    "db:seed:status": "BUILD=true npx sequelize-cli db:seed:status"
+    "db:seed:undo": "BUILD=true npx sequelize-cli db:seed:undo:all"
   },
   "keywords": [
     "typescript",
