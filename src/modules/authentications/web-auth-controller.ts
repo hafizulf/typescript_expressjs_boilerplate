@@ -20,7 +20,7 @@ export class WebAuthController {
   ) {}
 
   public login = async (req: Request, res: Response): Promise<Response> => {
-    const validatedReq = validateSchema(loginSchema, req.body)
+    const validatedReq = validateSchema(loginSchema, req.body);
     const data = await this._service.login({...validatedReq});
 
     // set refresh token to http-only cookie

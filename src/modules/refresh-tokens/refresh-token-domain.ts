@@ -1,6 +1,7 @@
 import { DefaultEntityBehaviour } from "../common/dto/common-dto";
 
 export interface IRefreshToken {
+  id?: string;
   userId: string;
   token: string;
   isRevoked: boolean;
@@ -21,12 +22,17 @@ export class RefreshTokenDomain implements DefaultEntityBehaviour<IRefreshToken>
 
   public unmarshal(): IRefreshToken {
     return {
+      id: this.id,
       userId: this.userId,
       token: this.token,
       isRevoked: this.isRevoked,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     }
+  }
+
+  get id(): string | undefined {
+    return this.props.id;
   }
 
   get userId(): string {

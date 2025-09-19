@@ -1,10 +1,12 @@
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 import { IRefreshToken } from "./refresh-token-domain";
 import { sequelize } from "@/config/database";
+import { uuidv7 } from "uuidv7";
 
 export class RefreshToken extends Model
   <InferAttributes<RefreshToken>, InferCreationAttributes<RefreshToken>>
 implements IRefreshToken {
+  declare id: CreationOptional<string>;
   declare userId: string;
   declare token: string;
   declare isRevoked: boolean;
@@ -13,6 +15,12 @@ implements IRefreshToken {
 }
 
 RefreshToken.init({
+  id: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    primaryKey: true,
+    defaultValue: () => uuidv7(),
+  },
   userId: {
     type: DataTypes.UUID,
     allowNull: false,
