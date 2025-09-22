@@ -48,6 +48,7 @@ This is a TypeScript Express.js API Boilerplate built with modern technologies t
    ```env
    APP_PORT=3000
    DB_USER=postgres
+   ...
    ```
 
 4. Start the Redis server (if not already running with docker):
@@ -72,52 +73,7 @@ This is a TypeScript Express.js API Boilerplate built with modern technologies t
       yarn db:seed
       ```
 
-   ------------------------------------------------------------
-
-   - 🔐 Secure the Superadmin Role
-
-      By default, the superadmin role is created with a fixed UUID from the seeder.
-      For security reasons, you should replace it with your own UUID.
-
-      ⚠️ Replace `your-uuid` with a freshly generated UUID (for example using uuidgen or uuidv7).
-
-      Run this SQL in your Postgres instance:
-
-      ```bash
-      DO $$
-         DECLARE
-         v_old_role_id UUID;
-         v_new_role_id UUID := 'your-uuid'; -- new secure ID
-         BEGIN
-         -- Find the existing role (superadmin)
-         SELECT id INTO v_old_role_id
-         FROM roles
-         WHERE name = 'superadmin';
-
-         IF v_old_role_id IS NULL THEN
-            RAISE EXCEPTION 'Superadmin role not found';
-         END IF;
-
-         -- Update roles table
-         UPDATE roles
-         SET id = v_new_role_id
-         WHERE id = v_old_role_id;
-
-         -- Update users referencing old role
-         UPDATE users
-         SET role_id = v_new_role_id
-         WHERE role_id = v_old_role_id;
-
-         -- Update role_menu_permissions referencing old role
-         UPDATE role_menu_permissions
-         SET role_id = v_new_role_id
-         WHERE role_id = v_old_role_id;
-
-         RAISE NOTICE 'Superadmin role id updated from % to %', v_old_role_id, v_new_role_id;
-      END $$;
-      ```
-
-   - Default username & password for credentials, change later:
+   - Default username & password for credentials if not setted in .env, change later:
 
       ```bash
          #username
