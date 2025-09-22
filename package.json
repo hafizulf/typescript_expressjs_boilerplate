@@ -12,8 +12,8 @@
     "db:status": "BUILD=true npx sequelize-cli db:migrate:status --config dist/sequelize-config.js",
     "db:seed": "rm -rf dist && tsc && BUILD=true npx sequelize-cli db:seed:all --config dist/sequelize-config.js",
     "db:seed:undo": "BUILD=true npx sequelize-cli db:seed:undo:all --config dist/sequelize-config.js",
-    "db:migration:generate": "sequelize-cli migration:generate --name --migrations-path src/migrations",
-    "db:seeder:generate": "sequelize-cli seed:generate --name --seeders-path src/seeders"
+    "db:migration:generate": "sequelize-cli migration:generate --migrations-path src/migrations --name",
+    "db:seeder:generate": "sequelize-cli seed:generate --seeders-path src/seeders --name"
   },
   "keywords": [
     "typescript",
