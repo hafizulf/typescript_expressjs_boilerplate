@@ -122,6 +122,8 @@ This is a TypeScript Express.js API Boilerplate built with modern technologies t
 │   │   ├── standard-response.ts  # Standardized API responses
 │   │   └── websocket/        # WebSocket server/handlers
 │
+│   ├── migrations            # Contains database migration files for creating/updating tables, columns, and other schema changes.
+│
 │   ├── modules/              # Domain modules (DDD bounded contexts)
 │   │   ├── access-managements/  # Role/permission and ACL logic
 │   │   ├── announcements/       # Announcement domain
@@ -139,7 +141,11 @@ This is a TypeScript Express.js API Boilerplate built with modern technologies t
 │   │   ├── routes.ts         # Maps HTTP routes to module controllers
 │   │   └── server.ts         # Express app/server setup
 │
-│   └── types.ts              # Global/shared TypeScript types
+│   ├── seeders               # Contains initial data setup and population files for the database (e.g., default roles, etc.).
+│
+│   ├── sequelize-config.ts   # Configuration for Sequelize ORM, including database connection and models setup.
+│   ├── types.ts              # Global/shared TypeScript types
+│
 ├── docker-compose.yaml       # Docker service definitions (e.g., DB, Redis)
 ├── package.json              # Project metadata and npm scripts
 ├── README.md                 # Project documentation
